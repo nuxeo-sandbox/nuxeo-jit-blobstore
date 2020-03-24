@@ -1,0 +1,41 @@
+# system/backups
+*~
+*.bak
+.DS_Store
+*.orig
+*.rej
+
+# jenkins x
+.stignore
+
+# ide
+bin
+.classpath
+.metadata
+.project
+.settings/
+.checkstyle
+.mylar
+.idea
+*.iml
+*.ipr
+*.iws
+*.ids
+.pydevproject
+.factorypath
+
+# build artifacts
+target/
+nashorn_code_cache/
+chromedriver.log
+*.log
+*.pyc
+
+# nuxeo build process
+addons/nuxeo-shell/
+# NXP-27709: to be removed
+nuxeo-jsf-ui/
+marketplace/
+
+metadata.csv
+run.sh
