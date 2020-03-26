@@ -32,7 +32,7 @@ public class BenchRandomGen {
 	@Test
 	public void testRandomGenerationSpeed() throws Exception {
 
-		RandomDataGenerator gen = new RandomDataGenerator(false);
+		RandomDataGenerator gen = new RandomDataGenerator(true, true);
 
 		InputStream csv = StatementsBlobGenerator.class.getResourceAsStream("/data.csv");
 		gen.init(csv);

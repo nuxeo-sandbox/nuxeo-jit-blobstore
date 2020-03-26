@@ -119,8 +119,10 @@ public class AsciiKeyCodec implements KeyCodec {
 		StringBuilder sb = new StringBuilder();
 		sb.append(encode(s1));
 		sb.append(SEP);
-		sb.append(encode(s2));
-		sb.append(SEP);
+		if (s2!=null) {
+			sb.append(encode(s2));
+			sb.append(SEP);
+		}
 		sb.append(encode(m));
 		return sb.toString();
 	}

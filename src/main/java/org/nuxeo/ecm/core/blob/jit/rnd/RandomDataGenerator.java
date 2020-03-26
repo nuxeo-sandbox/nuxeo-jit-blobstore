@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
+import org.nuxeo.ecm.core.blob.jit.rnd.key.AsciiKeyCodec;
 import org.nuxeo.ecm.core.blob.jit.rnd.key.DummyKeyCodec;
 import org.nuxeo.ecm.core.blob.jit.rnd.key.KeyCodec;
 
@@ -60,9 +61,13 @@ public class RandomDataGenerator {
 		}
 	};
 
-	public RandomDataGenerator(boolean generateOperations) {
+	public RandomDataGenerator(boolean generateOperations, boolean asciiKey) {
 		this.generateOperations = generateOperations;
-		codec = new DummyKeyCodec();
+		if (asciiKey) {
+			codec = new AsciiKeyCodec();
+		} else {
+			codec = new DummyKeyCodec();
+		}
 	}
 
 	protected String clean(String input) {

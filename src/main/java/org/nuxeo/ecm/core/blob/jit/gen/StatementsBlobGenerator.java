@@ -60,7 +60,7 @@ public class StatementsBlobGenerator extends DefaultComponent implements InMemor
 
 	public void initGenerator() throws Exception {
 
-		rnd = new RandomDataGenerator(true);
+		rnd = new RandomDataGenerator(true, true);
 		templateGen = new ITextNXBankTemplateCreator2();
 
 		// init random data generator

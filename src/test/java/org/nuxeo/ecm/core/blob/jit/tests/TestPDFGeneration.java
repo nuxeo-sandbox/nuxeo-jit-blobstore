@@ -36,7 +36,7 @@ public class TestPDFGeneration {
 
 	protected RandomDataGenerator getRndGenerator(boolean generateOperations) throws Exception {
 		// Data Generator
-		RandomDataGenerator rnd = new RandomDataGenerator(generateOperations);		
+		RandomDataGenerator rnd = new RandomDataGenerator(generateOperations, true);		
 		InputStream csv = StatementsBlobGenerator.class.getResourceAsStream("/data.csv");
 		rnd.init(csv);
 		return rnd;
@@ -71,7 +71,7 @@ public class TestPDFGeneration {
 			// check same name
 			assertEquals(serie.get(0)[0], data[0]);
 			// check month
-			assertEquals(data[5].trim().substring(0,3), data[6].trim());			
+			assertEquals(data[4].trim().substring(0,3), data[6].trim());			
 			assertNotEquals(m, data[6].trim());
 			m = data[6].trim();
 
