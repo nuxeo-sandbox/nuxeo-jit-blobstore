@@ -55,8 +55,13 @@ public class ITextNXBankTemplateCreator implements PDFTemplateGenerator {
 		return tag + "-".repeat(size - 1 - tag.length()) + "#";
 	}
 
-	public static final String[] _keys = new String[] { mkTag("NAME", 41), mkTag("STREET", 20), mkTag("CITY", 20),
-			mkTag("STATE", 20), mkTag("DATE", 20), mkTag("ACCOUNTID", 20), };
+	public static final String[] _keys = new String[] {
+			mkTag("NAME", 41), 
+			mkTag("STREET", 20), 
+			mkTag("CITY", 20),
+			mkTag("STATE", 20), 
+			mkTag("DATE", 20), 
+			mkTag("ACCOUNTID", 20), };
 
 	public static final String ACCOUNT_LABEL = "Primary Account Number: ";
 
@@ -128,7 +133,7 @@ public class ITextNXBankTemplateCreator implements PDFTemplateGenerator {
 				.setBold().add(new Text("\n" + key(2))).setFontSize(14).setBold().add(new Text("\n" + key(3)))
 				.setFontSize(14).setBold());
 		document.add(new Paragraph().setTextAlignment(TextAlignment.RIGHT).setMultipliedLeading(1)
-				.add(new Text(ACCOUNT_LABEL + key(4))).setFontSize(14).setBold().add("\n" + key(5)));
+				.add(new Text(ACCOUNT_LABEL + key(5))).setFontSize(14).setBold().add("\n" + key(4)));
 
 		LineSeparator sep = new LineSeparator(new SolidLine());
 		document.add(sep);

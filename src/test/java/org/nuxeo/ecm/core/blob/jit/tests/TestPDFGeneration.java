@@ -41,7 +41,12 @@ public class TestPDFGeneration {
 		rnd.init(csv);
 		return rnd;
 	}
-	
+		
+	protected void dumpPDF(byte[] pdf) throws Exception {
+		File tmp = File.createTempFile("tmp", ".pdf");
+		Files.copy(new ByteArrayInputStream(pdf), tmp.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		System.out.println(tmp.getAbsolutePath());
+	}
 
 	protected String printData(String[] data) {
 
@@ -125,7 +130,7 @@ public class TestPDFGeneration {
 		assertTrue(txt.contains(ITextNXBankTemplateCreator.ACCOUNT_LABEL));
 		for (var i = 0; i < keys.length; i++) {
 			assertTrue(txt.contains(keys[i]));
-		}
+		}		
 	}
 
 	@Test
@@ -143,7 +148,7 @@ public class TestPDFGeneration {
 		assertTrue(txt.contains(ITextNXBankTemplateCreator.ACCOUNT_LABEL));
 		for (var i = 0; i < keys.length; i++) {
 			assertTrue(txt.contains(keys[i]));
-		}
+		}		
 	}
 
 	@Test
@@ -173,7 +178,7 @@ public class TestPDFGeneration {
 		}
 
 	}
-
+			
 	@Test
 	public void canGenerateFromTemplate2() throws Exception {
 
@@ -201,10 +206,7 @@ public class TestPDFGeneration {
 			assertFalse(txt.contains(keys[i]));
 		}
 		
-		File tmp = File.createTempFile("test", ".pdf");;
-		Files.copy(new ByteArrayInputStream(pdf), tmp.toPath(),StandardCopyOption.REPLACE_EXISTING);
-		
-		System.out.println(tmp.getAbsolutePath());
+		//dumpPDF(pdf);
 
 	}
 

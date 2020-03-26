@@ -1,12 +1,10 @@
 <?xml version="1.0"?>
 <component name="org.nuxeo.ecm.core.blob.jit.test.blobdispatcher">
 
+  <require>org.nuxeo.ecm.core.test.blobmanager</require>
+
   <extension target="org.nuxeo.ecm.core.blob.BlobManager" point="configuration">
     <blobprovider name="jit">
-      <class>org.nuxeo.ecm.core.blob.jit.JITBlobProvider</class>
-      <property name="jit-caching">true</property>
-    </blobprovider>
-    <blobprovider name="test">
       <class>org.nuxeo.ecm.core.blob.jit.JITBlobProvider</class>
       <property name="jit-caching">true</property>
     </blobprovider>
@@ -15,8 +13,8 @@
   <extension target="org.nuxeo.ecm.core.blob.DocumentBlobManager" point="configuration">
     <blobdispatcher>
       <class>org.nuxeo.ecm.core.blob.DefaultBlobDispatcher</class>      
-	      <property name="dc:format=jit">jit</property>
-	      <property name="default">jit</property>
+	      <property name="dc:source=initialImport">jit</property>
+	      <property name="default">test</property>
     </blobdispatcher>
   </extension>
 

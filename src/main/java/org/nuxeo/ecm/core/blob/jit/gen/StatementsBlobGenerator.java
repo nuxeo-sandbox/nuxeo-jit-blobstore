@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.nuxeo.ecm.core.api.NuxeoException;
+import org.nuxeo.ecm.core.blob.BlobInfo;
 import org.nuxeo.ecm.core.blob.jit.gen.pdf.itext.ITextNXBankStatementGenerator;
 import org.nuxeo.ecm.core.blob.jit.gen.pdf.itext.ITextNXBankTemplateCreator;
 import org.nuxeo.ecm.core.blob.jit.gen.pdf.itext.ITextNXBankTemplateCreator2;
@@ -98,10 +99,29 @@ public class StatementsBlobGenerator extends DefaultComponent implements InMemor
         return null;
     }
     
+	@Override
 	public String computeKey(Long userSeed, Long operationSeed, Integer month) {
 		return rnd.seeds2Id(userSeed, operationSeed, month);
 	}
 
+	protected BlobInfo computeBlobInfo(String prefix, String key, String[] meta) {
+		BlobInfo bi = new BlobInfo();		
+		bi.key = prefix + ":" + key;
+		bi.encoding = "application/pdf";
+		StringBuilder sb = new StringBuilder();
+		sb.append(meta[5].trim());
+		sb.append("-");
+		sb.append(meta[4].trim().replace(" ", "_"));
+		sb.append(".pdf");
+		bi.filename = sb.toString();		
+		return bi;		
+	}
+	
+	@Override
+	public BlobInfo computeBlobInfo(String prefix, String key) {		
+		return computeBlobInfo(prefix, key,getMetaDataForBlobKey(key));		
+	}
+	
 	public String[] getMetaDataForBlobKey(String key) {
 		return rnd.generate(key);
 	}
@@ -111,16 +131,29 @@ public class StatementsBlobGenerator extends DefaultComponent implements InMemor
 		return gen.generate(out, meta);
 	}
 	
-	@Override
-	public Map<String, String> getMetaDataKey(String key) {
-		String[] meta = getMetaDataForBlobKey(key);
+	protected Map<String, String> wrap (String[] meta) {
 		Map<String, String> map = new HashMap<String, String>();		
 		for (int i = 0 ; i < keyNames.size(); i++) {
 			map.put(keyNames.get(i), meta[i]);
 		}
 		return map;
 	}
+	
+	@Override
+	public Map<String, String> getMetaDataKey(String key) {
+		return wrap(getMetaDataForBlobKey(key));		
+	}
 
+	@Override
+	public DocInfo computeDocInfo(String prefix, Long userSeed, Long operationSeed, Integer month) {		
+		DocInfo di = new DocInfo();		
+		String key = computeKey(userSeed, operationSeed, month);		
+		String[] meta = getMetaDataForBlobKey(key);		
+		di.metaData = wrap(meta);		
+		di.blobInfo = computeBlobInfo(prefix, key, meta);
+		return di;
+	}
+	
 	public boolean readBlob(String key, Path dest) throws IOException {
 		String[] meta = getMetaDataForBlobKey(key);
 		OutputStream out = Files.newOutputStream(dest, StandardOpenOption.CREATE, StandardOpenOption.WRITE);

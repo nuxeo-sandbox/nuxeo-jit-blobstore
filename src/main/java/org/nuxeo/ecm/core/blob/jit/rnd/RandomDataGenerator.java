@@ -151,7 +151,7 @@ public class RandomDataGenerator {
 
 		Date date = getDateWithOffset(dm);
 		try {
-			result[5] = pad(df.get().format(date), 20, false);
+			result[4] = pad(df.get().format(date), 20, false);
 		} catch (Exception e) {
 			System.out.println("dm = " + dm);
 			e.printStackTrace();
@@ -201,7 +201,7 @@ public class RandomDataGenerator {
 			System.arraycopy(userInfo, 0, data, 0, 6);
 
 			Date date = getDateWithOffset(dm);
-			data[5] = pad(df.get().format(date), 20, false);
+			data[4] = pad(df.get().format(date), 20, false);
 
 			Random rndSeq2 = new Random(seed2);
 			fillOperations(data, rndSeq2);
@@ -214,6 +214,20 @@ public class RandomDataGenerator {
 		return serie;
 	}
 
+	protected String genAccountNumber(Random seqGen) {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append(String.format("%04d", Math.round(seqGen.nextDouble() * 9999L)));
+		sb.append("-");
+		sb.append(String.format("%04d", Math.round(seqGen.nextDouble() * 9999L)));
+		sb.append("-");
+		sb.append(String.format("%04d", Math.round(seqGen.nextDouble() * 9999L)));
+		sb.append("-");
+		sb.append(String.format("%05d", Math.round(seqGen.nextDouble() * 99999L)));
+		
+		return sb.toString();
+	}
+
 	protected void fillUserInfo(String[] result, Random rndSeq) {
 
 		result[0] = firstNames.get((int) Math.round(rndSeq.nextDouble() * (firstNames.size() - 1))) + " "
@@ -223,10 +237,10 @@ public class RandomDataGenerator {
 		result[2] = cities.get(idx);
 		result[3] = states.get(idx);
 
-		result[5] = df.get().format(
+		result[4] = df.get().format(
 				Date.from(Instant.ofEpochMilli(System.currentTimeMillis() - Math.round(rndSeq.nextDouble() * DR))));
 
-		result[4] = String.format("%016d", Math.round(rndSeq.nextDouble() * 10000000000000000L));
+		result[5] = genAccountNumber(rndSeq);
 
 		result[0] = result[0] + " ".repeat(41 - result[0].length());
 
@@ -261,7 +275,7 @@ public class RandomDataGenerator {
 		int idx = 6;
 
 		// init month from the same date as the statement!
-		result[idx] = pad(result[5].trim().substring(0, 3), 5, false);
+		result[idx] = pad(result[4].trim().substring(0, 3), 5, false);
 		idx++;
 
 		double total = getRandomAmount(rndSeq) * 30;

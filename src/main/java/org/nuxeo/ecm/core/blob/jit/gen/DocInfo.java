@@ -18,25 +18,33 @@
  */
 package org.nuxeo.ecm.core.blob.jit.gen;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
 import java.util.Map;
 
+import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.blob.BlobInfo;
+import org.nuxeo.ecm.core.blob.SimpleManagedBlob;
 
-public interface InMemoryBlobGenerator {
+public class DocInfo {
 
-	String computeKey(Long accountSeed, Long dataSeed, Integer timeSeed);
+	public BlobInfo blobInfo;
 
-	Map<String, String> getMetaDataKey(String key);
+	public Map<String, String> metaData;
 
-	InputStream getStream(String key) throws IOException;
+	public String key;
 
-	boolean readBlob(String key, Path dest) throws IOException;
-	
-	BlobInfo computeBlobInfo(String prefix, String key);
-	
-	DocInfo computeDocInfo(String prefix, Long accountSeed, Long dataSeed, Integer timeSeed);
+	public Blob getBlob() {
+		if (blobInfo == null)
+			return null;
+		return new SimpleManagedBlob(blobInfo);
+	}
 
+	public String getMeta(String name) {
+		if (metaData == null)
+			return null;
+		return metaData.get(name);
+	}
+
+	public String getKey() {
+		return key;
+	}
 }
