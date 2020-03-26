@@ -40,7 +40,6 @@ import org.nuxeo.ecm.core.blob.jit.rnd.RandomDataGenerator;
 import org.nuxeo.runtime.model.ComponentContext;
 import org.nuxeo.runtime.model.DefaultComponent;
 
-
 public class StatementsBlobGenerator extends DefaultComponent implements InMemoryBlobGenerator {
 
 	protected RandomDataGenerator rnd = null;
@@ -48,15 +47,15 @@ public class StatementsBlobGenerator extends DefaultComponent implements InMemor
 	protected ITextNXBankStatementGenerator gen;
 
 	protected List<String> keyNames = new ArrayList<String>();
-	
-    @Override
-    public void start(ComponentContext context) {
-    	try {
+
+	@Override
+	public void start(ComponentContext context) {
+		try {
 			initGenerator();
 		} catch (Exception e) {
 			throw new NuxeoException("Unable to initialize Random Data Generator", e);
 		}
-    }
+	}
 
 	public void initGenerator() throws Exception {
 
@@ -79,33 +78,33 @@ public class StatementsBlobGenerator extends DefaultComponent implements InMemor
 		gen = new ITextNXBankStatementGenerator();
 		gen.init(new ByteArrayInputStream(templateData), templateGen.getKeys());
 		gen.computeDigest = false;
-		
+
 		for (String k : templateGen.getKeys()) {
 			keyNames.add(clean(k));
 		}
 	}
-	
+
 	protected String clean(String key) {
-		key =  key.replace("#", "");
-		key =  key.replace("-", "");		
+		key = key.replace("#", "");
+		key = key.replace("-", "");
 		return key;
 	}
-	
-    @Override
-    public <T> T getAdapter(Class<T> adapter) {    	
-        if (adapter == InMemoryBlobGenerator.class) {
-        	return adapter.cast(this);
-        }
-        return null;
-    }
-    
+
+	@Override
+	public <T> T getAdapter(Class<T> adapter) {
+		if (adapter == InMemoryBlobGenerator.class) {
+			return adapter.cast(this);
+		}
+		return null;
+	}
+
 	@Override
 	public String computeKey(Long userSeed, Long operationSeed, Integer month) {
 		return rnd.seeds2Id(userSeed, operationSeed, month);
 	}
 
 	protected BlobInfo computeBlobInfo(String prefix, String key, String[] meta) {
-		BlobInfo bi = new BlobInfo();		
+		BlobInfo bi = new BlobInfo();
 		bi.key = prefix + ":" + key;
 		bi.encoding = "application/pdf";
 		StringBuilder sb = new StringBuilder();
@@ -113,15 +112,15 @@ public class StatementsBlobGenerator extends DefaultComponent implements InMemor
 		sb.append("-");
 		sb.append(meta[4].trim().replace(" ", "_"));
 		sb.append(".pdf");
-		bi.filename = sb.toString();		
-		return bi;		
+		bi.filename = sb.toString();
+		return bi;
 	}
-	
+
 	@Override
-	public BlobInfo computeBlobInfo(String prefix, String key) {		
-		return computeBlobInfo(prefix, key,getMetaDataForBlobKey(key));		
+	public BlobInfo computeBlobInfo(String prefix, String key) {
+		return computeBlobInfo(prefix, key, getMetaDataForBlobKey(key));
 	}
-	
+
 	public String[] getMetaDataForBlobKey(String key) {
 		return rnd.generate(key);
 	}
@@ -130,30 +129,30 @@ public class StatementsBlobGenerator extends DefaultComponent implements InMemor
 		String[] meta = getMetaDataForBlobKey(key);
 		return gen.generate(out, meta);
 	}
-	
-	protected Map<String, String> wrap (String[] meta) {
-		Map<String, String> map = new HashMap<String, String>();		
-		for (int i = 0 ; i < keyNames.size(); i++) {
+
+	protected Map<String, String> wrap(String[] meta) {
+		Map<String, String> map = new HashMap<String, String>();
+		for (int i = 0; i < keyNames.size(); i++) {
 			map.put(keyNames.get(i), meta[i]);
 		}
 		return map;
 	}
-	
+
 	@Override
 	public Map<String, String> getMetaDataKey(String key) {
-		return wrap(getMetaDataForBlobKey(key));		
+		return wrap(getMetaDataForBlobKey(key));
 	}
 
 	@Override
-	public DocInfo computeDocInfo(String prefix, Long userSeed, Long operationSeed, Integer month) {		
-		DocInfo di = new DocInfo();		
-		String key = computeKey(userSeed, operationSeed, month);		
-		String[] meta = getMetaDataForBlobKey(key);		
-		di.metaData = wrap(meta);		
+	public DocInfo computeDocInfo(String prefix, Long userSeed, Long operationSeed, Integer month) {
+		DocInfo di = new DocInfo();
+		String key = computeKey(userSeed, operationSeed, month);
+		String[] meta = getMetaDataForBlobKey(key);
+		di.metaData = wrap(meta);
 		di.blobInfo = computeBlobInfo(prefix, key, meta);
 		return di;
 	}
-	
+
 	public boolean readBlob(String key, Path dest) throws IOException {
 		String[] meta = getMetaDataForBlobKey(key);
 		OutputStream out = Files.newOutputStream(dest, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
@@ -162,15 +161,15 @@ public class StatementsBlobGenerator extends DefaultComponent implements InMemor
 			return true;
 		} catch (Exception e) {
 			throw new IOException("Unable to generate statement", e);
-		}		
+		}
 	}
 
 	@Override
 	public InputStream getStream(String key) throws IOException {
 		String[] meta = getMetaDataForBlobKey(key);
-		ByteArrayOutputStream out = new ByteArrayOutputStream(5*1024);
+		ByteArrayOutputStream out = new ByteArrayOutputStream(5 * 1024);
 		try {
-			SmtMeta smt= gen.generate(out, meta);
+			SmtMeta smt = gen.generate(out, meta);
 			return new ByteArrayInputStream(out.toByteArray());
 		} catch (Exception e) {
 			throw new IOException("Unable to generate statement", e);

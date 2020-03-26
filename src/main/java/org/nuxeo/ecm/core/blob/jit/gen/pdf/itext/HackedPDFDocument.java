@@ -24,6 +24,8 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 
 public class HackedPDFDocument extends PdfDocument {
 
+	private static final long serialVersionUID = 1L;
+
 	public HackedPDFDocument(PdfWriter writer) {
 		super(writer);
 	}

@@ -47,4 +47,10 @@ public class DocInfo {
 	public String getKey() {
 		return key;
 	}
+	
+	public String getFileName() {
+		if (blobInfo == null)
+			return null;
+		return blobInfo.filename;
+	}
 }

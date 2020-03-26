@@ -21,16 +21,16 @@ public class TestDataGenService {
 
 	@Test
 	public void canAccessService() {
-		
+
 		InMemoryBlobGenerator imbg = Framework.getService(InMemoryBlobGenerator.class);
 		assertNotNull(imbg);
-		
+
 		String key = imbg.computeKey(1L, 1L, 1);
-		
+
 		Map<String, String> meta = imbg.getMetaDataKey(key);
 		assertNotNull(meta);
-		assertTrue(meta.size()>0);
-		
+		assertTrue(meta.size() > 0);
+
 	}
-	
+
 }

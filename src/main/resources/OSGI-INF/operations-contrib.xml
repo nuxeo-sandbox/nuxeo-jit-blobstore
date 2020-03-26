@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="org.nuxeo.ecm.core.blob.jit.stream.automation.contrib" version="1.0">
+
+  <extension target="org.nuxeo.ecm.core.operation.OperationServiceComponent" point="operations">
+    <operation class="org.nuxeo.importer.stream.jit.automation.StatementProducers" />
+  </extension>
+
+</component>
