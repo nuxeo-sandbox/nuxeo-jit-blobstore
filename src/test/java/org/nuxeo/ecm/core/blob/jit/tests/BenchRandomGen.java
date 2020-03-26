@@ -2,6 +2,7 @@ package org.nuxeo.ecm.core.blob.jit.tests;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -12,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
+import org.nuxeo.ecm.core.blob.jit.gen.StatementsBlobGenerator;
 import org.nuxeo.ecm.core.blob.jit.rnd.RandomDataGenerator;
 
 public class BenchRandomGen {
@@ -32,8 +34,7 @@ public class BenchRandomGen {
 
 		RandomDataGenerator gen = new RandomDataGenerator(false);
 
-		URL url = this.getClass().getResource("data.csv");
-		File csv = new File(url.toURI());
+		InputStream csv = StatementsBlobGenerator.class.getResourceAsStream("/data.csv");
 		gen.init(csv);
 
 		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);

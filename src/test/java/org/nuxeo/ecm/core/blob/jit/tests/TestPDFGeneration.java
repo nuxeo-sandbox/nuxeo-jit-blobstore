@@ -7,8 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.net.URL;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
@@ -16,6 +15,7 @@ import java.util.List;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
 import org.junit.Test;
+import org.nuxeo.ecm.core.blob.jit.gen.StatementsBlobGenerator;
 import org.nuxeo.ecm.core.blob.jit.gen.pdf.itext.ITextNXBankStatementGenerator;
 import org.nuxeo.ecm.core.blob.jit.gen.pdf.itext.ITextNXBankTemplateCreator;
 import org.nuxeo.ecm.core.blob.jit.gen.pdf.itext.ITextNXBankTemplateCreator2;
@@ -24,11 +24,10 @@ import org.nuxeo.ecm.core.blob.jit.rnd.RandomDataGenerator;
 public class TestPDFGeneration {
 	
 	protected byte[] getTemplate(ITextNXBankTemplateCreator templateGen) throws Exception {
+
 		// Generate the template
-		URL logourl = this.getClass().getResource("NxBank3.png");
-		File logo = new File(logourl.toURI());
-		
-		templateGen.init(new FileInputStream(logo));
+		InputStream logo = StatementsBlobGenerator.class.getResourceAsStream("/NxBank3.png");
+		templateGen.init(logo);
 
 		ByteArrayOutputStream templateOut = new ByteArrayOutputStream();
 		templateGen.generate(templateOut);
@@ -37,9 +36,8 @@ public class TestPDFGeneration {
 
 	protected RandomDataGenerator getRndGenerator(boolean generateOperations) throws Exception {
 		// Data Generator
-		RandomDataGenerator rnd = new RandomDataGenerator(generateOperations);
-		URL csvurl = this.getClass().getResource("data.csv");
-		File csv = new File(csvurl.toURI());
+		RandomDataGenerator rnd = new RandomDataGenerator(generateOperations);		
+		InputStream csv = StatementsBlobGenerator.class.getResourceAsStream("/data.csv");
 		rnd.init(csv);
 		return rnd;
 	}

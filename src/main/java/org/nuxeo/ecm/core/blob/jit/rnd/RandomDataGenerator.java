@@ -1,3 +1,22 @@
+/*
+ * (C) Copyright 2020 Nuxeo (http://nuxeo.com/) and others.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *     Tiry
+ */
+
 package org.nuxeo.ecm.core.blob.jit.rnd;
 
 import java.io.BufferedReader;
@@ -28,20 +47,19 @@ public class RandomDataGenerator {
 	protected ArrayList<String> states = new ArrayList<String>();
 	protected ArrayList<String> companies = new ArrayList<String>();
 
-	//protected SimpleDateFormat df = new SimpleDateFormat("MMM dd YYYY");
+	// protected SimpleDateFormat df = new SimpleDateFormat("MMM dd YYYY");
 	protected static final int DR = 5 * 365 * 24 * 3600 * 1000;
 
 	protected final boolean generateOperations;
 	protected KeyCodec codec;
-	
-	
+
 	protected static ThreadLocal<SimpleDateFormat> df = new ThreadLocal<SimpleDateFormat>() {
-	    @Override
-	    protected SimpleDateFormat initialValue() {
-	        return new SimpleDateFormat("MMM dd YYYY");
-	    }
+		@Override
+		protected SimpleDateFormat initialValue() {
+			return new SimpleDateFormat("MMM dd YYYY");
+		}
 	};
-	
+
 	public RandomDataGenerator(boolean generateOperations) {
 		this.generateOperations = generateOperations;
 		codec = new DummyKeyCodec();
@@ -88,7 +106,7 @@ public class RandomDataGenerator {
 				}
 				if (parts.length > 6 && parts[6] != null && !parts[6].isEmpty())
 					companies.add(clean(parts[6]));
-				
+
 				line = reader.readLine();
 			} while (line != null);
 		}
@@ -97,40 +115,38 @@ public class RandomDataGenerator {
 	public String[] generate() {
 		return generate(null, null, null);
 	}
-	
-	
-	
-	public String seeds2Id(Long seed1, Long seed2, Integer dm) {		
-		return codec.encodeSeeds(seed1, seed2, dm);		
+
+	public String seeds2Id(Long seed1, Long seed2, Integer dm) {
+		return codec.encodeSeeds(seed1, seed2, dm);
 	}
-	
+
 	protected Long[] Id2Seeds(String key) {
 		return codec.decodeSeeds(key);
 	}
-	
-	public String[] generate(String key) {		
+
+	public String[] generate(String key) {
 		Long[] seeds = Id2Seeds(key);
 		return generate(seeds[0], seeds[1], seeds[2].intValue());
 	}
-	
+
 	public String[] generate(Long seed1, Long seed2, Integer dm) {
-		String[] result=null;
-		
-		if (seed1==null) {
+		String[] result = null;
+
+		if (seed1 == null) {
 			seed1 = new Random().nextLong();
-		}		
+		}
 		Random rndSeq1 = new Random(seed1);
-				
-		if (dm==null) {
+
+		if (dm == null) {
 			dm = new Random().nextInt(48);
 		}
-		
+
 		if (generateOperations) {
-			result = new String [6+14*2 + 1+1+1+1];
+			result = new String[6 + 14 * 2 + 1 + 1 + 1 + 1];
 		} else {
-			result = new String [6+1];
+			result = new String[6 + 1];
 		}
-		
+
 		fillUserInfo(result, rndSeq1);
 
 		Date date = getDateWithOffset(dm);
@@ -142,66 +158,64 @@ public class RandomDataGenerator {
 		}
 
 		if (generateOperations) {
-			if (seed2==null) {
+			if (seed2 == null) {
 				seed2 = new Random().nextLong();
-			}		
+			}
 			Random rndSeq2 = new Random(seed2);
-			fillOperations(result,rndSeq2);
+			fillOperations(result, rndSeq2);
 		}
 
 		// store seed key
-		result[result.length-1]=seeds2Id(seed1, seed2, dm);
-		
+		result[result.length - 1] = seeds2Id(seed1, seed2, dm);
+
 		return result;
 	}
 
-	
 	public List<String[]> generateSerie(int length) {
 		return generateSerie(length, null);
 	}
-	
+
 	protected Date getDateWithOffset(int dm) {
-		int dy = dm/12;
-		int m = dm - dy*12;
-		return new GregorianCalendar(2020-dy, m, 01).getTime();		
+		int dy = dm / 12;
+		int m = dm - dy * 12;
+		return new GregorianCalendar(2020 - dy, m, 01).getTime();
 	}
-	
+
 	public List<String[]> generateSerie(int length, Long seed1) {
-		
+
 		List<String[]> serie = new ArrayList<String[]>();
 
-		if (seed1==null) {
+		if (seed1 == null) {
 			seed1 = new Random().nextLong();
-		}		
+		}
 		Random rndSeq1 = new Random(seed1);
 
-		String[] userInfo = new String [6];
+		String[] userInfo = new String[6];
 		fillUserInfo(userInfo, rndSeq1);
-		
+
 		for (int dm = 0; dm < length; dm++) {
-			
+
 			Long seed2 = rndSeq1.nextLong();
-			
-			String[] data = new String [6+14*2 + 1+1+1+1];			
+
+			String[] data = new String[6 + 14 * 2 + 1 + 1 + 1 + 1];
 			System.arraycopy(userInfo, 0, data, 0, 6);
-						
+
 			Date date = getDateWithOffset(dm);
 			data[5] = pad(df.get().format(date), 20, false);
 
 			Random rndSeq2 = new Random(seed2);
 			fillOperations(data, rndSeq2);
-			
-			data[data.length-1]=seeds2Id(seed1, seed2, dm);
-			
+
+			data[data.length - 1] = seeds2Id(seed1, seed2, dm);
+
 			serie.add(data);
 		}
-		
+
 		return serie;
 	}
-	
-	protected void fillUserInfo(String[] result, Random rndSeq ) {
 
-		
+	protected void fillUserInfo(String[] result, Random rndSeq) {
+
 		result[0] = firstNames.get((int) Math.round(rndSeq.nextDouble() * (firstNames.size() - 1))) + " "
 				+ lastNames.get((int) Math.round(rndSeq.nextDouble() * (lastNames.size() - 1)));
 		result[1] = streets.get((int) Math.round(rndSeq.nextDouble() * (streets.size() - 1)));
@@ -209,8 +223,8 @@ public class RandomDataGenerator {
 		result[2] = cities.get(idx);
 		result[3] = states.get(idx);
 
-		result[5] = df.get()
-				.format(Date.from(Instant.ofEpochMilli(System.currentTimeMillis() - Math.round(rndSeq.nextDouble() * DR))));
+		result[5] = df.get().format(
+				Date.from(Instant.ofEpochMilli(System.currentTimeMillis() - Math.round(rndSeq.nextDouble() * DR))));
 
 		result[4] = String.format("%016d", Math.round(rndSeq.nextDouble() * 10000000000000000L));
 
@@ -223,41 +237,40 @@ public class RandomDataGenerator {
 		result[5] = pad(result[5], 20, false);
 	}
 
-	
 	protected double getRandomAmount(Random rndSeq) {
 		return (rndSeq.nextDouble() * Math.pow(10, 5)) / 100;
 	}
-	
+
 	protected String getFormatedRandomAmount(double amount, int size) {
 		String formattedValue = NumberFormat.getCurrencyInstance(new Locale("en", "US")).format(amount);
-		return pad(formattedValue, size, false);		
+		return pad(formattedValue, size, false);
 	}
 
 	protected String pad(String v, int size, boolean left) {
-		if (v.length()> size) {
-			v = v.substring(0, size-1);
+		if (v.length() > size) {
+			v = v.substring(0, size - 1);
 		}
 		if (left) {
-			return v + " ".repeat(size - v.length()) ;
+			return v + " ".repeat(size - v.length());
 		} else {
-			return " ".repeat(size - v.length()) + v;	
+			return " ".repeat(size - v.length()) + v;
 		}
 	}
-	
+
 	protected void fillOperations(String[] result, Random rndSeq) {
 		int idx = 6;
 
 		// init month from the same date as the statement!
-		result[idx]=pad(result[5].trim().substring(0,3), 5, false);
+		result[idx] = pad(result[5].trim().substring(0, 3), 5, false);
 		idx++;
-				
-		double total = getRandomAmount(rndSeq)*30;
+
+		double total = getRandomAmount(rndSeq) * 30;
 		result[idx] = getFormatedRandomAmount(total, 12);
 		idx++;
 
-		String opName ="";
+		String opName = "";
 		for (int i = 1; i < 15; i++) {
-			opName = companies.get((int) Math.round(rndSeq.nextDouble() * (companies.size() - 1))); 
+			opName = companies.get((int) Math.round(rndSeq.nextDouble() * (companies.size() - 1)));
 			result[idx] = pad(opName, 30, true);
 			idx++;
 			double op = getRandomAmount(rndSeq);
@@ -265,7 +278,7 @@ public class RandomDataGenerator {
 			total = total - op;
 			idx++;
 		}
-		
+
 		result[idx] = getFormatedRandomAmount(total, 12);
 	}
 }

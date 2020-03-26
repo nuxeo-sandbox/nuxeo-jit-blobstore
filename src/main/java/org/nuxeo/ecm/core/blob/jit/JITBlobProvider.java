@@ -25,8 +25,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nuxeo.common.utils.RFC2231;
 import org.nuxeo.ecm.core.api.Blob;
+import org.nuxeo.ecm.core.blob.BlobContext;
 import org.nuxeo.ecm.core.blob.BlobStore;
 import org.nuxeo.ecm.core.blob.BlobStoreBlobProvider;
+import org.nuxeo.ecm.core.blob.BlobWriteContext;
 import org.nuxeo.ecm.core.blob.CachingBlobStore;
 import org.nuxeo.ecm.core.blob.KeyStrategy;
 
@@ -37,14 +39,33 @@ public class JITBlobProvider extends BlobStoreBlobProvider {
 
     protected JITBlobStoreConfiguration config;
 
+    
     @Override
     protected BlobStore getBlobStore(String blobProviderId, Map<String, String> properties) throws IOException {
         config = getConfiguration(properties);
         log.info("Registering S3 blob provider '" + blobProviderId);
-        KeyStrategy keyStrategy = getKeyStrategy();
+        //KeyStrategy keyStrategy = getKeyStrategy();
 
+        KeyStrategy ks = new KeyStrategy() {
+
+			@Override
+			public BlobWriteContext getBlobWriteContext(BlobContext arg0) {
+				return null;
+			}
+
+			@Override
+			public String getDigestFromKey(String arg0) {
+				return null;
+			}
+
+			@Override
+			public boolean useDeDuplication() {
+				return true;
+			}
+        	
+        };
         // main S3 blob store wrapped in a caching store
-        BlobStore store = new JITBlobStore("JIT", config, keyStrategy);
+        BlobStore store = new JITBlobStore("JIT", config, ks);
         boolean caching = !config.getBooleanProperty("test-nocaching"); // for tests
         if (caching) {
             store = new CachingBlobStore("Cache", store, config.cachingConfiguration);

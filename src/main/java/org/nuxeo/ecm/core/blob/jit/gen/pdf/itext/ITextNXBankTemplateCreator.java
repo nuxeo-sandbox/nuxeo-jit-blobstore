@@ -1,3 +1,21 @@
+/*
+ * (C) Copyright 2020 Nuxeo (http://nuxeo.com/) and others.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *     Tiry
+ */
 package org.nuxeo.ecm.core.blob.jit.gen.pdf.itext;
 
 import java.io.InputStream;
@@ -32,21 +50,16 @@ import com.itextpdf.layout.property.UnitValue;
 
 public class ITextNXBankTemplateCreator implements PDFTemplateGenerator {
 
-	public static String mkTag(String value, int size) {		
-		String tag = "#" + value;		
-		return tag + "-".repeat(size-1-tag.length()) + "#";		
+	public static String mkTag(String value, int size) {
+		String tag = "#" + value;
+		return tag + "-".repeat(size - 1 - tag.length()) + "#";
 	}
-	
-	public static final String[] _keys = new String[] { 
-			mkTag("NAME",41),
-			mkTag("STREET",20),
-			mkTag("CITY",20), 
-			mkTag("STATE",20),				
-			mkTag("DATE",20),
-			mkTag("ACCOUNTID",20),};
+
+	public static final String[] _keys = new String[] { mkTag("NAME", 41), mkTag("STREET", 20), mkTag("CITY", 20),
+			mkTag("STATE", 20), mkTag("DATE", 20), mkTag("ACCOUNTID", 20), };
 
 	public static final String ACCOUNT_LABEL = "Primary Account Number: ";
-	
+
 	protected class Operation {
 
 		protected String label;
@@ -54,15 +67,15 @@ public class ITextNXBankTemplateCreator implements PDFTemplateGenerator {
 		protected Date date;
 
 		protected double value;
-		
+
 		protected String strValue;
 	}
 
 	protected List<Operation> operations;
 	protected ImageData img;
-	
+
 	protected void initOperations() {
-		
+
 		for (int i = 1; i < 15; i++) {
 			Operation op = new Operation();
 
@@ -74,7 +87,7 @@ public class ITextNXBankTemplateCreator implements PDFTemplateGenerator {
 
 			op.value = Math.random() * 10000 - 5000;
 			operations.add(op);
-		}		
+		}
 	}
 
 	@Override
@@ -85,13 +98,13 @@ public class ITextNXBankTemplateCreator implements PDFTemplateGenerator {
 	protected String key(int idx) {
 		return getKeys()[idx];
 	}
-	
+
 	@Override
 	public void init(InputStream in) throws Exception {
 
 		operations = new ArrayList<ITextNXBankTemplateCreator.Operation>();
 		initOperations();
-		
+
 		if (in != null) {
 			img = ImageDataFactory.create(in.readAllBytes());
 		}
@@ -111,12 +124,11 @@ public class ITextNXBankTemplateCreator implements PDFTemplateGenerator {
 		}
 
 		document.add(new Paragraph().setTextAlignment(TextAlignment.LEFT).setMultipliedLeading(1)
-				.add(new Text("\n" + key(0))).setFontSize(14).setBold().add(new Text("\n" + key(1)))
-				.setFontSize(14).setBold().add(new Text("\n" + key(2))).setFontSize(14).setBold()
-				.add(new Text("\n" + key(3))).setFontSize(14).setBold());
+				.add(new Text("\n" + key(0))).setFontSize(14).setBold().add(new Text("\n" + key(1))).setFontSize(14)
+				.setBold().add(new Text("\n" + key(2))).setFontSize(14).setBold().add(new Text("\n" + key(3)))
+				.setFontSize(14).setBold());
 		document.add(new Paragraph().setTextAlignment(TextAlignment.RIGHT).setMultipliedLeading(1)
-				.add(new Text(ACCOUNT_LABEL + key(4))).setFontSize(14).setBold()
-				.add("\n" + key(5)));
+				.add(new Text(ACCOUNT_LABEL + key(4))).setFontSize(14).setBold().add("\n" + key(5)));
 
 		LineSeparator sep = new LineSeparator(new SolidLine());
 		document.add(sep);
@@ -124,7 +136,6 @@ public class ITextNXBankTemplateCreator implements PDFTemplateGenerator {
 		document.add(buildOperationsList(operations));
 		document.close();
 	}
-
 
 	protected Table buildOperationsList(List<Operation> operations) {
 
@@ -164,9 +175,9 @@ public class ITextNXBankTemplateCreator implements PDFTemplateGenerator {
 		String formattedValue = NumberFormat.getCurrencyInstance(new Locale("en", "US")).format(Math.abs(total));
 		table.addCell(new Cell(1, 3).setBorder(Border.NO_BORDER));
 		table.addCell(createCell(formattedValue)).setTextAlignment(TextAlignment.RIGHT);
-		
+
 	}
-	
+
 	/**
 	 * Creates a cell with specific properties set.
 	 *
