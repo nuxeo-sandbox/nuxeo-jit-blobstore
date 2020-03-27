@@ -178,7 +178,7 @@ public class StatementsBlobGenerator extends DefaultComponent implements InMemor
 		}
 	}
 
-	public List<NodeInfo> getTimeHierarchy(int months) {
+	public List<NodeInfo> getTimeHierarchy(int months, boolean childrenOnly) {
 		
 		List<NodeInfo> hierarchy = new ArrayList<NodeInfo>();
 		List<NodeInfo> level2 = new ArrayList<NodeInfo>();
@@ -201,6 +201,9 @@ public class StatementsBlobGenerator extends DefaultComponent implements InMemor
 			level2.add(mi);			
 		}
 		
+		if (childrenOnly) {
+			return level2;
+		}
 		hierarchy.addAll(level2);
 		
 		return hierarchy;

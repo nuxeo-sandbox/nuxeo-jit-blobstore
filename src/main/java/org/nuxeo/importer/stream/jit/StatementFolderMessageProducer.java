@@ -48,7 +48,7 @@ public class StatementFolderMessageProducer extends AbstractProducer<DocumentMes
 		super(producerId);
 		this.nbMonths = nbMonths;
 		InMemoryBlobGenerator gen = Framework.getService(InMemoryBlobGenerator.class);
-		nodes = gen.getTimeHierarchy(nbMonths);
+		nodes = gen.getTimeHierarchy(nbMonths, false);
 		log.info("StatementFolderMessageProducer created, nbMonths: " + nbMonths);
 	}
 

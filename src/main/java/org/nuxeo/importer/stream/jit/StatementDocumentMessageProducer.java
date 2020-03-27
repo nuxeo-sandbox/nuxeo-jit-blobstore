@@ -21,12 +21,14 @@ package org.nuxeo.importer.stream.jit;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.core.blob.jit.gen.DocInfo;
 import org.nuxeo.ecm.core.blob.jit.gen.InMemoryBlobGenerator;
+import org.nuxeo.ecm.core.blob.jit.gen.NodeInfo;
 import org.nuxeo.importer.stream.message.DocumentMessage;
 import org.nuxeo.lib.stream.pattern.producer.AbstractProducer;
 import org.nuxeo.runtime.api.Framework;
@@ -44,15 +46,20 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 	protected Long currentAccountSeed;
 	protected Long currentDataSeed;
 	protected int month;
+	protected final int nbMonths;
 
-	protected static final int NB_STATEMENTS = 24;
-
-	public StatementDocumentMessageProducer(int producerId, long nbDocuments) {
+	protected final List<NodeInfo> hierarchy;
+	
+	public StatementDocumentMessageProducer(int producerId, long nbDocuments, int nbMonths) {
 		super(producerId);
 		this.nbDocuments = nbDocuments;
+		this.nbMonths = nbMonths;
 		currentAccountSeed = acccountSeedGen.nextLong();
-		currentDataSeed = dataSeedGen.nextLong();
+		currentDataSeed = dataSeedGen.nextLong();		
 		month = 0;
+				
+		hierarchy = getGen().getTimeHierarchy(nbMonths, true);
+		
 		log.info("StatementDocumentMessageProducer created, nbDocuments: " + nbDocuments);
 	}
 
@@ -74,13 +81,15 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 	public DocumentMessage next() {
 		DocumentMessage ret;
 
-		if (month % NB_STATEMENTS == 0) {
+		if (month % nbMonths == 0) {
 			month = 0;
 			currentAccountSeed = acccountSeedGen.nextLong();
 		}
 		currentDataSeed = dataSeedGen.nextLong();
 
-		ret = createDocument("/");
+		ret = createDocument(hierarchy.get(month).getPath());
+		
+		month++;
 		return ret;
 	}
 
@@ -96,6 +105,9 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 		props.put("dc:title", title);
 
 		DocumentMessage.Builder builder = DocumentMessage.builder("File", parentPath, name).setProperties(props);
+		
+		// blobInfo.length can not be null and we do not yet know the actual size
+		docInfo.blobInfo.length=-1L;
 		builder.setBlobInfo(docInfo.blobInfo);
 
 		DocumentMessage node = builder.build();

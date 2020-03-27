@@ -19,8 +19,10 @@ import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
 import org.nuxeo.importer.stream.StreamImporters;
+import org.nuxeo.importer.stream.jit.StatementDocumentMessageProducer;
 import org.nuxeo.importer.stream.jit.StatementFolderMessageProducer;
 import org.nuxeo.importer.stream.jit.automation.StatementFolderProducers;
+import org.nuxeo.importer.stream.jit.automation.StatementProducers;
 import org.nuxeo.importer.stream.message.DocumentMessage;
 import org.nuxeo.lib.stream.log.LogManager;
 import org.nuxeo.lib.stream.log.LogRecord;
@@ -40,7 +42,7 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
 @Deploy("org.nuxeo.ecm.core.blob.jit:OSGI-INF/JITBlobGen-service.xml")
 @Deploy("org.nuxeo.ecm.core.blob.jit:OSGI-INF/operations-contrib.xml")
 @Deploy("org.nuxeo.ecm.core.blob.jit.test:OSGI-INF/test-stream-contrib.xml")
-public class TestFolderHierarchy {
+public class TestStreamStatementProducer {
 
     @Inject
     protected CoreSession session;
@@ -49,7 +51,7 @@ public class TestFolderHierarchy {
     protected AutomationService automationService;
 
     @Test
-    public void canCreateTimeHierarchy() throws Exception{
+    public void canCreateTimeHierarchyMessages() throws Exception{
 
     	try (OperationContext ctx = new OperationContext(session)) {
             Map<String, Serializable> params = new HashMap<>();
@@ -76,6 +78,43 @@ public class TestFolderHierarchy {
             } while (record!=null);
             
             assertEquals(48+4, count);
+            tailer.commit();
+            tailer.close();
+        }
+    }
+
+    @Test
+    public void canCreateStatementsMessages() throws Exception{
+
+    	try (OperationContext ctx = new OperationContext(session)) {
+            Map<String, Serializable> params = new HashMap<>();
+
+            long nbDocs = 8*125;
+            
+            params.put("nbDocuments", nbDocs);
+            params.put("nbMonths", 48);
+            params.put("logConfig", "chronicle");
+
+            automationService.run(ctx,StatementProducers.ID, params);
+                                    
+    		LogManager manager = Framework.getService(StreamService.class).getLogManager("chronicle");
+    		    		
+            LogTailer<DocumentMessage> tailer = manager.createTailer("test", StreamImporters.DEFAULT_LOG_DOC_NAME);            
+
+            int count=0;
+            LogRecord<DocumentMessage> record=null;
+            do {
+            	record = tailer.read(Duration.ofSeconds(1));
+            	if (record!=null) {
+            		DocumentMessage docMessage = record.message();
+            		assertEquals("File",docMessage.getType());
+            		assertEquals("initialImport", docMessage.getProperties().get("dc:source"));            		
+            		count++;
+            	}            		
+            } while (record!=null);
+            
+            assertEquals(nbDocs, count);
+            tailer.commit();
             tailer.close();
         }
     }

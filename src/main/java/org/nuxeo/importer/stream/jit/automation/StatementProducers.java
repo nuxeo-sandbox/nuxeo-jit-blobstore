@@ -53,11 +53,13 @@ public class StatementProducers {
     protected OperationContext context;
 
     @Param(name = "nbDocuments")
-    protected Integer nbDocuments;
+    protected Long nbDocuments;
+
+    @Param(name = "nbMonths")
+    protected Integer nbMonths = 12*10;
 
     @Param(name = "nbThreads", required = false)
     protected Integer nbThreads = 8;
-
 
     @Param(name = "logName", required = false)
     protected String logName = DEFAULT_LOG_DOC_NAME;
@@ -85,7 +87,13 @@ public class StatementProducers {
         manager.createIfNotExists(logName, getLogSize());
 
         StatementDocumentMessageProducerFactory factory;
-        factory = new StatementDocumentMessageProducerFactory(nbDocuments);
+        
+        long docPerThreads = nbDocuments/nbThreads;
+        if (nbDocuments%nbThreads!=0) {
+        	docPerThreads++;
+        }
+        
+        factory = new StatementDocumentMessageProducerFactory(docPerThreads, nbMonths);
 
         Codec<DocumentMessage> codec = StreamImporters.getDocCodec();
         try (ProducerPool<DocumentMessage> producers = new ProducerPool<>(logName, manager, codec, factory,

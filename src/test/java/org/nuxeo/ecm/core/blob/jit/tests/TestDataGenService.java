@@ -42,7 +42,7 @@ public class TestDataGenService {
 		InMemoryBlobGenerator imbg = Framework.getService(InMemoryBlobGenerator.class);
 		assertNotNull(imbg);
 		
-		List<NodeInfo> nodes = imbg.getTimeHierarchy(48);		
+		List<NodeInfo> nodes = imbg.getTimeHierarchy(48, false);		
 		assertEquals(48+4, nodes.size());
 		for (int i = 0; i < 48; i++) {
 			assertEquals(nodes.get(i/12).getPath(), nodes.get(4+i).parentPath);

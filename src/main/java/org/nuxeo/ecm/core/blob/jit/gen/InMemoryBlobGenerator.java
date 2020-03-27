@@ -40,5 +40,5 @@ public interface InMemoryBlobGenerator {
 	
 	DocInfo computeDocInfo(String prefix, Long accountSeed, Long dataSeed, Integer timeSeed);
 
-	List<NodeInfo> getTimeHierarchy(int months);
+	List<NodeInfo> getTimeHierarchy(int months,boolean childrenOnly);
 }
