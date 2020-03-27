@@ -26,7 +26,9 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -176,4 +178,31 @@ public class StatementsBlobGenerator extends DefaultComponent implements InMemor
 		}
 	}
 
+	public List<NodeInfo> getTimeHierarchy(int months) {
+		
+		List<NodeInfo> hierarchy = new ArrayList<NodeInfo>();
+		List<NodeInfo> level2 = new ArrayList<NodeInfo>();
+		
+		SimpleDateFormat yf = new SimpleDateFormat("YYYY");
+		SimpleDateFormat mf = new SimpleDateFormat("MMMM-YYYY");
+		
+		for (int m = 0; m < months; m++) {
+			Date d = rnd.getDateWithOffset(m);
+			
+			NodeInfo yi = new NodeInfo();
+			yi.name = yf.format(d);
+			NodeInfo mi = new NodeInfo();
+			mi.name = mf.format(d);
+			mi.parentPath=yi.getPath();
+			
+			if (!hierarchy.contains(yi)) {
+				hierarchy.add(yi);
+			}
+			level2.add(mi);			
+		}
+		
+		hierarchy.addAll(level2);
+		
+		return hierarchy;
+	}
 }

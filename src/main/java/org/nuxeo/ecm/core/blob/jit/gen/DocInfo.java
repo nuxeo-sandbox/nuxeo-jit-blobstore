@@ -24,7 +24,7 @@ import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.blob.BlobInfo;
 import org.nuxeo.ecm.core.blob.SimpleManagedBlob;
 
-public class DocInfo {
+public class DocInfo extends NodeInfo {
 
 	public BlobInfo blobInfo;
 

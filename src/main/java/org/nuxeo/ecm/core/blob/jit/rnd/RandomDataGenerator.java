@@ -41,6 +41,8 @@ import org.nuxeo.ecm.core.blob.jit.rnd.key.KeyCodec;
 
 public class RandomDataGenerator {
 
+	public static final int START_YEAR = 2020;
+	
 	protected ArrayList<String> firstNames = new ArrayList<String>();
 	protected ArrayList<String> lastNames = new ArrayList<String>();
 	protected ArrayList<String> streets = new ArrayList<String>();
@@ -180,10 +182,10 @@ public class RandomDataGenerator {
 		return generateSerie(length, null);
 	}
 
-	protected Date getDateWithOffset(int dm) {
+	public Date getDateWithOffset(int dm) {
 		int dy = dm / 12;
 		int m = dm - dy * 12;
-		return new GregorianCalendar(2020 - dy, m, 01).getTime();
+		return new GregorianCalendar(START_YEAR - dy, m, 01).getTime();
 	}
 
 	public List<String[]> generateSerie(int length, Long seed1) {

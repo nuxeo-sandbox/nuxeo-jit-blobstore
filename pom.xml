@@ -93,6 +93,15 @@
       <artifactId>nuxeo-importer-stream</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.nuxeo.ecm.automation</groupId>
+      <artifactId>nuxeo-automation-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.nuxeo.ecm.automation</groupId>
+      <artifactId>nuxeo-automation-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.itextpdf</groupId>
       <artifactId>kernel</artifactId>
       <version>7.1.10</version>

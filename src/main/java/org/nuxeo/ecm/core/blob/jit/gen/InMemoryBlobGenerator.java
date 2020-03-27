@@ -21,6 +21,7 @@ package org.nuxeo.ecm.core.blob.jit.gen;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
 import org.nuxeo.ecm.core.blob.BlobInfo;
@@ -39,4 +40,5 @@ public interface InMemoryBlobGenerator {
 	
 	DocInfo computeDocInfo(String prefix, Long accountSeed, Long dataSeed, Integer timeSeed);
 
+	List<NodeInfo> getTimeHierarchy(int months);
 }

@@ -53,7 +53,7 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 		currentAccountSeed = acccountSeedGen.nextLong();
 		currentDataSeed = dataSeedGen.nextLong();
 		month = 0;
-		log.info("RandomDocumentMessageProducer created, nbDocuments: " + nbDocuments);
+		log.info("StatementDocumentMessageProducer created, nbDocuments: " + nbDocuments);
 	}
 
 	protected InMemoryBlobGenerator getGen() {
