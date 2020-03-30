@@ -3,5 +3,6 @@ Manifest-Version: 1.0
 Bundle-Name: Nuxeo Blob JIT Generator
 Bundle-ManifestVersion: 2
 Nuxeo-Component: OSGI-INF/JITBlobGen-service.xml,
- OSGI-INF/operations-contrib.xml
+ OSGI-INF/operations-contrib.xml,
+ OSGI-INF/blobdispatcher-contrib.xml
 

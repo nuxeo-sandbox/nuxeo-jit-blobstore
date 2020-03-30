@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.blob.jit.blobdispatcher">
+
+  <require>default-repository-config</require>
+
+  <extension target="org.nuxeo.ecm.core.blob.BlobManager" point="configuration">
+    <blobprovider name="jit">
+      <class>org.nuxeo.ecm.core.blob.jit.JITBlobProvider</class>
+      <property name="jit-caching">true</property>
+    </blobprovider>
+  </extension>
+  
+  <extension target="org.nuxeo.ecm.core.blob.DocumentBlobManager" point="configuration">
+    <blobdispatcher>
+      <class>org.nuxeo.ecm.core.blob.DefaultBlobDispatcher</class>      
+	      <property name="dc:source=initialImport">jit</property>
+	      <property name="default">default</property>
+    </blobdispatcher>
+  </extension>
+
+</component>

@@ -108,7 +108,8 @@ public class StatementsBlobGenerator extends DefaultComponent implements InMemor
 	protected BlobInfo computeBlobInfo(String prefix, String key, String[] meta) {
 		BlobInfo bi = new BlobInfo();
 		bi.key = prefix + ":" + key;
-		bi.encoding = "application/pdf";
+		bi.encoding = "";
+		bi.mimeType = "application/pdf";
 		StringBuilder sb = new StringBuilder();
 		sb.append(meta[5].trim());
 		sb.append("-");

@@ -44,3 +44,46 @@ In the current implementation there will be 3 seeds:
 
    mvn clean package
 
+### Deploy
+
+Copy `nuxeo-jitgen-blobstore-1.X.jar` in `nxserver/bundles`.
+
+**Dependencies**
+
+Ensure the dependencies are deployed:
+
+ - nuxeo-importer bundles (in `nxserver/bundles`)
+ 	- nuxeo-importer-core-11.X.jar
+    - nuxeo-importer-jaxrs-11.X.jar
+	- nuxeo-importer-stream-11.X.jar
+ - itext lib (in `nxserver/lib`)
+    - io-7.1.10.jar
+	- kernel-7.1.10.jar
+	- layout-7.1.10.jar
+
+### Running the import
+
+**Create the messages for the Hierarchy**
+
+    curl -H 'Content-Type:application/json+nxrequest' -X POST -d '{"params":{"nbMonths": 48 },"context":{}}'   -u Administrator:Administrator http://127.0.0.1:8080/nuxeo/api/v1/automation/StreamImporter.runStatementFolderProducers
+
+**Create the Hierarchy in the repository**
+
+    curl -H 'Content-Type:application/json+nxrequest' -X POST -d '{"params":{"nbThreads": 1, "rootFolder": "/default-domain" },"context":{}}'   -u Administrator:Administrator http://127.0.0.1:8080/nuxeo/api/v1/automation/StreamImporter.runDocumentConsumers
+
+
+**Create the messages for the Statements**
+
+    curl -H 'Content-Type:application/json+nxrequest' -X POST -d '{"params":{"nbMonths": 48, "nbDocuments": 120 },"context":{}}'   -u Administrator:Administrator http://127.0.0.1:8080/nuxeo/api/v1/automation/StreamImporter.runStatementProducers
+
+
+**Create the Statements in the repository**
+
+    curl -H 'Content-Type:application/json+nxrequest' -X POST -d '{"params":{"nbThreads": 1, "rootFolder": "/default-domain" },"context":{}}'   -u Administrator:Administrator http://127.0.0.1:8080/nuxeo/api/v1/automation/StreamImporter.runDocumentConsumers
+
+
+
+
+
+
+

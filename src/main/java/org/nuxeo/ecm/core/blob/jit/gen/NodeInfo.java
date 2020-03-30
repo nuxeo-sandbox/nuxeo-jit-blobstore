@@ -40,6 +40,9 @@ public class NodeInfo {
 	}
 	
 	public String getParentPath () {
+		if (parentPath==null) {
+			return "/";
+		}		
 		return parentPath;
 	}
 	
