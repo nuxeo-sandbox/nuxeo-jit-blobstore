@@ -19,6 +19,7 @@
 package org.nuxeo.ecm.core.blob.jit.gen;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.blob.BlobInfo;
@@ -52,5 +53,9 @@ public class DocInfo extends NodeInfo {
 		if (blobInfo == null)
 			return null;
 		return blobInfo.filename;
+	}
+	
+	public Set<String> getMetaDataKeys() {
+		return metaData.keySet();
 	}
 }

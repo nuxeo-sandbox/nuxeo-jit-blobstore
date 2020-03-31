@@ -56,7 +56,7 @@ public class RandomDataGenerator {
 	protected final boolean generateOperations;
 	protected KeyCodec codec;
 
-	protected static ThreadLocal<SimpleDateFormat> df = new ThreadLocal<SimpleDateFormat>() {
+	public static ThreadLocal<SimpleDateFormat> df = new ThreadLocal<SimpleDateFormat>() {
 		@Override
 		protected SimpleDateFormat initialValue() {
 			return new SimpleDateFormat("MMM dd YYYY");

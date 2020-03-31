@@ -20,8 +20,10 @@
 package org.nuxeo.importer.stream.jit;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.logging.Log;
@@ -29,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.core.blob.jit.gen.DocInfo;
 import org.nuxeo.ecm.core.blob.jit.gen.InMemoryBlobGenerator;
 import org.nuxeo.ecm.core.blob.jit.gen.NodeInfo;
+import org.nuxeo.ecm.core.blob.jit.rnd.RandomDataGenerator;
 import org.nuxeo.importer.stream.message.DocumentMessage;
 import org.nuxeo.lib.stream.pattern.producer.AbstractProducer;
 import org.nuxeo.runtime.api.Framework;
@@ -102,9 +105,10 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 
 		HashMap<String, Serializable> props = new HashMap<>();
 		props.put("dc:source", "initialImport");
-		props.put("dc:title", title);
-
-		DocumentMessage.Builder builder = DocumentMessage.builder("File", parentPath, name).setProperties(props);
+		props.put("dc:title", title);		
+		mapMetaData(props, docInfo);
+		
+		DocumentMessage.Builder builder = DocumentMessage.builder("Statement", parentPath, name).setProperties(props);
 		
 		// blobInfo.length can not be null and we do not yet know the actual size
 		docInfo.blobInfo.length=-1L;
@@ -116,7 +120,24 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 	}
 
 	protected void mapMetaData(HashMap<String, Serializable> props, DocInfo docInfo) {
-		props.put("dc:description", docInfo.getMeta("ACCOUNTID"));
+		props.put("statement:accountNumber", docInfo.getMeta("ACCOUNTID").trim());		
+		try {
+			Date stmDate = RandomDataGenerator.df.get().parse(docInfo.getMeta("DATE").trim());
+			props.put("statement:statementDate", stmDate);
+		} catch (Exception e) {
+			log.error("Unable to parse date", e);
+		}		
+		String fullname = docInfo.getMeta("NAME").trim();
+		int idx = fullname.indexOf(" ");		
+		props.put("all:customerFirstname", fullname.substring(0, idx).trim());
+		props.put("all:customerLastname", fullname.substring(idx).trim());
+		
+		Map<String, String> address = new HashMap<String, String>();
+		address.put("city", docInfo.getMeta("CITY").trim());
+		address.put("street", docInfo.getMeta("STREET").trim());		
+		props.put("all:customerAddress", (Serializable) address);		
+
+		props.put("all:customerNumber", docInfo.getMeta("ACCOUNTID").trim().substring(0,14));
 	}
 
 	protected String getName(String title) {

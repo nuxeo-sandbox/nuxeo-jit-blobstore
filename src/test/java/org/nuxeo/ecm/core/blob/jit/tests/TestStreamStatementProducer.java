@@ -107,7 +107,7 @@ public class TestStreamStatementProducer {
             	record = tailer.read(Duration.ofSeconds(1));
             	if (record!=null) {
             		DocumentMessage docMessage = record.message();
-            		assertEquals("File",docMessage.getType());
+            		assertEquals("Statement",docMessage.getType());
             		assertEquals("initialImport", docMessage.getProperties().get("dc:source"));            		
             		count++;
             	}            		
