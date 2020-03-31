@@ -76,6 +76,10 @@
       <artifactId>nuxeo-core-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.pdfbox</groupId>
+      <artifactId>pdfbox</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.nuxeo.ecm.core</groupId>
       <artifactId>nuxeo-core</artifactId>
       <scope>test</scope>
@@ -128,11 +132,6 @@
       <groupId>com.itextpdf</groupId>
       <artifactId>layout</artifactId>
       <version>7.1.10</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.pdfbox</groupId>
-      <artifactId>pdfbox</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.lmax</groupId>
