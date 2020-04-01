@@ -1,0 +1,15 @@
+{
+  "generator-nuxeo": {
+    "lastRemote": "/home/tiry/.cache/node-yeoman-remote-cache/nuxeo/generator-nuxeo-meta/2.9.1",
+    "promptValues": {
+      "super_package": "org.nuxeo",
+      "super_version": "11.1-SNAPSHOT",
+      "parent_package": "org.nuxeo.ecm.core",
+      "parent_artifact": "nuxeo-benchmark-10b-plugin",
+      "parent_version": "1.0-SNAPSHOT",
+      "package": "org.nuxeo.ecm.core"
+    },
+    "_nuxeo_version": "11.1-SNAPSHOT",
+    "multi": true
+  }
+}
