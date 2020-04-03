@@ -2,13 +2,17 @@ package org.nuxeo.ecm.core.blob.jit.thumbnail;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.util.List;
+
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.MemoryCacheImageOutputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.util.ImageIOUtil;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
@@ -24,10 +28,21 @@ public class StatementThumbnailFactory implements ThumbnailFactory {
     
     public static Blob computeThumb(byte[] pdf) throws Exception {
 		PDDocument doc = PDDocument.load(new ByteArrayInputStream(pdf));
-		List<PDPage> pdPages = doc.getDocumentCatalog().getAllPages();											
-	    BufferedImage bim = pdPages.get(0).convertToImage(BufferedImage.TYPE_BYTE_INDEXED, 36);
+		
+		PDFRenderer renderer = new PDFRenderer(doc);
+				
+		ImageWriter jpgWriter = ImageIO.getImageWritersByFormatName("jpg").next();
+		ImageWriteParam jpgWriteParam = jpgWriter.getDefaultWriteParam();
+		jpgWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+		jpgWriteParam.setCompressionQuality(0.5f);		
+		
+		BufferedImage bim = renderer.renderImageWithDPI(0, 30, ImageType.RGB);
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();				    
-	    ImageIOUtil.writeImage(bim, "JPEG", out, 36, 0.5f);
+	    	   
+	    MemoryCacheImageOutputStream outStream = new MemoryCacheImageOutputStream(out);
+	    jpgWriter.setOutput(outStream);
+	    jpgWriter.write(bim);
+	    
 	    Blob blob = new ByteArrayBlob(out.toByteArray());
 		doc.close();
 		return blob;

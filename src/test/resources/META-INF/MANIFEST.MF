@@ -1,5 +1,0 @@
-Bundle-SymbolicName: org.nuxeo.ecm.core.blob.jit.test;singleton:=true
-Manifest-Version: 1.0
-Bundle-Name: Nuxeo Blob JIT Generator Test
-Bundle-ManifestVersion: 2
-

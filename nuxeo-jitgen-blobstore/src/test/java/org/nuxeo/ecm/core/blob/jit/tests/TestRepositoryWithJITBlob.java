@@ -27,7 +27,7 @@ import java.io.Serializable;
 import javax.inject.Inject;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.util.PDFTextStripper;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.Blob;

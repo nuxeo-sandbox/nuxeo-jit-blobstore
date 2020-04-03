@@ -3,10 +3,12 @@ package org.nuxeo.ecm.core.blob.jit.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.InputStream;
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import javax.inject.Inject;
 
@@ -16,10 +18,12 @@ import org.nuxeo.ecm.automation.AutomationService;
 import org.nuxeo.ecm.automation.OperationContext;
 import org.nuxeo.ecm.automation.test.AutomationFeature;
 import org.nuxeo.ecm.core.api.CoreSession;
+import org.nuxeo.ecm.core.blob.jit.gen.StatementsBlobGenerator;
+import org.nuxeo.ecm.core.blob.jit.rnd.AccountHelper;
+import org.nuxeo.ecm.core.blob.jit.rnd.RandomDataGenerator;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
 import org.nuxeo.importer.stream.StreamImporters;
-import org.nuxeo.importer.stream.jit.StatementDocumentMessageProducer;
 import org.nuxeo.importer.stream.jit.StatementFolderMessageProducer;
 import org.nuxeo.importer.stream.jit.automation.StatementFolderProducers;
 import org.nuxeo.importer.stream.jit.automation.StatementProducers;
@@ -83,17 +87,32 @@ public class TestStreamStatementProducer {
         }
     }
 
+    protected static String[] expectedAccountID=new String[] {
+    		"4783-9833-9000-17042",
+    		"6586-5254-3446-31313",
+    		"7978-7108-9590-39201",
+    		"0851-2515-7625-22598",
+    		"1264-6737-4135-48180",
+    		"0022-3997-2568-47326",
+    		"0094-3856-7065-83180",
+    		"8456-7440-9788-13764",
+    		"5974-8753-5331-59997",
+    		"3355-9894-9607-82227"	
+    };
+        
     @Test
     public void canCreateStatementsMessages() throws Exception{
 
     	try (OperationContext ctx = new OperationContext(session)) {
             Map<String, Serializable> params = new HashMap<>();
 
-            long nbDocs = 8*125;
+            long nbDocs = 48*10;
             
             params.put("nbDocuments", nbDocs);
             params.put("nbMonths", 48);
             params.put("logConfig", "chronicle");
+            params.put("nbThreads", 1);
+            params.put("seed", AccountHelper.DEFAULT_SEED);
 
             automationService.run(ctx,StatementProducers.ID, params);
                                     
@@ -102,6 +121,8 @@ public class TestStreamStatementProducer {
             LogTailer<DocumentMessage> tailer = manager.createTailer("test", StreamImporters.DEFAULT_LOG_DOC_NAME);            
 
             int count=0;
+            int idx=0;
+            String lastAccounId=null;
             LogRecord<DocumentMessage> record=null;
             do {
             	record = tailer.read(Duration.ofSeconds(1));
@@ -109,6 +130,15 @@ public class TestStreamStatementProducer {
             		DocumentMessage docMessage = record.message();
             		assertEquals("Statement",docMessage.getType());
             		assertEquals("initialImport", docMessage.getProperties().get("dc:source"));            		
+            		
+            		String account = (String) docMessage.getProperties().get("statement:accountNumber");
+            		if (count%48==0) {
+            			lastAccounId = account;
+            			assertEquals(expectedAccountID[idx],lastAccounId);
+            			idx++;
+            		} else {
+            			assertEquals(lastAccounId, account);
+            		}            		
             		count++;
             	}            		
             } while (record!=null);
@@ -117,7 +147,16 @@ public class TestStreamStatementProducer {
             tailer.commit();
             tailer.close();
         }
+    	    	
+    	    	
     }
+    
+    @Test
+    public void canRegenerateTheSameAccounts() throws Exception {		
+    	for (int i = 0; i < 10; i++) {
+    		String id = AccountHelper.instance().getNextId();
+    		assertEquals(expectedAccountID[i], id);
+    	}
 
-	
+    }
 }

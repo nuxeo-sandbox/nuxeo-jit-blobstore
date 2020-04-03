@@ -49,14 +49,20 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 	protected Long currentAccountSeed;
 	protected Long currentDataSeed;
 	protected int month;
-	protected final int nbMonths;
+	protected final int nbMonths;	
 
 	protected final List<NodeInfo> hierarchy;
 	
-	public StatementDocumentMessageProducer(int producerId, long nbDocuments, int nbMonths) {
+	public StatementDocumentMessageProducer(Long seed, int producerId, long nbDocuments, int nbMonths) {
 		super(producerId);
 		this.nbDocuments = nbDocuments;
 		this.nbMonths = nbMonths;
+
+		if (seed!=null) {
+			acccountSeedGen = new Random(seed);
+			dataSeedGen = new Random(seed);		
+		}
+		
 		currentAccountSeed = acccountSeedGen.nextLong();
 		currentDataSeed = dataSeedGen.nextLong();		
 		month = 0;

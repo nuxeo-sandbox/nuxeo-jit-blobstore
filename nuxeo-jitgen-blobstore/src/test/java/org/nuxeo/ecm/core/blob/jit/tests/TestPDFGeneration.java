@@ -13,7 +13,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.util.PDFTextStripper;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.junit.Test;
 import org.nuxeo.ecm.core.blob.jit.gen.StatementsBlobGenerator;
 import org.nuxeo.ecm.core.blob.jit.gen.pdf.itext.ITextNXBankStatementGenerator;

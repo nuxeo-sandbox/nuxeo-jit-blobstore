@@ -24,20 +24,22 @@ import org.nuxeo.lib.stream.pattern.producer.ProducerIterator;
 
 public class StatementDocumentMessageProducerFactory implements ProducerFactory<DocumentMessage> {
 
+	protected final Long seed;
 	protected final long nbDocuments;
 	protected final int nbMonth;
 
 	/**
 	 * Generates random documents messages that point to existing blobs.
 	 */
-	public StatementDocumentMessageProducerFactory(long nbDocuments,int nbMonth) {
+	public StatementDocumentMessageProducerFactory(Long seed, long nbDocuments,int nbMonth) {
 		this.nbDocuments = nbDocuments;
 		this.nbMonth = nbMonth;
+		this.seed=seed;
 	}
 
 	@Override
 	public ProducerIterator<DocumentMessage> createProducer(int producerId) {
-		return new StatementDocumentMessageProducer(producerId, nbDocuments, nbMonth);
+		return new StatementDocumentMessageProducer(seed, producerId, nbDocuments, nbMonth);
 	}
 
 	protected String getGroupName(int producerId) {

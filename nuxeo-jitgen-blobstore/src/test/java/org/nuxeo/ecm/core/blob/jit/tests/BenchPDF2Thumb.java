@@ -3,6 +3,8 @@ package org.nuxeo.ecm.core.blob.jit.tests;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -31,9 +33,9 @@ public class BenchPDF2Thumb {
 
 		assertNotNull(blob);
 
-		// Path f = Files.createTempFile("thumb", ".png");
-		// blob.transferTo(f.toFile());
-		// System.out.println(f);
+//		 Path f = Files.createTempFile("thumb", ".png");
+//		 blob.transferTo(f.toFile());
+//		 System.out.println(f);
 	}
 
 	@Test

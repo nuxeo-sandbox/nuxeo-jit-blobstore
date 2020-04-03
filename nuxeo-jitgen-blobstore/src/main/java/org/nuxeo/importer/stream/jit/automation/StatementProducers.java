@@ -34,6 +34,7 @@ import org.nuxeo.ecm.automation.core.annotations.Operation;
 import org.nuxeo.ecm.automation.core.annotations.OperationMethod;
 import org.nuxeo.ecm.automation.core.annotations.Param;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
+import org.nuxeo.ecm.core.blob.jit.rnd.AccountHelper;
 import org.nuxeo.importer.stream.StreamImporters;
 import org.nuxeo.importer.stream.jit.StatementDocumentMessageProducerFactory;
 import org.nuxeo.importer.stream.message.DocumentMessage;
@@ -70,6 +71,8 @@ public class StatementProducers {
     @Param(name = "logConfig", required = false)
     protected String logConfig = DEFAULT_LOG_CONFIG;
 
+    @Param(name = "seed", required = false)
+    protected Long seed = AccountHelper.DEFAULT_SEED;
     
     protected void checkAccess() {
         NuxeoPrincipal principal = context.getPrincipal();
@@ -93,7 +96,7 @@ public class StatementProducers {
         	docPerThreads++;
         }
         
-        factory = new StatementDocumentMessageProducerFactory(docPerThreads, nbMonths);
+        factory = new StatementDocumentMessageProducerFactory(seed, docPerThreads, nbMonths);
 
         Codec<DocumentMessage> codec = StreamImporters.getDocCodec();
         try (ProducerPool<DocumentMessage> producers = new ProducerPool<>(logName, manager, codec, factory,

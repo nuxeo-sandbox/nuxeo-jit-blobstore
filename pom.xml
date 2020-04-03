@@ -2,27 +2,25 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-   <groupId>org.nuxeo</groupId>
+    <groupId>org.nuxeo</groupId>
     <artifactId>nuxeo-ecm</artifactId>
     <version>11.1-SNAPSHOT</version>
   </parent>
+
   <groupId>org.nuxeo.ecm.core</groupId>
-  <artifactId>nuxeo-jitgen-blobstore</artifactId>
+  <artifactId>nuxeo-benchmark-10b-plugin</artifactId>
   <version>1.0-SNAPSHOT</version>
+  <name>Nuxeo benchmark 10b plugin</name>
+  <description />
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>nuxeo-jitgen-blobstore</module>
+    <module>package</module>
+  </modules>
+
   <repositories>
     <repository>
-     <id>nuxeo-studio</id>
-     <url>https://connect.nuxeo.com/nuxeo/site/studio/maven</url>
-     <releases>
-       <enabled>true</enabled>
-     </releases>
-     <snapshots>
-       <enabled>true</enabled>
-       <updatePolicy>always</updatePolicy>
-     </snapshots>
-   </repository>
-
-	  <!--  <repository>
       <id>public</id>
       <url>http://maven.nuxeo.org/nexus/content/groups/public</url>
       <releases>
@@ -42,13 +40,20 @@
         <updatePolicy>always</updatePolicy>
         <enabled>true</enabled>
       </snapshots>
-    </repository>-->
+    </repository>
     <repository>
-      <id>itext</id>
-      <name>itext repo</name>
-      <url>https://repo.itextsupport.com/releases/</url>
+      <id>nuxeo-studio</id>
+      <url>https://connect.nuxeo.com/nuxeo/site/studio/maven</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <updatePolicy>always</updatePolicy>
+        <enabled>true</enabled>
+      </snapshots>
     </repository>
   </repositories>
+
   <pluginRepositories>
     <pluginRepository>
       <id>public</id>
@@ -62,97 +67,22 @@
       </snapshots>
     </pluginRepository>
   </pluginRepositories>
-  <dependencies>
-    <dependency>
-      <groupId>org.nuxeo.common</groupId>
-      <artifactId>nuxeo-common</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.nuxeo.runtime</groupId>
-      <artifactId>nuxeo-runtime</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.nuxeo.ecm.core</groupId>
-      <artifactId>nuxeo-core-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.pdfbox</groupId>
-      <artifactId>pdfbox</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.nuxeo.ecm.core</groupId>
-      <artifactId>nuxeo-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.nuxeo.ecm.core</groupId>
-      <artifactId>nuxeo-core-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.nuxeo.ecm.core</groupId>
-      <artifactId>nuxeo-core-api</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.nuxeo.runtime</groupId>
-      <artifactId>nuxeo-runtime-test</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.nuxeo.ecm.platform</groupId>
-      <artifactId>nuxeo-importer-stream</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.nuxeo.ecm.automation</groupId>
-      <artifactId>nuxeo-automation-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>nuxeo-studio</groupId>
-      <artifactId>nuxeo-benchmark-10b-2020</artifactId>
-      <version>0.0.0-SNAPSHOT</version>
-    </dependency>
-   
-    <dependency>
-      <groupId>org.nuxeo.ecm.automation</groupId>
-      <artifactId>nuxeo-automation-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.itextpdf</groupId>
-      <artifactId>kernel</artifactId>
-      <version>7.1.10</version>
-    </dependency>
-    <dependency>
-      <groupId>com.itextpdf</groupId>
-      <artifactId>io</artifactId>
-      <version>7.1.10</version>
-    </dependency>
-    <dependency>
-      <groupId>com.itextpdf</groupId>
-      <artifactId>layout</artifactId>
-      <version>7.1.10</version>
-    </dependency>
-    <dependency>
-      <groupId>com.lmax</groupId>
-      <artifactId>disruptor</artifactId>
-      <version>3.3.4</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-cli</groupId>
-      <artifactId>commons-cli</artifactId>
-      <version>1.4</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>javax.xml.bind</groupId>
-      <artifactId>jaxb-api</artifactId>
-    </dependency>
-  </dependencies>
-  <build>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.nuxeo.ecm.core</groupId>
+        <artifactId>nuxeo-jitgen-blobstore</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.nuxeo.ecm.core</groupId>
+        <artifactId>10B-benchmark-package</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+    <build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -181,4 +111,5 @@
       </plugin>
     </plugins>
   </build>
+
 </project>

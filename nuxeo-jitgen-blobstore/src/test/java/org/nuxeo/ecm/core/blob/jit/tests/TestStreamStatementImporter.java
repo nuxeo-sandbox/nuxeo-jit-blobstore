@@ -96,7 +96,7 @@ public class TestStreamStatementImporter {
 			automationService.run(ctx, DocumentConsumers.ID, params);
 
 			docs = session.query("select * from File order by ecm:path");
-			// dump(docs);
+			dump(docs);
 			assertEquals(nbDocs, docs.size());
 
 		}
@@ -104,6 +104,7 @@ public class TestStreamStatementImporter {
 
 	protected void dump(DocumentModelList docs) {
 		for (DocumentModel doc : docs) {
+			System.out.println(doc.getPathAsString());
 			System.out.println(doc.getPathAsString());
 		}
 	}
