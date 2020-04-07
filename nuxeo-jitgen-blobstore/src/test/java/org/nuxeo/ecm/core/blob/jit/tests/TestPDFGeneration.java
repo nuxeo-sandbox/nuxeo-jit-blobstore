@@ -1,7 +1,6 @@
 package org.nuxeo.ecm.core.blob.jit.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -10,7 +9,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.List;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -59,34 +57,6 @@ public class TestPDFGeneration {
 		return sb.toString();
 	}
 	
-	@Test
-	public void testGenerateSerie() throws Exception {
-		RandomDataGenerator rnd = getRndGenerator(true);
-		
-		List<String[]> serie = rnd.generateSerie(24);
-		String m ="";
-				
-		for (String[] data : serie) {			
-			
-			// check same name
-			assertEquals(serie.get(0)[0], data[0]);
-			// check month
-			assertEquals(data[4].trim().substring(0,3), data[6].trim());			
-			assertNotEquals(m, data[6].trim());
-			m = data[6].trim();
-
-			// check replayble
-			String key = data[data.length-1];
-			String[] data2= rnd.generate(key);
-
-			System.out.println(printData(data));
-			//System.out.println(printData(data2));						
-			
-			for (int i = 0; i < data.length; i++) { 
-				assertEquals(data[i], data2[i]);	
-			}			
-		}
-	}
 	
 	@Test
 	public void canGenerateRandomData() throws Exception {
@@ -206,7 +176,7 @@ public class TestPDFGeneration {
 			assertFalse(txt.contains(keys[i]));
 		}
 		
-		//dumpPDF(pdf);
+		dumpPDF(pdf);
 
 	}
 

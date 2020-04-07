@@ -3,12 +3,10 @@ package org.nuxeo.ecm.core.blob.jit.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.InputStream;
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import javax.inject.Inject;
 
@@ -18,9 +16,7 @@ import org.nuxeo.ecm.automation.AutomationService;
 import org.nuxeo.ecm.automation.OperationContext;
 import org.nuxeo.ecm.automation.test.AutomationFeature;
 import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.blob.jit.gen.StatementsBlobGenerator;
 import org.nuxeo.ecm.core.blob.jit.rnd.AccountHelper;
-import org.nuxeo.ecm.core.blob.jit.rnd.RandomDataGenerator;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
 import org.nuxeo.importer.stream.StreamImporters;
@@ -88,17 +84,16 @@ public class TestStreamStatementProducer {
     }
 
     protected static String[] expectedAccountID=new String[] {
-    		"4783-9833-9000-17042",
-    		"6586-5254-3446-31313",
-    		"7978-7108-9590-39201",
-    		"0851-2515-7625-22598",
-    		"1264-6737-4135-48180",
-    		"0022-3997-2568-47326",
-    		"0094-3856-7065-83180",
-    		"8456-7440-9788-13764",
-    		"5974-8753-5331-59997",
-    		"3355-9894-9607-82227"	
-    };
+    		"0D377-07C9D-5D0B414-05",
+    		"27180-02DF4-6252532-00",
+    		"13A20-07436-34D27B8-05",
+    		"19E08-1312B-2CEE0CF-00",
+    		"25F4E-00805-422666B-01",
+    		"1ABEE-1F712-3BA857E-03",
+    		"34AFF-05187-670C565-05",
+    		"2CD1E-05D13-706F03E-07",
+    		"31BB0-15D7D-0E6F5CA-06",
+    		"24601-17E63-6D0825B-04"    };
         
     @Test
     public void canCreateStatementsMessages() throws Exception{
@@ -132,9 +127,12 @@ public class TestStreamStatementProducer {
             		assertEquals("initialImport", docMessage.getProperties().get("dc:source"));            		
             		
             		String account = (String) docMessage.getProperties().get("statement:accountNumber");
+            		String customer = (String) docMessage.getProperties().get("all:customerNumber");
+            		
             		if (count%48==0) {
             			lastAccounId = account;
             			assertEquals(expectedAccountID[idx],lastAccounId);
+            			assertTrue(expectedAccountID[idx].contains(customer));
             			idx++;
             		} else {
             			assertEquals(lastAccounId, account);

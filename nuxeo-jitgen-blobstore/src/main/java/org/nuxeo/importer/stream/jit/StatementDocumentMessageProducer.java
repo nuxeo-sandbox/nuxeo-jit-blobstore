@@ -61,7 +61,7 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 		if (seed!=null) {
 			acccountSeedGen = new Random(seed);
 			dataSeedGen = new Random(seed);		
-		}
+		}	
 		
 		currentAccountSeed = acccountSeedGen.nextLong();
 		currentDataSeed = dataSeedGen.nextLong();		
@@ -143,7 +143,7 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 		address.put("street", docInfo.getMeta("STREET").trim());		
 		props.put("all:customerAddress", (Serializable) address);		
 
-		props.put("all:customerNumber", docInfo.getMeta("ACCOUNTID").trim().substring(0,14));
+		props.put("all:customerNumber", docInfo.getMeta("ACCOUNTID").trim().substring(0,19));
 	}
 
 	protected String getName(String title) {
