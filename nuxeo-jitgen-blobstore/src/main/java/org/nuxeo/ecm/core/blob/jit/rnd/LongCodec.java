@@ -1,4 +1,4 @@
-package org.nuxeo.ecm.core.blob.jit.rnd.key;
+package org.nuxeo.ecm.core.blob.jit.rnd;
 
 public class LongCodec {
 
@@ -17,20 +17,7 @@ public class LongCodec {
 	public static final int ACCOUNT_BITS = 3;
 	public static final int ACCOUNT_MAX = 1 << ACCOUNT_BITS;
 
-	public class Index {
-		public int firstNameIdx;
-		public int lastNameIdx;
-		public int streetIdx;
-		public int cityIdx;
-		public int accountIdx;
-
-		public String toString() {
-			return String.format("First: %06d - Last: %06d - Street: %04d - City: %05d - Account: %03d", firstNameIdx,
-					lastNameIdx, streetIdx, cityIdx, accountIdx);
-		}
-	}
-
-	public Long encode(int fNameIdx, int lNameIdx, int streetIdx, int cityIdx, int accountIdx) {
+	public static Long encode(int fNameIdx, int lNameIdx, int streetIdx, int cityIdx, int accountIdx) {
 		Long result = Long.valueOf(accountIdx);
 		result = result | (Long.valueOf(fNameIdx) << ACCOUNT_BITS);
 		result = result | (Long.valueOf(lNameIdx) << (ACCOUNT_BITS + FNAME_BITS));
@@ -39,8 +26,8 @@ public class LongCodec {
 		return result;
 	}
 
-	public Index decode(Long key) {
-		Index idx = new Index();
+	public static IdentityIndex decode(Long key) {
+		IdentityIndex idx = new IdentityIndex();
 		idx.accountIdx = (int) (key & (ACCOUNT_MAX - 1));
 		key = key >>> ACCOUNT_BITS;
 		idx.firstNameIdx = (int) (key & (FNAME_MAX - 1));

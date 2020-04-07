@@ -30,14 +30,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
 import org.nuxeo.ecm.core.blob.jit.rnd.key.AsciiKeyCodec;
 import org.nuxeo.ecm.core.blob.jit.rnd.key.DummyKeyCodec;
 import org.nuxeo.ecm.core.blob.jit.rnd.key.KeyCodec;
-import org.nuxeo.ecm.core.blob.jit.rnd.key.LongCodec;
 
 public class RandomDataGenerator {
 
@@ -56,8 +54,6 @@ public class RandomDataGenerator {
 	protected final boolean generateOperations;
 
 	protected final KeyCodec codec;	
-
-	protected final LongCodec longCodec = new LongCodec();
 
 	protected final boolean useLongDecodingForUserInfo=true;
 	
@@ -232,7 +228,7 @@ public class RandomDataGenerator {
 	
 	protected void fillUserInfo(String[] result, Long seed1) {
 		
-		LongCodec.Index idx = longCodec.decode(seed1);
+		IdentityIndex idx = LongCodec.decode(seed1);
 		fillUserInfo(result, idx.firstNameIdx, idx.lastNameIdx, idx.streetIdx, idx.cityIdx, idx.accountIdx);
 	}
 	

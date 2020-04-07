@@ -5,13 +5,13 @@ import static org.junit.Assert.assertEquals;
 import java.util.Random;
 
 import org.junit.Test;
-import org.nuxeo.ecm.core.blob.jit.rnd.key.LongCodec;
+import org.nuxeo.ecm.core.blob.jit.rnd.IdentityIndex;
+import org.nuxeo.ecm.core.blob.jit.rnd.LongCodec;
 
 public class TestLongCodec {
 	
 	public void testEncodeDecodeRnd() {
 		Random rnd = new Random();
-		LongCodec lc = new LongCodec();
 		
 		int firstNameIdx = rnd.nextInt(LongCodec.FNAME_MAX); 
 		int lastNameIdx= rnd.nextInt(LongCodec.LNAME_MAX);
@@ -19,38 +19,36 @@ public class TestLongCodec {
 		int cityIdx= rnd.nextInt(LongCodec.CITIES_MAX);
 		int accountIdx= rnd.nextInt(LongCodec.ACCOUNT_MAX);
 
-		Long key = lc.encode(firstNameIdx, lastNameIdx, streetIdx, cityIdx, accountIdx);
+		Long key = LongCodec.encode(firstNameIdx, lastNameIdx, streetIdx, cityIdx, accountIdx);
 		
-		LongCodec.Index idx = lc.decode(key);
+		IdentityIndex idx = LongCodec.decode(key);
 
-		assertEquals(accountIdx, idx.accountIdx);				
-		assertEquals(firstNameIdx, idx.firstNameIdx);
-		assertEquals(streetIdx, idx.streetIdx);
-		assertEquals(cityIdx, idx.cityIdx);
-		assertEquals(lastNameIdx, idx.lastNameIdx);
+		assertEquals(accountIdx, idx.getAccountIdx());				
+		assertEquals(firstNameIdx, idx.getFirstNameIdx());
+		assertEquals(streetIdx, idx.getStreetIdx());
+		assertEquals(cityIdx, idx.getCityIdx());
+		assertEquals(lastNameIdx, idx.getLastNameIdx());
 	}
 
 	public void testEncodeDecodeMin() {
-		LongCodec lc = new LongCodec();		
 		int firstNameIdx = 0; 
 		int lastNameIdx= 0;
 		int streetIdx= 0;
 		int cityIdx= 0;
 		int accountIdx= 0;
 
-		Long key = lc.encode(firstNameIdx, lastNameIdx, streetIdx, cityIdx, accountIdx);
+		Long key = LongCodec.encode(firstNameIdx, lastNameIdx, streetIdx, cityIdx, accountIdx);
 		
-		LongCodec.Index idx = lc.decode(key);
+		IdentityIndex idx = LongCodec.decode(key);
 
-		assertEquals(accountIdx, idx.accountIdx);				
-		assertEquals(firstNameIdx, idx.firstNameIdx);
-		assertEquals(streetIdx, idx.streetIdx);
-		assertEquals(cityIdx, idx.cityIdx);
-		assertEquals(lastNameIdx, idx.lastNameIdx);
+		assertEquals(accountIdx, idx.getAccountIdx());				
+		assertEquals(firstNameIdx, idx.getFirstNameIdx());
+		assertEquals(streetIdx, idx.getStreetIdx());
+		assertEquals(cityIdx, idx.getCityIdx());
+		assertEquals(lastNameIdx, idx.getLastNameIdx());
 	}
 
 	public void testEncodeDecodeMax() {
-		LongCodec lc = new LongCodec();
 		
 		int firstNameIdx = LongCodec.FNAME_MAX-1; 
 		int lastNameIdx= LongCodec.LNAME_MAX-1;
@@ -58,15 +56,15 @@ public class TestLongCodec {
 		int cityIdx= LongCodec.CITIES_MAX-1;
 		int accountIdx= LongCodec.ACCOUNT_MAX-1;
 
-		Long key = lc.encode(firstNameIdx, lastNameIdx, streetIdx, cityIdx, accountIdx);
+		Long key = LongCodec.encode(firstNameIdx, lastNameIdx, streetIdx, cityIdx, accountIdx);
 		
-		LongCodec.Index idx = lc.decode(key);
+		IdentityIndex idx = LongCodec.decode(key);
 
-		assertEquals(accountIdx, idx.accountIdx);				
-		assertEquals(firstNameIdx, idx.firstNameIdx);
-		assertEquals(streetIdx, idx.streetIdx);
-		assertEquals(cityIdx, idx.cityIdx);
-		assertEquals(lastNameIdx, idx.lastNameIdx);
+		assertEquals(accountIdx, idx.getAccountIdx());				
+		assertEquals(firstNameIdx, idx.getFirstNameIdx());
+		assertEquals(streetIdx, idx.getStreetIdx());
+		assertEquals(cityIdx, idx.getCityIdx());
+		assertEquals(lastNameIdx, idx.getLastNameIdx());
 	}
 
 
