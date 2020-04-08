@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,6 +31,7 @@ import org.nuxeo.ecm.core.blob.jit.gen.DocInfo;
 import org.nuxeo.ecm.core.blob.jit.gen.InMemoryBlobGenerator;
 import org.nuxeo.ecm.core.blob.jit.gen.NodeInfo;
 import org.nuxeo.ecm.core.blob.jit.rnd.RandomDataGenerator;
+import org.nuxeo.ecm.core.blob.jit.rnd.SequenceGenerator;
 import org.nuxeo.importer.stream.message.DocumentMessage;
 import org.nuxeo.lib.stream.pattern.producer.AbstractProducer;
 import org.nuxeo.runtime.api.Framework;
@@ -43,29 +43,20 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 
 	protected int documentCount = 0;
 
-	protected Random acccountSeedGen = new Random();
-	protected Random dataSeedGen = new Random();
-
-	protected Long currentAccountSeed;
-	protected Long currentDataSeed;
-	protected int month;
 	protected final int nbMonths;	
 
 	protected final List<NodeInfo> hierarchy;
+	
+	protected final SequenceGenerator sequenceGen;
 	
 	public StatementDocumentMessageProducer(Long seed, int producerId, long nbDocuments, int nbMonths) {
 		super(producerId);
 		this.nbDocuments = nbDocuments;
 		this.nbMonths = nbMonths;
-
-		if (seed!=null) {
-			acccountSeedGen = new Random(seed);
-			dataSeedGen = new Random(seed);		
-		}	
 		
-		currentAccountSeed = acccountSeedGen.nextLong();
-		currentDataSeed = dataSeedGen.nextLong();		
-		month = 0;
+		System.out.println("Start MP with seed " + seed);
+
+		sequenceGen = new SequenceGenerator(seed, nbMonths);
 				
 		hierarchy = getGen().getTimeHierarchy(nbMonths, true);
 		
@@ -90,20 +81,18 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 	public DocumentMessage next() {
 		DocumentMessage ret;
 
-		if (month % nbMonths == 0) {
-			month = 0;
-			currentAccountSeed = acccountSeedGen.nextLong();
-		}
-		currentDataSeed = dataSeedGen.nextLong();
-
-		ret = createDocument(hierarchy.get(month).getPath());
+		SequenceGenerator.Entry entry = sequenceGen.next();
+		ret = createDocument(hierarchy.get(entry.getMonth()).getPath(), entry);
 		
-		month++;
 		return ret;
 	}
 
-	protected DocumentMessage createDocument(String parentPath) {
+	protected DocumentMessage createDocument(String parentPath, SequenceGenerator.Entry entry) {
 
+		long currentAccountSeed = entry.getAccountKey();
+		long currentDataSeed = entry.getDataKey();
+		int month = entry.getMonth();
+		
 		DocInfo docInfo = getGen().computeDocInfo("jit", currentAccountSeed, currentDataSeed, month);
 
 		String title = getTitle(docInfo);

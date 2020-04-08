@@ -2,7 +2,7 @@ package org.nuxeo.ecm.core.blob.jit.rnd;
 
 public class LongCodec {
 
-	public static final int FNAME_BITS = 18;
+	public static final int FNAME_BITS = 17;
 	public static final int FNAME_MAX = 1 << FNAME_BITS;
 
 	public static final int LNAME_BITS = 17;

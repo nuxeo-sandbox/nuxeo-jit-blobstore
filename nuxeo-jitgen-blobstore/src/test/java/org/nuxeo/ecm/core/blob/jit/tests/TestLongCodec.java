@@ -72,7 +72,7 @@ public class TestLongCodec {
 	public void testEncodeDecodeMultipleTimes() {
 		testEncodeDecodeMin();
 		testEncodeDecodeMax();
-		for (int i = 0; i < 10000; i++) {
+		for (int i = 0; i < 100000; i++) {
 			testEncodeDecodeRnd();
 		}
 	}

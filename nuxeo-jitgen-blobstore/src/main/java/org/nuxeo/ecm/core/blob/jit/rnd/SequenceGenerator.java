@@ -47,7 +47,11 @@ public class SequenceGenerator {
 			String.format(" --- %d - %d", month, dataKey);
 		}
 	}
-	
+
+	public SequenceGenerator(long accountSeed, int nbMonths) {
+		this(new Random(accountSeed), new Random(DATA_SEED), new Random(NB_ACCOUNTS_SEED), nbMonths);
+	}
+
 	public SequenceGenerator(int nbMonths) {
 		this(new Random(ACCOUNT_SEED), new Random(DATA_SEED), new Random(NB_ACCOUNTS_SEED), nbMonths);
 	}

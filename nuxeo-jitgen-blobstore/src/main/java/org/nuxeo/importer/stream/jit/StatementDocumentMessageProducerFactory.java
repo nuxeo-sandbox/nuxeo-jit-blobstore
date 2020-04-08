@@ -27,6 +27,7 @@ public class StatementDocumentMessageProducerFactory implements ProducerFactory<
 	protected final Long seed;
 	protected final long nbDocuments;
 	protected final int nbMonth;
+	protected int seedIncrement=0;
 
 	/**
 	 * Generates random documents messages that point to existing blobs.
@@ -39,7 +40,7 @@ public class StatementDocumentMessageProducerFactory implements ProducerFactory<
 
 	@Override
 	public ProducerIterator<DocumentMessage> createProducer(int producerId) {
-		return new StatementDocumentMessageProducer(seed, producerId, nbDocuments, nbMonth);
+		return new StatementDocumentMessageProducer(seed+(seedIncrement++), producerId, nbDocuments, nbMonth);
 	}
 
 	protected String getGroupName(int producerId) {

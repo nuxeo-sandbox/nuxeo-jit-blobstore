@@ -198,7 +198,7 @@ public class RandomDataGenerator {
 	}
 
 
-	protected String genAccountNumber(Random seqGen) {
+	public static String genAccountNumber(Random seqGen) {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append(String.format("%04d", Math.round(seqGen.nextDouble() * 9999L)));
@@ -212,7 +212,7 @@ public class RandomDataGenerator {
 		return sb.toString();
 	}
 
-	protected String genAccountNumber(int fNameIdx, int lNameIdx, int streetIdx, int cityIdx, int accountIdx) {
+	public static String genAccountNumber(int fNameIdx, int lNameIdx, int streetIdx, int cityIdx, int accountIdx) {
 		StringBuilder sb = new StringBuilder();		
 		sb.append(String.format("%05X", fNameIdx));
 		sb.append("-");
@@ -234,11 +234,16 @@ public class RandomDataGenerator {
 	
 	protected void fillUserInfo(String[] result, int fNameIdx, int lNameIdx, int streetIdx, int cityIdx, int accountIdx) {
 		
-		fNameIdx = fNameIdx % firstNames.size();
-		lNameIdx = lNameIdx % lastNames.size();
-		streetIdx = streetIdx % streets.size();
-		cityIdx = cityIdx % cities.size();
-		
+		//fNameIdx = fNameIdx % firstNames.size();
+		//lNameIdx = lNameIdx % lastNames.size();
+		//streetIdx = streetIdx % streets.size();
+		//cityIdx = cityIdx % cities.size();
+
+		fNameIdx = fNameIdx % LongCodec.FNAME_MAX;
+		lNameIdx = lNameIdx % LongCodec.LNAME_MAX;
+		streetIdx = streetIdx % LongCodec.STREET_MAX;
+		cityIdx = cityIdx % LongCodec.CITIES_MAX;
+
 		result[0] = firstNames.get(fNameIdx) + " " + lastNames.get(lNameIdx);
 		result[1] = streets.get(streetIdx);
 		result[2] = cities.get(cityIdx);

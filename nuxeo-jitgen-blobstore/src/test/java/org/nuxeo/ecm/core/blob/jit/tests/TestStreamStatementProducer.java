@@ -5,8 +5,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.Serializable;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -84,16 +88,16 @@ public class TestStreamStatementProducer {
     }
 
     protected static String[] expectedAccountID=new String[] {
-    		"0D377-07C9D-5D0B414-05",
-    		"27180-02DF4-6252532-00",
-    		"13A20-07436-34D27B8-05",
-    		"19E08-1312B-2CEE0CF-00",
-    		"25F4E-00805-422666B-01",
-    		"1ABEE-1F712-3BA857E-03",
-    		"34AFF-05187-670C565-05",
-    		"2CD1E-05D13-706F03E-07",
-    		"31BB0-15D7D-0E6F5CA-06",
-    		"24601-17E63-6D0825B-04"    };
+    		"0E570-08A8E-53AE1E6-01",
+    		"0D377-0F93A-3A16029-01",
+    		"0D377-0F93A-3A16029-02",
+    		"0D377-0F93A-3A16029-03",
+    		"07180-05BE9-44A4265-01",
+    		"07180-05BE9-44A4265-02",
+    		"13A20-0E86C-69A4770-01",
+    		"19E08-06256-59DD19E-01",
+    		"05F4E-0100B-044C4D7-01",
+    		"05F4E-0100B-044C4D7-02"  };
         
     @Test
     public void canCreateStatementsMessages() throws Exception{
@@ -132,6 +136,7 @@ public class TestStreamStatementProducer {
             		if (count%48==0) {
             			lastAccounId = account;
             			assertEquals(expectedAccountID[idx],lastAccounId);
+            			//System.out.println(lastAccounId);
             			assertTrue(expectedAccountID[idx].contains(customer));
             			idx++;
             		} else {
@@ -147,6 +152,90 @@ public class TestStreamStatementProducer {
         }
     	    	
     	    	
+    }
+
+    
+    @Test
+    public void canCreateStatementsMessagesMT() throws Exception{
+
+    	try (OperationContext ctx = new OperationContext(session)) {
+            Map<String, Serializable> params = new HashMap<>();
+
+            long nbThreads=8;
+            long nbMonths=1;
+            long nbDocs = nbMonths*10*nbThreads;
+            
+            params.put("nbDocuments", nbDocs);
+            params.put("nbMonths", nbMonths);
+            params.put("logConfig", "chronicle");
+            params.put("nbThreads", nbThreads);
+            params.put("seed", AccountHelper.DEFAULT_SEED);
+
+            automationService.run(ctx,StatementProducers.ID, params);
+                                    
+    		LogManager manager = Framework.getService(StreamService.class).getLogManager("chronicle");
+    		    		
+            LogTailer<DocumentMessage> tailer = manager.createTailer("test", StreamImporters.DEFAULT_LOG_DOC_NAME);            
+            
+            List<String> generatedAccounts = new ArrayList<String>();
+            
+            LogRecord<DocumentMessage> record=null;
+            do {
+            	record = tailer.read(Duration.ofSeconds(5));
+            	if (record!=null) {
+            		DocumentMessage docMessage = record.message();
+            		String account = (String) docMessage.getProperties().get("statement:accountNumber");
+            		generatedAccounts.add(account);
+            	}            		
+            } while (record!=null);
+            
+            assertEquals(nbDocs, generatedAccounts.size());
+            tailer.commit();
+            tailer.close();            
+            
+            //System.out.println(generatedAccounts);
+            
+            Set<String> dups = findDups(generatedAccounts);
+            // XXX there is a Schrodinger cat hidden in here !
+            //System.out.println(dups);
+            assertEquals(0, dups.size());
+            
+            // verify that we generated all the expected accounts
+            List<String> thread1Accounts = new ArrayList<String>();
+            
+            for (String ac: expectedAccountID) {
+            	assertTrue("Unable to find entry " + ac, generatedAccounts.contains(ac));
+            	thread1Accounts.add(ac);
+            }
+              
+            int nbOtherAccounts = 0;
+            for (String ac: generatedAccounts) {
+            	if (!thread1Accounts.contains(ac)) {
+            		nbOtherAccounts++;
+            	}
+            }
+            
+            assertEquals(nbDocs, expectedAccountID.length + nbOtherAccounts);
+            
+        }
+    	    	
+    	    	
+    }
+
+    protected Set<String> findDups(List<String> lst) {
+    
+    	Set<String> dups = new HashSet<String>();
+    	Set<String> uniqueEntries = new HashSet<String>();
+    	
+    	for (String e : lst) {
+    		if (uniqueEntries.contains(e)) {
+    			dups.add(e);
+    		} else {
+    			uniqueEntries.add(e);
+    		}
+    	}
+    	
+    	return dups;    	
     }
     
     @Test
