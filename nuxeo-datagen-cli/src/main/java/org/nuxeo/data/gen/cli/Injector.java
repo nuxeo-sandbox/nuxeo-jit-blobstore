@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Logger;
+import org.nuxeo.data.gen.meta.RandomDataGenerator;
 import org.nuxeo.data.gen.meta.SequenceGenerator;
 import org.nuxeo.data.gen.out.BlobWriter;
 import org.nuxeo.data.gen.pdf.PDFFileGenerator;
@@ -42,7 +43,11 @@ public class Injector {
 
 	protected final MODE mode;
 	
-	public Injector(MODE mode, PDFFileGenerator gen, int total, int nbThreads, int nbMonths, Logger importLogger, Logger metadataLogger) {
+	protected RandomDataGenerator rndGen;
+	
+	protected final long seed;
+	
+	public Injector(MODE mode, long seed, PDFFileGenerator gen, int total, int nbThreads, int nbMonths, Logger importLogger, Logger metadataLogger) {
 		this.mode=mode;
 		this.gen = gen;
 		this.total = total;
@@ -51,6 +56,16 @@ public class Injector {
 		this.metadataLogger = metadataLogger;
 		this.importLogger = importLogger;
 		this.nbMonths=nbMonths;
+		this.seed=seed;
+		
+		if (mode == MODE.PDF) {
+			rndGen = new RandomDataGenerator(true, true);
+			try {
+				rndGen.init();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 	public BlobWriter getWriter() {
@@ -118,11 +133,14 @@ public class Injector {
 		AtomicInteger counter = new AtomicInteger();
 		AtomicInteger genSize = new AtomicInteger();
 
+		
+		
+		
 		log("----------------------------------------------------------");
 
 		long t0 = System.currentTimeMillis();
 
-		AtomicLong seqGenSeed = new AtomicLong(SequenceGenerator.DEFAULT_ACCOUNT_SEED);
+		AtomicLong seqGenSeed = new AtomicLong(seed);
 		
 		final class Task implements Runnable {
 
@@ -134,8 +152,7 @@ public class Injector {
 				for (int i = 0; i < callsPerThreads; i++) {
 					try {
 						buffer.reset();
-						SequenceGenerator.Entry entry = sg.next();
-						
+						SequenceGenerator.Entry entry = sg.next();						
 						
 						if (mode==MODE.ID) {
 							String id = entry.getAccountID();
@@ -144,11 +161,12 @@ public class Injector {
 							String id = entry.getAccountID();
 							collect(id, entry.getMetaData());
 						} else if (mode==MODE.PDF) {
-							StatementMeta meta = gen.generate(buffer, entry.getMetaData());
+							String[] meta = rndGen.generate(entry.getAccountKeyLong(), entry.getDataKey(), entry.getMonth());
+							StatementMeta smeta = gen.generate(buffer, meta);
 							if (writer != null) {
-								writer.write(buffer.toByteArray(), meta.getDigest());
+								writer.write(buffer.toByteArray(), smeta.getDigest());
 							}
-							collect(meta);							
+							collect(smeta);							
 						} 
 						counter.incrementAndGet();
 					} catch (Exception e) {

@@ -20,12 +20,16 @@ import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFact
 import org.apache.logging.log4j.core.config.builder.api.LoggerComponentBuilder;
 import org.apache.logging.log4j.core.config.builder.api.RootLoggerComponentBuilder;
 import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
+import org.nuxeo.data.gen.meta.SequenceGenerator;
 import org.nuxeo.data.gen.out.BlobWriter;
 import org.nuxeo.data.gen.out.FolderWriter;
 import org.nuxeo.data.gen.out.S3TMAWriter;
 import org.nuxeo.data.gen.out.S3TMWriter;
 import org.nuxeo.data.gen.out.S3Writer;
 import org.nuxeo.data.gen.out.TmpWriter;
+import org.nuxeo.data.gen.out.filter.JpegFilter;
+import org.nuxeo.data.gen.out.filter.TiffFilter;
+import org.nuxeo.data.gen.out.filter.WriteFilter;
 import org.nuxeo.data.gen.pdf.itext.ITextNXBankStatementGenerator;
 import org.nuxeo.data.gen.pdf.itext.ITextNXBankTemplateCreator;
 import org.nuxeo.data.gen.pdf.itext.ITextNXBankTemplateCreator2;
@@ -89,6 +93,8 @@ public class EntryPoint {
 		options.addOption("d", "months", true, "Number of months of statements to generate");
 		options.addOption("o", "output", true, "generate and output PDF : mem (default), tmp, file:<path>, s3:<bucketName>, s3tm:<bucketName>, s3tma:<bucketName>");
 		options.addOption("h", "help", false, "Help");
+		options.addOption("s", "seed", true, "Seed");
+		options.addOption("f", "filter", true, "filter to be applied: tiff, jpeg");
 		options.addOption("aws_key", true, "AWS_ACCESS_KEY_ID");
 		options.addOption("aws_secret", true, "AWS_SECRET_ACCESS_KEY");
 		options.addOption("aws_session", true, "AWS_SESSION_TOKEN");
@@ -107,6 +113,8 @@ public class EntryPoint {
 		int nbDocs = Integer.parseInt(cmd.getOptionValue('n', "100000"));
 		int nbMonths = Integer.parseInt(cmd.getOptionValue('d', "48"));
 
+		long seed = Long.parseLong(cmd.getOptionValue('s', SequenceGenerator.DEFAULT_ACCOUNT_SEED+""));
+				
 		String modeStr = cmd.getOptionValue('m', "id");
 		Injector.MODE mode = Injector.MODE.ID;
 		try {
@@ -115,7 +123,7 @@ public class EntryPoint {
 			System.err.println("Invalid mode : " + modeStr);
 			return;
 		}
-		
+						
 		String out = cmd.getOptionValue('o', "mem");
 		BlobWriter writer = null;
 		if (TmpWriter.NAME.equalsIgnoreCase(out)) {
@@ -151,6 +159,19 @@ public class EntryPoint {
 			writer = new S3TMAWriter(bucketName, aws_key, aws_secret, aws_session);
 		}
 
+		if (writer!=null) {
+			String filterName = cmd.getOptionValue('f', "");
+			WriteFilter filter=null;
+			if (TiffFilter.NAME.equalsIgnoreCase(filterName)) {
+				filter = new TiffFilter();
+			} else 	if (JpegFilter.NAME.equalsIgnoreCase(filterName)) {
+				filter = new JpegFilter();
+			}			
+			if (filter!=null) {
+				writer.setFilter(filter);
+			}
+		}
+		
 		if (cmd.hasOption('h')) {
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("DataGenCLI", options);
@@ -170,7 +191,7 @@ public class EntryPoint {
 		cmdLogger.log(Level.INFO, "  nbMonths:" + nbMonths);
 		
 		try {
-			runInjector(mode, nbDocs, nbThreads, nbMonths, importLogger, metadataLogger, writer);
+			runInjector(mode, seed, nbDocs, nbThreads, nbMonths, importLogger, metadataLogger, writer);
 		} catch (Exception e) {
 			System.err.println("Error while running Injector " + e);
 			e.printStackTrace();
@@ -179,7 +200,7 @@ public class EntryPoint {
 		ctx.close();
 	}
 
-	protected static void runInjector(Injector.MODE mode, int total, int threads, int nbMonths, Logger importLogger, Logger metadataLogger,
+	protected static void runInjector(Injector.MODE mode, long seed, int total, int threads, int nbMonths, Logger importLogger, Logger metadataLogger,
 			BlobWriter writer) throws Exception {
 
 		// Data Generator
@@ -199,10 +220,8 @@ public class EntryPoint {
 		gen.init(new ByteArrayInputStream(templateData), templateGen.getKeys());
 		gen.computeDigest = true;
 
-		Injector injector = new Injector(mode, gen, total, threads, nbMonths, importLogger, metadataLogger);
-
+		Injector injector = new Injector(mode, seed,  gen, total, threads, nbMonths, importLogger, metadataLogger);
 		injector.setWriter(writer);
-
 		injector.run();
 
 	}

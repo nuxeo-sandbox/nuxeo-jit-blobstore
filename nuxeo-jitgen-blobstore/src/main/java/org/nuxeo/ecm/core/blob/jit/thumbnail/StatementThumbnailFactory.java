@@ -42,9 +42,15 @@ public class StatementThumbnailFactory implements ThumbnailFactory {
 	    MemoryCacheImageOutputStream outStream = new MemoryCacheImageOutputStream(out);
 	    jpgWriter.setOutput(outStream);
 	    jpgWriter.write(bim);
-	    
-	    Blob blob = new ByteArrayBlob(out.toByteArray());
+	    	    
 		doc.close();
+		jpgWriter.dispose();
+        outStream.flush();
+        outStream.close();
+        out.flush();
+        
+        Blob blob = new ByteArrayBlob(out.toByteArray());
+        
 		return blob;
 	}
     

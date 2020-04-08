@@ -1,13 +1,12 @@
 package org.nuxeo.data.gen.out;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 
-public class FolderWriter implements BlobWriter {
+public class FolderWriter extends AbstractBlobWriter implements BlobWriter {
 
 	public static final String NAME= "file:";
 	
@@ -19,8 +18,8 @@ public class FolderWriter implements BlobWriter {
 	
 	@Override
 	public void write(byte[] data, String digest) throws Exception {
-		Path path = Path.of(folder.getAbsolutePath(), digest); 
-		Files.copy(new ByteArrayInputStream(data), path,StandardCopyOption.REPLACE_EXISTING);		
+		Path path = Path.of(folder.getAbsolutePath(), digest + "." + getExtension()); 
+		Files.copy(wrap(data), path,StandardCopyOption.REPLACE_EXISTING);		
 	}
 	
 	@Override

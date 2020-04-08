@@ -29,7 +29,7 @@ public class S3TMAWriter extends S3TMWriter {
 		meta.setContentLength(data.length);
 		//meta.setContentMD5(digest);
 
-		Upload upload = tm.upload(bucketName, digest,new ByteArrayInputStream(data), meta);
+		Upload upload = tm.upload(bucketName, digest,wrap(data), meta);
 		pendingUploads.incrementAndGet();
 		upload.addProgressListener(new ProgressListener() {
 			

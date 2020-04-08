@@ -1,11 +1,5 @@
 package org.nuxeo.data.gen.out;
 
-import java.io.ByteArrayInputStream;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import com.amazonaws.event.ProgressEvent;
-import com.amazonaws.event.ProgressEventType;
-import com.amazonaws.event.ProgressListener;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
@@ -40,7 +34,7 @@ public class S3TMWriter extends S3Writer {
 		meta.setContentLength(data.length);
 		//meta.setContentMD5(digest);
 
-		Upload upload = tm.upload(bucketName, digest,new ByteArrayInputStream(data), meta);
+		Upload upload = tm.upload(bucketName, digest,wrap(data), meta);
 		upload.waitForCompletion();
 		
 	}

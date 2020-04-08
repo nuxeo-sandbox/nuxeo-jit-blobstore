@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
-public abstract class AbstractFolderBatchWriter implements BlobWriter {
+public abstract class AbstractFolderBatchWriter extends AbstractBlobWriter implements BlobWriter {
 
 	public static final String NAME = "file:";
 
@@ -93,7 +93,7 @@ public abstract class AbstractFolderBatchWriter implements BlobWriter {
 		Batch batch = getCurrentBatchId();
 		String directory = getBatchFolderPath(batch.batchId);
 		Path path = Path.of(directory, digest);
-		Files.copy(new ByteArrayInputStream(data), path);		
+		Files.copy(wrap(data), path);		
 		fileCompleted(batch);	
 	}
 
