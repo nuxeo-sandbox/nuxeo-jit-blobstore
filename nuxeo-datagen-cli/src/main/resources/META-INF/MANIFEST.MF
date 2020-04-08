@@ -1,0 +1,5 @@
+Bundle-SymbolicName: org.nuxeo.datagen.cli;singleton:=true
+Manifest-Version: 1.0
+Bundle-Name: Nuxeo Data Generator CLI
+Bundle-ManifestVersion: 2
+

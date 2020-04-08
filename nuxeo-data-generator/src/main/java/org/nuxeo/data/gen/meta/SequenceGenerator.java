@@ -20,7 +20,7 @@ public class SequenceGenerator {
 	public static final Long DEFAULT_DATA_SEED = 42020L;
 	public static final Long DEFAULT_ACCOUNT_SEED = 2020L;	
 	
-	protected RandomDataGenerator rnd;
+	protected static RandomDataGenerator rnd;
 	
 	public class Entry {		
 

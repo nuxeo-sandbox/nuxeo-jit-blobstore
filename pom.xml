@@ -17,6 +17,7 @@
   <modules>
     <module>nuxeo-data-generator</module>
     <module>nuxeo-jitgen-blobstore</module>
+    <module>nuxeo-datagen-cli</module>
     <module>package</module>
   </modules>
 
@@ -78,6 +79,11 @@
       <dependency>
         <groupId>org.nuxeo.ecm.core</groupId>
         <artifactId>nuxeo-jitgen-blobstore</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.nuxeo.ecm.core</groupId>
+        <artifactId>nuxeo-datagen-cli</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
