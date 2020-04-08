@@ -26,6 +26,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.nuxeo.data.gen.meta.SequenceGenerator;
 import org.nuxeo.ecm.automation.OperationContext;
 import org.nuxeo.ecm.automation.OperationException;
 import org.nuxeo.ecm.automation.core.Constants;
@@ -34,7 +35,6 @@ import org.nuxeo.ecm.automation.core.annotations.Operation;
 import org.nuxeo.ecm.automation.core.annotations.OperationMethod;
 import org.nuxeo.ecm.automation.core.annotations.Param;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
-import org.nuxeo.ecm.core.blob.jit.rnd.SequenceGenerator;
 import org.nuxeo.importer.stream.StreamImporters;
 import org.nuxeo.importer.stream.jit.StatementDocumentMessageProducerFactory;
 import org.nuxeo.importer.stream.message.DocumentMessage;

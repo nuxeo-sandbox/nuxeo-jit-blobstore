@@ -27,11 +27,11 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.nuxeo.data.gen.meta.RandomDataGenerator;
+import org.nuxeo.data.gen.meta.SequenceGenerator;
 import org.nuxeo.ecm.core.blob.jit.gen.DocInfo;
 import org.nuxeo.ecm.core.blob.jit.gen.InMemoryBlobGenerator;
 import org.nuxeo.ecm.core.blob.jit.gen.NodeInfo;
-import org.nuxeo.ecm.core.blob.jit.rnd.RandomDataGenerator;
-import org.nuxeo.ecm.core.blob.jit.rnd.SequenceGenerator;
 import org.nuxeo.importer.stream.message.DocumentMessage;
 import org.nuxeo.lib.stream.pattern.producer.AbstractProducer;
 import org.nuxeo.runtime.api.Framework;

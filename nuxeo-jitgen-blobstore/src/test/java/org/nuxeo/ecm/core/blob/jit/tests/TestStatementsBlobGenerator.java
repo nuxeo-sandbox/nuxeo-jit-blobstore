@@ -13,8 +13,8 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.junit.Test;
 import org.nuxeo.ecm.core.blob.jit.gen.StatementsBlobGenerator;
-import org.nuxeo.ecm.core.blob.jit.gen.SmtMeta;
-import org.nuxeo.ecm.core.blob.jit.gen.pdf.itext.ITextNXBankStatementGenerator;
+import org.nuxeo.data.gen.pdf.StatementMeta;
+import org.nuxeo.data.gen.pdf.itext.ITextNXBankStatementGenerator;
 
 public class TestStatementsBlobGenerator {
 
@@ -47,7 +47,7 @@ public class TestStatementsBlobGenerator {
 		}
 		
 		ByteArrayOutputStream out = new ByteArrayOutputStream();			
-		SmtMeta smeta= bg.getStream(key, out);		
+		StatementMeta smeta= bg.getStream(key, out);		
 		
 		byte[] pdfData = out.toByteArray();
 		PDFTextStripper stripper = new PDFTextStripper();

@@ -15,6 +15,7 @@
   <packaging>pom</packaging>
 
   <modules>
+    <module>nuxeo-data-generator</module>
     <module>nuxeo-jitgen-blobstore</module>
     <module>package</module>
   </modules>
@@ -69,6 +70,11 @@
   </pluginRepositories>
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>org.nuxeo.ecm.core</groupId>
+        <artifactId>nuxeo-data-generator</artifactId>
+        <version>${project.version}</version>
+      </dependency>
       <dependency>
         <groupId>org.nuxeo.ecm.core</groupId>
         <artifactId>nuxeo-jitgen-blobstore</artifactId>

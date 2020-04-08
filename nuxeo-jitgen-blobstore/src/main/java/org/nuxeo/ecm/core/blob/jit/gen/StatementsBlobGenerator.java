@@ -33,12 +33,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.nuxeo.data.gen.meta.RandomDataGenerator;
+import org.nuxeo.data.gen.pdf.StatementMeta;
+import org.nuxeo.data.gen.pdf.itext.ITextNXBankStatementGenerator;
+import org.nuxeo.data.gen.pdf.itext.ITextNXBankTemplateCreator;
+import org.nuxeo.data.gen.pdf.itext.ITextNXBankTemplateCreator2;
 import org.nuxeo.ecm.core.api.NuxeoException;
 import org.nuxeo.ecm.core.blob.BlobInfo;
-import org.nuxeo.ecm.core.blob.jit.gen.pdf.itext.ITextNXBankStatementGenerator;
-import org.nuxeo.ecm.core.blob.jit.gen.pdf.itext.ITextNXBankTemplateCreator;
-import org.nuxeo.ecm.core.blob.jit.gen.pdf.itext.ITextNXBankTemplateCreator2;
-import org.nuxeo.ecm.core.blob.jit.rnd.RandomDataGenerator;
 import org.nuxeo.runtime.model.ComponentContext;
 import org.nuxeo.runtime.model.DefaultComponent;
 
@@ -65,8 +66,7 @@ public class StatementsBlobGenerator extends DefaultComponent implements InMemor
 		templateGen = new ITextNXBankTemplateCreator2();
 
 		// init random data generator
-		InputStream csv = StatementsBlobGenerator.class.getResourceAsStream("/data.csv");
-		rnd.init(csv);
+		rnd.init();
 
 		// Generate the template
 		InputStream logo = StatementsBlobGenerator.class.getResourceAsStream("/NxBank3.png");
@@ -128,7 +128,7 @@ public class StatementsBlobGenerator extends DefaultComponent implements InMemor
 		return rnd.generate(key);
 	}
 
-	public SmtMeta getStream(String key, OutputStream out) throws Exception {
+	public StatementMeta getStream(String key, OutputStream out) throws Exception {
 		String[] meta = getMetaDataForBlobKey(key);
 		return gen.generate(out, meta);
 	}
@@ -172,7 +172,7 @@ public class StatementsBlobGenerator extends DefaultComponent implements InMemor
 		String[] meta = getMetaDataForBlobKey(key);
 		ByteArrayOutputStream out = new ByteArrayOutputStream(5 * 1024);
 		try {
-			SmtMeta smt = gen.generate(out, meta);
+			StatementMeta smt = gen.generate(out, meta);
 			return new ByteArrayInputStream(out.toByteArray());
 		} catch (Exception e) {
 			throw new IOException("Unable to generate statement", e);

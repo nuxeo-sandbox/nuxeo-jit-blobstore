@@ -8,8 +8,8 @@
     <artifactId>nuxeo-benchmark-10b-plugin</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
-  <artifactId>nuxeo-jitgen-blobstore</artifactId>
-  <name>Nuxeo jitgen blobstore</name>
+  <artifactId>nuxeo-data-generator</artifactId>
+  <name>Nuxeo Data Generator</name>
   <description></description>
 
 
@@ -47,10 +47,6 @@
   </pluginRepositories>
 
   <dependencies>
-    <dependency>
-      <groupId>org.nuxeo.ecm.core</groupId>
-      <artifactId>nuxeo-data-generator</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.nuxeo.common</groupId>
       <artifactId>nuxeo-common</artifactId>
