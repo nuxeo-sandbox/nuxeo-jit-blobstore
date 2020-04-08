@@ -34,7 +34,7 @@ import org.nuxeo.ecm.automation.core.annotations.Operation;
 import org.nuxeo.ecm.automation.core.annotations.OperationMethod;
 import org.nuxeo.ecm.automation.core.annotations.Param;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
-import org.nuxeo.ecm.core.blob.jit.rnd.AccountHelper;
+import org.nuxeo.ecm.core.blob.jit.rnd.SequenceGenerator;
 import org.nuxeo.importer.stream.StreamImporters;
 import org.nuxeo.importer.stream.jit.StatementDocumentMessageProducerFactory;
 import org.nuxeo.importer.stream.message.DocumentMessage;
@@ -72,7 +72,7 @@ public class StatementProducers {
     protected String logConfig = DEFAULT_LOG_CONFIG;
 
     @Param(name = "seed", required = false)
-    protected Long seed = AccountHelper.DEFAULT_SEED;
+    protected Long seed = SequenceGenerator.DEFAULT_ACCOUNT_SEED;
     
     protected void checkAccess() {
         NuxeoPrincipal principal = context.getPrincipal();

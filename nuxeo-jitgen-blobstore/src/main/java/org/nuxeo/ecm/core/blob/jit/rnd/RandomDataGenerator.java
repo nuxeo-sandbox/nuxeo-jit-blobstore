@@ -88,6 +88,11 @@ public class RandomDataGenerator {
 		return input;
 	}
 
+	public void init() throws Exception {
+		InputStream csv = this.getClass().getResourceAsStream("/data.csv");
+		init(csv);
+	}
+	
 	public void init(InputStream csv) throws Exception {
 		init(new InputStreamReader(csv));
 	}

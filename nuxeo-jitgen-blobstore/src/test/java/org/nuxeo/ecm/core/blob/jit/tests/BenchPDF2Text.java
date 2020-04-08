@@ -14,7 +14,7 @@ import org.nuxeo.ecm.core.blob.jit.gen.StatementsBlobGenerator;
 
 public class BenchPDF2Text {
 
-	protected static final int NB_CALLS = 5000;
+	protected static final int NB_CALLS = 1000;
 	protected static final int NB_THREADS = 10;
 
 	@Test

@@ -20,7 +20,7 @@ import org.nuxeo.ecm.automation.AutomationService;
 import org.nuxeo.ecm.automation.OperationContext;
 import org.nuxeo.ecm.automation.test.AutomationFeature;
 import org.nuxeo.ecm.core.api.CoreSession;
-import org.nuxeo.ecm.core.blob.jit.rnd.AccountHelper;
+import org.nuxeo.ecm.core.blob.jit.rnd.SequenceGenerator;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
 import org.nuxeo.importer.stream.StreamImporters;
@@ -111,7 +111,7 @@ public class TestStreamStatementProducer {
             params.put("nbMonths", 48);
             params.put("logConfig", "chronicle");
             params.put("nbThreads", 1);
-            params.put("seed", AccountHelper.DEFAULT_SEED);
+            params.put("seed", SequenceGenerator.DEFAULT_ACCOUNT_SEED);
 
             automationService.run(ctx,StatementProducers.ID, params);
                                     
@@ -169,7 +169,7 @@ public class TestStreamStatementProducer {
             params.put("nbMonths", nbMonths);
             params.put("logConfig", "chronicle");
             params.put("nbThreads", nbThreads);
-            params.put("seed", AccountHelper.DEFAULT_SEED);
+            params.put("seed", SequenceGenerator.DEFAULT_ACCOUNT_SEED);
 
             automationService.run(ctx,StatementProducers.ID, params);
                                     
@@ -213,13 +213,9 @@ public class TestStreamStatementProducer {
             	if (!thread1Accounts.contains(ac)) {
             		nbOtherAccounts++;
             	}
-            }
-            
-            assertEquals(nbDocs, expectedAccountID.length + nbOtherAccounts);
-            
+            }            
+            assertEquals(nbDocs, expectedAccountID.length + nbOtherAccounts);            
         }
-    	    	
-    	    	
     }
 
     protected Set<String> findDups(List<String> lst) {
@@ -239,9 +235,10 @@ public class TestStreamStatementProducer {
     }
     
     @Test
-    public void canRegenerateTheSameAccounts() throws Exception {		
+    public void canRegenerateTheSameAccounts() throws Exception {
+    	SequenceGenerator sGen = new SequenceGenerator(1);
     	for (int i = 0; i < 10; i++) {
-    		String id = AccountHelper.instance().getNextId();
+    		String id = sGen.next().getAccountID();
     		assertEquals(expectedAccountID[i], id);
     	}
 

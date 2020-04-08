@@ -3,8 +3,6 @@ package org.nuxeo.ecm.core.blob.jit.tests;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;

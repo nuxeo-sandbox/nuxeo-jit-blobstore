@@ -16,21 +16,27 @@ public class SequenceGenerator {
 	protected final Random dataSeedGen;
 	protected final Random acountNumberSeedGen;
 	
-	public static final Long NB_ACCOUNTS_SEED = 420L;
-	public static final Long DATA_SEED = 42020L;
-	public static final Long ACCOUNT_SEED = 2020L;	
+	public static final Long DEFAULT_NB_ACCOUNTS_SEED = 420L;
+	public static final Long DEFAULT_DATA_SEED = 42020L;
+	public static final Long DEFAULT_ACCOUNT_SEED = 2020L;	
+	
+	protected RandomDataGenerator rnd;
 	
 	public class Entry {		
 
 		long accountKey;
 		long dataKey;
 		int month;
+		IdentityIndex idx;
 		
 		public IdentityIndex getIdentity() {
-			return IdentityIndex.createFromLong(accountKey);
+			if (idx==null) {
+				idx = IdentityIndex.createFromLong(accountKey);
+			}
+			return idx;
 		}
 		
-		public long getAccountKey() {
+		public long getAccountKeyLong() {
 			return accountKey;
 		}
 
@@ -41,6 +47,14 @@ public class SequenceGenerator {
 		public int getMonth() {
 			return month;
 		}
+		
+		public String getAccountID() {			
+			return  RandomDataGenerator.genAccountNumber(getIdentity().getFirstNameIdx(), getIdentity().getLastNameIdx(), getIdentity().getStreetIdx(), getIdentity().getCityIdx(), getIdentity().getAccountIdx());
+		}
+
+		public String[] getMetaData() {			
+			return getDataGenerator().generate(accountKey, dataKey, month);
+		}
 
 		public String toString() {
 			return LongCodec.decode(accountKey).toString() + 
@@ -48,12 +62,24 @@ public class SequenceGenerator {
 		}
 	}
 
+	public synchronized RandomDataGenerator getDataGenerator() {
+		if (rnd==null) {
+			rnd = new RandomDataGenerator(false, true);
+			try {
+				rnd.init();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return rnd;
+	}
+	
 	public SequenceGenerator(long accountSeed, int nbMonths) {
-		this(new Random(accountSeed), new Random(DATA_SEED), new Random(NB_ACCOUNTS_SEED), nbMonths);
+		this(new Random(accountSeed), new Random(DEFAULT_DATA_SEED), new Random(DEFAULT_NB_ACCOUNTS_SEED), nbMonths);
 	}
 
 	public SequenceGenerator(int nbMonths) {
-		this(new Random(ACCOUNT_SEED), new Random(DATA_SEED), new Random(NB_ACCOUNTS_SEED), nbMonths);
+		this(new Random(DEFAULT_ACCOUNT_SEED), new Random(DEFAULT_DATA_SEED), new Random(DEFAULT_NB_ACCOUNTS_SEED), nbMonths);
 	}
 	
 	public SequenceGenerator(Random acccountSeedGen, Random dataSeedGen, Random acountNumberSeedGen, int nbMonths) {
@@ -90,7 +116,5 @@ public class SequenceGenerator {
 				
 		month++;			
 		return result;
-	}
-
-	
+	}	
 }

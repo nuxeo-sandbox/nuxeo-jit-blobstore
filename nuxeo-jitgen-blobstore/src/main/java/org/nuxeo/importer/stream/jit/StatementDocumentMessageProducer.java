@@ -52,12 +52,8 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 	public StatementDocumentMessageProducer(Long seed, int producerId, long nbDocuments, int nbMonths) {
 		super(producerId);
 		this.nbDocuments = nbDocuments;
-		this.nbMonths = nbMonths;
-		
-		System.out.println("Start MP with seed " + seed);
-
-		sequenceGen = new SequenceGenerator(seed, nbMonths);
-				
+		this.nbMonths = nbMonths;		
+		sequenceGen = new SequenceGenerator(seed, nbMonths);				
 		hierarchy = getGen().getTimeHierarchy(nbMonths, true);
 		
 		log.info("StatementDocumentMessageProducer created, nbDocuments: " + nbDocuments);
@@ -89,7 +85,7 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 
 	protected DocumentMessage createDocument(String parentPath, SequenceGenerator.Entry entry) {
 
-		long currentAccountSeed = entry.getAccountKey();
+		long currentAccountSeed = entry.getAccountKeyLong();
 		long currentDataSeed = entry.getDataKey();
 		int month = entry.getMonth();
 		
