@@ -14,6 +14,8 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.junit.Test;
 import org.nuxeo.data.gen.meta.RandomDataGenerator;
+import org.nuxeo.data.gen.pdf.itext.ITextIDGenerator;
+import org.nuxeo.data.gen.pdf.itext.ITextIDTemplateCreator;
 import org.nuxeo.data.gen.pdf.itext.ITextNXBankStatementGenerator;
 import org.nuxeo.data.gen.pdf.itext.ITextNXBankTemplateCreator;
 import org.nuxeo.data.gen.pdf.itext.ITextNXBankTemplateCreator2;
@@ -120,6 +122,59 @@ public class TestPDFGeneration {
 		}		
 	}
 
+	@Test
+	public void canGenerateIDFromTemplate() throws Exception {
+		
+		ITextIDTemplateCreator templateGen = new ITextIDTemplateCreator();		
+		InputStream bg = ITextIDTemplateCreator.class.getResourceAsStream("/id-back.jpeg");
+		templateGen.init(bg);
+		String[] keys = templateGen.getKeys();
+		
+		
+		
+		ByteArrayOutputStream templateOut = new ByteArrayOutputStream();
+		templateGen.generate(templateOut);
+		byte[] templateData =  templateOut.toByteArray();
+
+		
+		RandomDataGenerator rnd = getRndGenerator(false);
+
+		ITextIDGenerator gen = new ITextIDGenerator();
+		gen.init(new ByteArrayInputStream(templateData), keys);
+		gen.computeDigest = false;
+		gen.setPicture(ITextIDTemplateCreator.class.getResourceAsStream("/jexo.jpeg"));
+		
+		
+		ByteArrayOutputStream pdfOut = new ByteArrayOutputStream();
+		gen.generate(pdfOut, rnd.generate());
+
+		byte[] pdf = pdfOut.toByteArray();
+
+		
+		dumpPDF(pdf);
+
+	}
+
+	@Test
+	public void canGenerateIDTemplate() throws Exception {
+		
+		ITextIDTemplateCreator templateGen = new ITextIDTemplateCreator();		
+		InputStream bg = ITextIDTemplateCreator.class.getResourceAsStream("/id-back.jpeg");
+		templateGen.init(bg);
+
+		ByteArrayOutputStream templateOut = new ByteArrayOutputStream();
+		templateGen.generate(templateOut);
+		byte[] templateData =  templateOut.toByteArray();
+		
+		assertTrue(templateData.length > 0);
+
+		PDFTextStripper stripper = new PDFTextStripper();
+		String txt = stripper.getText(PDDocument.load(new ByteArrayInputStream(templateData)));
+
+		dumpPDF(templateData);
+	}
+	
+	
 	@Test
 	public void canGenerateFromTemplate() throws Exception {
 

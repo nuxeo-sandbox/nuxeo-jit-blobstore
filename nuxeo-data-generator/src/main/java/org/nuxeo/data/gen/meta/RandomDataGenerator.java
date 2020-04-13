@@ -29,7 +29,6 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.Random;
 
@@ -38,8 +37,6 @@ import org.nuxeo.data.gen.key.DummyKeyCodec;
 import org.nuxeo.data.gen.key.KeyCodec;
 
 public class RandomDataGenerator {
-
-	public static final int START_YEAR = 2020;
 	
 	protected ArrayList<String> firstNames = new ArrayList<String>();
 	protected ArrayList<String> lastNames = new ArrayList<String>();
@@ -173,9 +170,9 @@ public class RandomDataGenerator {
 			fillUserInfo(result, rndSeq1);			
 		}
 		
-		Date date = getDateWithOffset(dm);
+		Date date = FormatUtils.getDateWithOffset(dm);
 		try {
-			result[4] = pad(df.get().format(date), 20, false);
+			result[4] = FormatUtils.pad(df.get().format(date), 20, false);
 		} catch (Exception e) {
 			System.out.println("dm = " + dm);
 			e.printStackTrace();
@@ -196,11 +193,6 @@ public class RandomDataGenerator {
 	}
 
 
-	public Date getDateWithOffset(int dm) {
-		int dy = dm / 12;
-		int m = dm - dy * 12;
-		return new GregorianCalendar(START_YEAR - dy, m, 01).getTime();
-	}
 
 
 	public static String genAccountNumber(Random seqGen) {
@@ -254,7 +246,7 @@ public class RandomDataGenerator {
 		result[2] = cities.get(cityIdx);
 		result[3] = states.get(cityIdx);
 
-		Date date = getDateWithOffset(0);
+		Date date = FormatUtils.getDateWithOffset(0);
 		result[4] = df.get().format(date);
 
 		result[5] = genAccountNumber(fNameIdx, lNameIdx, streetIdx, cityIdx, accountIdx);
@@ -262,10 +254,10 @@ public class RandomDataGenerator {
 		result[0] = result[0] + " ".repeat(41 - result[0].length());
 
 		for (int i = 1; i < 4; i++) {
-			result[i] = pad(result[i], 20, true);
+			result[i] = FormatUtils.pad(result[i], 20, true);
 		}
-		result[4] = pad(result[4], 20, false);
-		result[5] = pad(result[5], 22, false);		
+		result[4] = FormatUtils.pad(result[4], 20, false);
+		result[5] = FormatUtils.pad(result[5], 22, false);		
 	}
 			
 	protected void fillUserInfo(String[] result, Random rndSeq) {
@@ -284,25 +276,15 @@ public class RandomDataGenerator {
 
 	protected String getFormatedRandomAmount(double amount, int size) {
 		String formattedValue = NumberFormat.getCurrencyInstance(new Locale("en", "US")).format(amount);
-		return pad(formattedValue, size, false);
+		return FormatUtils.pad(formattedValue, size, false);
 	}
 
-	protected String pad(String v, int size, boolean left) {
-		if (v.length() > size) {
-			v = v.substring(0, size - 1);
-		}
-		if (left) {
-			return v + " ".repeat(size - v.length());
-		} else {
-			return " ".repeat(size - v.length()) + v;
-		}
-	}
 
 	protected void fillOperations(String[] result, Random rndSeq) {
 		int idx = 6;
 
 		// init month from the same date as the statement!
-		result[idx] = pad(result[4].trim().substring(0, 3), 5, false);
+		result[idx] = FormatUtils.pad(result[4].trim().substring(0, 3), 5, false);
 		idx++;
 
 		double total = getRandomAmount(rndSeq) * 30;
@@ -312,7 +294,7 @@ public class RandomDataGenerator {
 		String opName = "";
 		for (int i = 1; i < 15; i++) {
 			opName = companies.get((int) Math.round(rndSeq.nextDouble() * (companies.size() - 1)));
-			result[idx] = pad(opName, 30, true);
+			result[idx] = FormatUtils.pad(opName, 30, true);
 			idx++;
 			double op = getRandomAmount(rndSeq);
 			result[idx] = getFormatedRandomAmount(op, 12);

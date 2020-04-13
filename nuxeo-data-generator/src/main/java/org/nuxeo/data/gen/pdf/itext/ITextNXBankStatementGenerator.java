@@ -122,7 +122,10 @@ public class ITextNXBankStatementGenerator implements PDFFileGenerator {
 			}
 			stream.setData(data);
 		}
+		
+		postProcessDoc(doc);
 		doc.close();
+		
 		writer.flush();
 		writer.close();
 
@@ -135,6 +138,10 @@ public class ITextNXBankStatementGenerator implements PDFFileGenerator {
 			md5 = toHexString(digest).toUpperCase();
 		}
 		return new StatementMeta(md5, fileName, fileSize, tokens);
+	}
+	
+	protected void postProcessDoc(PdfDocument doc) throws Exception {
+		return;
 	}
 
 	public static String toHexString(byte[] bytes) {

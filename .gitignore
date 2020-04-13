@@ -37,5 +37,7 @@ addons/nuxeo-shell/
 nuxeo-jsf-ui/
 marketplace/
 
+nuxeo-datagen-cli/myoutputfolder/
+
 metadata.csv
 run.sh

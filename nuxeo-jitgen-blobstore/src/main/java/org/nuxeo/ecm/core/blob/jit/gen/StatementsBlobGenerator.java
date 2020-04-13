@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.nuxeo.data.gen.meta.FormatUtils;
 import org.nuxeo.data.gen.meta.RandomDataGenerator;
 import org.nuxeo.data.gen.pdf.StatementMeta;
 import org.nuxeo.data.gen.pdf.itext.ITextNXBankStatementGenerator;
@@ -188,7 +189,7 @@ public class StatementsBlobGenerator extends DefaultComponent implements InMemor
 		SimpleDateFormat mf = new SimpleDateFormat("MMMM-YYYY");
 		
 		for (int m = 0; m < months; m++) {
-			Date d = rnd.getDateWithOffset(m);
+			Date d = FormatUtils.getDateWithOffset(m);
 			
 			NodeInfo yi = new NodeInfo();
 			yi.name = yf.format(d);

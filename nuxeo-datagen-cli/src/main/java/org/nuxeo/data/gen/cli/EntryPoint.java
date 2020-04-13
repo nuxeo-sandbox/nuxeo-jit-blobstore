@@ -94,7 +94,7 @@ public class EntryPoint {
 		options.addOption("o", "output", true, "generate and output PDF : mem (default), tmp, file:<path>, s3:<bucketName>, s3tm:<bucketName>, s3tma:<bucketName>");
 		options.addOption("h", "help", false, "Help");
 		options.addOption("s", "seed", true, "Seed");
-		options.addOption("f", "filter", true, "filter to be applied: tiff, jpeg");
+		options.addOption("f", "filter", true, "rendition to be applied to the pdf: tiff, jpeg");
 		options.addOption("aws_key", true, "AWS_ACCESS_KEY_ID");
 		options.addOption("aws_secret", true, "AWS_SECRET_ACCESS_KEY");
 		options.addOption("aws_session", true, "AWS_SESSION_TOKEN");
