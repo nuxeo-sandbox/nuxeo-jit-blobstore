@@ -21,10 +21,16 @@ package org.nuxeo.data.gen.pdf;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.nuxeo.data.gen.pdf.itext.filter.PDFOutputFilter;
+
 public interface PDFFileGenerator {
 
 	void init(InputStream pdfTemplate, String[] keys) throws Exception;
 
 	StatementMeta generate(OutputStream pdf, String[] tokens) throws Exception;
+	
+	String getType();
+	
+	void setFilter(PDFOutputFilter filter);
 
 }

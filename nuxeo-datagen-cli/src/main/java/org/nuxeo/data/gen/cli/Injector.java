@@ -1,3 +1,22 @@
+/*
+ * (C) Copyright 2020 Nuxeo (http://nuxeo.com/) and others.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *     Tiry
+ */
+
 package org.nuxeo.data.gen.cli;
 
 import java.io.ByteArrayOutputStream;
@@ -18,16 +37,13 @@ import org.nuxeo.data.gen.pdf.StatementMeta;
 
 public class Injector {
 
-	public enum MODE 
-	{
-	    ID, 
-	    METADATA, 
-	    PDF; 
-	} 
-		
+	public enum MODE {
+		ID, METADATA, PDF;
+	}
+
 	protected int nbThreads = 10;
 	protected int nbMonths = 48;
-	
+
 	protected static final int BUFFER_SIZE = 10 * 1024;
 
 	protected static final int MAX_PAUSE = 60 * 5;
@@ -42,22 +58,23 @@ public class Injector {
 	protected Logger metadataLogger;
 
 	protected final MODE mode;
-	
+
 	protected RandomDataGenerator rndGen;
-	
+
 	protected final long seed;
-	
-	public Injector(MODE mode, long seed, PDFFileGenerator gen, int total, int nbThreads, int nbMonths, Logger importLogger, Logger metadataLogger) {
-		this.mode=mode;
+
+	public Injector(MODE mode, long seed, PDFFileGenerator gen, int total, int nbThreads, int nbMonths,
+			Logger importLogger, Logger metadataLogger) {
+		this.mode = mode;
 		this.gen = gen;
 		this.total = total;
 		this.nbThreads = nbThreads;
 		this.callsPerThreads = Math.round(total / nbThreads) + 1;
 		this.metadataLogger = metadataLogger;
 		this.importLogger = importLogger;
-		this.nbMonths=nbMonths;
-		this.seed=seed;
-		
+		this.nbMonths = nbMonths;
+		this.seed = seed;
+
 		if (mode == MODE.PDF) {
 			rndGen = new RandomDataGenerator(true, true);
 			try {
@@ -88,7 +105,7 @@ public class Injector {
 		if (metadataLogger != null) {
 			StringBuffer sb = new StringBuffer();
 			sb.append(id);
-			if (meta!=null) {
+			if (meta != null) {
 				for (String key : meta) {
 					sb.append(",");
 					sb.append(key.trim());
@@ -97,7 +114,7 @@ public class Injector {
 			metadataLogger.log(Level.DEBUG, sb.toString());
 		}
 	}
-	
+
 	protected void collect(StatementMeta meta) {
 		if (metadataLogger != null) {
 			StringBuffer sb = new StringBuffer();
@@ -108,7 +125,7 @@ public class Injector {
 			sb.append(meta.getFileSize());
 			for (String key : meta.getKeys()) {
 				sb.append(",");
-				if (key!=null) {
+				if (key != null) {
 					sb.append(key.trim());
 				} else {
 					sb.append("null");
@@ -135,49 +152,54 @@ public class Injector {
 		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(nbThreads);
 		executor.prestartAllCoreThreads();
 		AtomicInteger counter = new AtomicInteger();
-		AtomicInteger genSize = new AtomicInteger();
 
-		
-		
-		
 		log("----------------------------------------------------------");
 
 		long t0 = System.currentTimeMillis();
 
 		AtomicLong seqGenSeed = new AtomicLong(seed);
-		
+
 		final class Task implements Runnable {
 
 			@Override
 			public void run() {
 				ByteArrayOutputStream buffer = new ByteArrayOutputStream(BUFFER_SIZE);
-				
-				SequenceGenerator sg = new SequenceGenerator(seqGenSeed.getAndIncrement(), nbMonths);				
+
+				SequenceGenerator sg = new SequenceGenerator(seqGenSeed.getAndIncrement(), nbMonths);
 				for (int i = 0; i < callsPerThreads; i++) {
 					try {
 						buffer.reset();
-						SequenceGenerator.Entry entry = sg.next();						
-						
-						if (mode==MODE.ID) {
+						SequenceGenerator.Entry entry = sg.next();
+
+						if (mode == MODE.ID) {
 							String id = entry.getAccountID();
 							collect(id, null);
-						} else if (mode==MODE.METADATA) {
+						} else if (mode == MODE.METADATA) {
 							String id = entry.getAccountID();
 							collect(id, entry.getMetaData());
-						} else if (mode==MODE.PDF) {
-							String[] meta = rndGen.generate(entry.getAccountKeyLong(), entry.getDataKey(), entry.getMonth());
-							StatementMeta smeta = gen.generate(buffer, meta);
-							if (writer != null) {
-								writer.write(buffer.toByteArray(), smeta.getDigest());
+						} else if (mode == MODE.PDF) {
+							StatementMeta smeta = null;
+							if (gen.getType().equalsIgnoreCase("IdCard")) {
+								sg.setAccountsRange(0);
+								String[] meta = entry.getMetaData();
+								smeta = gen.generate(buffer, meta);
+							} else {
+								String[] meta = rndGen.generate(entry.getAccountKeyLong(), entry.getDataKey(),
+										entry.getMonth());
+								smeta = gen.generate(buffer, meta);
 							}
-							collect(smeta);							
-						} 
+
+							if (writer != null) {
+								writer.write(buffer.toByteArray(), smeta);
+							}
+							collect(smeta);
+						}
 						counter.incrementAndGet();
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
-				if (writer!=null) {
+				if (writer != null) {
 					writer.flush();
 				}
 			}
@@ -192,7 +214,7 @@ public class Injector {
 		boolean finished = false;
 		Long throughput;
 		long pauseTimeS = 2;
-				
+
 		while (!finished) {
 
 			long t1 = System.currentTimeMillis();

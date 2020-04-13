@@ -82,7 +82,6 @@ public class ITextIDGenerator extends ITextNXBankStatementGenerator implements P
 	
 	public void init(InputStream pdf, String[] keys) throws Exception {
 		super.init(pdf, keys);
-		computeDigest=false;
 		keySize=keys.length;
 	}
 
@@ -98,8 +97,7 @@ public class ITextIDGenerator extends ITextNXBankStatementGenerator implements P
 		Date exp = FormatUtils.getDateWithOffset(-rnd.nextInt(5*12));
 		
 		extendedTokens[7] = FormatUtils.pad(RandomDataGenerator.df.get().format(dob), 20, true);
-		extendedTokens[9] = FormatUtils.pad(RandomDataGenerator.df.get().format(exp), 20, true);
-				
+		extendedTokens[9] = FormatUtils.pad(RandomDataGenerator.df.get().format(exp), 20, true);			
 		
 		return super.generate(buffer, extendedTokens);
 	}
@@ -114,5 +112,8 @@ public class ITextIDGenerator extends ITextNXBankStatementGenerator implements P
 		return;
 	}
 
+	public String getType() {
+		return "IDCard";
+	}
 
 }

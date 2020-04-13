@@ -16,32 +16,18 @@
  * Contributors:
  *     Tiry
  */
+package org.nuxeo.data.gen.pdf.itext.filter;
 
-package org.nuxeo.data.gen.out;
+public abstract class AbstractFilter implements PDFOutputFilter {
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+	protected int dpi = 150;
 
-public class FolderWriter extends AbstractBlobWriter implements BlobWriter {
-
-	public static final String NAME = "file:";
-
-	protected File folder;
-
-	public FolderWriter(String folder) {
-		this.folder = new File(folder);
+	public int getDPI() {
+		return dpi;
 	}
 
-	@Override
-	public void write(byte[] data, String fileName) throws Exception {
-		Path path = Path.of(folder.getAbsolutePath(), fileName);
-		Files.copy(wrap(data), path, StandardCopyOption.REPLACE_EXISTING);
+	public void setDPI(int dpi) {
+		this.dpi = dpi;
 	}
 
-	@Override
-	public void flush() {
-		// NOP
-	}
 }

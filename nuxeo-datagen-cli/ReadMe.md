@@ -33,7 +33,7 @@ Current command line options
     -m,--mode <arg>      define generation mode: id (default), metadata, pdf
     -n,--nbDoc <arg>     Number of Documents to generate
     -o,--output <arg>    generate and output PDF : mem (default), tmp,
-                         file:<path>, s3:<bucketName>, s3tm:<bucketName>,
+                         file:<path>, fileDigest:<path>, s3:<bucketName>, s3tm:<bucketName>,
                          s3tma:<bucketName>
     -t,--threads <arg>   Number of threads
     -x,--model <arg>      define the pdf model: statement (default) or id
@@ -56,6 +56,7 @@ Output options are:
  - `mem`: generate the PDFs purely in memory (no network or disk IO)
  - `tmp`: store the PDFs in a java temporary file
  - `file`: store the PDFs in the directory passed 
+ - `fileDigest`: store the PDFs in the directory passed using the md5 digest as filename
  - `s3`: store the PDFs in S3 using the std PUTObject API
  - `s3tm`: store the PDFs in S3 using the TransferManager
  - `s3tma`: store the PDFs in S3 using the TransferManager asynchronous API
@@ -125,5 +126,5 @@ NB: Generation of Tiff is much much slower than PDF.
 
 **Generating ID cards**
 
-    java -jar target/nuxeo-datagen-cli-1.0-SNAPSHOT.jar -t 1 -m pdf -d 1 -n 100 -f jpeg  -x id -o file:myoutputfolder
+    java -jar target/nuxeo-datagen-cli-1.0-SNAPSHOT.jar -t 1 -m pdf -d 1 -n 100 -f jpeg  -x id -o fileDigest:myoutputfolder
 

@@ -1,3 +1,22 @@
+/*
+ * (C) Copyright 2020 Nuxeo (http://nuxeo.com/) and others.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *     Tiry
+ */
+
 package org.nuxeo.data.gen.cli;
 
 import java.io.ByteArrayInputStream;
@@ -24,21 +43,21 @@ import org.apache.logging.log4j.core.config.builder.api.RootLoggerComponentBuild
 import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 import org.nuxeo.data.gen.meta.SequenceGenerator;
 import org.nuxeo.data.gen.out.BlobWriter;
+import org.nuxeo.data.gen.out.FolderDigestWriter;
 import org.nuxeo.data.gen.out.FolderWriter;
 import org.nuxeo.data.gen.out.S3TMAWriter;
 import org.nuxeo.data.gen.out.S3TMWriter;
 import org.nuxeo.data.gen.out.S3Writer;
 import org.nuxeo.data.gen.out.TmpWriter;
-import org.nuxeo.data.gen.out.filter.JpegFilter;
-import org.nuxeo.data.gen.out.filter.TiffFilter;
-import org.nuxeo.data.gen.out.filter.WriteFilter;
 import org.nuxeo.data.gen.pdf.PDFFileGenerator;
 import org.nuxeo.data.gen.pdf.PDFTemplateGenerator;
 import org.nuxeo.data.gen.pdf.itext.ITextIDGenerator;
 import org.nuxeo.data.gen.pdf.itext.ITextIDTemplateCreator;
 import org.nuxeo.data.gen.pdf.itext.ITextNXBankStatementGenerator;
-import org.nuxeo.data.gen.pdf.itext.ITextNXBankTemplateCreator;
 import org.nuxeo.data.gen.pdf.itext.ITextNXBankTemplateCreator2;
+import org.nuxeo.data.gen.pdf.itext.filter.JpegFilter;
+import org.nuxeo.data.gen.pdf.itext.filter.PDFOutputFilter;
+import org.nuxeo.data.gen.pdf.itext.filter.TiffFilter;
 
 public class EntryPoint {
 
@@ -58,7 +77,7 @@ public class EntryPoint {
 
 		// Use Async Logger
 		RootLoggerComponentBuilder rootLogger = builder.newAsyncRootLogger(Level.INFO);
-		//rootLogger.add(builder.newAppenderRef("stdout"));
+		// rootLogger.add(builder.newAppenderRef("stdout"));
 		// rootLogger.add(builder.newAppenderRef("log"));
 		builder.add(rootLogger);
 
@@ -73,13 +92,12 @@ public class EntryPoint {
 		logger2.add(builder.newAppenderRef("injector"));
 		logger2.addAttribute("additivity", false);
 		builder.add(logger2);
-		
+
 		LoggerComponentBuilder logger3 = builder.newAsyncLogger("cmdLogger", Level.INFO);
 		logger3.add(builder.newAppenderRef("stdout"));
 		logger3.add(builder.newAppenderRef("injector"));
 		logger3.addAttribute("additivity", false);
 		builder.add(logger3);
-		
 
 		return Configurator.initialize(builder.build());
 	}
@@ -90,14 +108,15 @@ public class EntryPoint {
 
 		Logger importLogger = ctx.getLogger("importLogger");
 		Logger metadataLogger = ctx.getLogger("metadataLogger");
-		Logger cmdLogger = ctx.getLogger("cmdLogger");		
+		Logger cmdLogger = ctx.getLogger("cmdLogger");
 
 		Options options = new Options();
 		options.addOption("m", "mode", true, "define generation mode: id (default), metadata, pdf");
 		options.addOption("t", "threads", true, "Number of threads");
 		options.addOption("n", "nbDoc", true, "Number of Documents to generate");
 		options.addOption("d", "months", true, "Number of months of statements to generate");
-		options.addOption("o", "output", true, "generate and output PDF : mem (default), tmp, file:<path>, s3:<bucketName>, s3tm:<bucketName>, s3tma:<bucketName>");
+		options.addOption("o", "output", true,
+				"generate and output PDF : mem (default), tmp, file:<path>, fileDigest:<path>, s3:<bucketName>, s3tm:<bucketName>, s3tma:<bucketName>");
 		options.addOption("h", "help", false, "Help");
 		options.addOption("s", "seed", true, "Seed");
 		options.addOption("x", "model", true, "define the pdf model: statement (default) or id");
@@ -106,7 +125,7 @@ public class EntryPoint {
 		options.addOption("aws_key", true, "AWS_ACCESS_KEY_ID");
 		options.addOption("aws_secret", true, "AWS_SECRET_ACCESS_KEY");
 		options.addOption("aws_session", true, "AWS_SESSION_TOKEN");
-		
+
 		CommandLineParser parser = new DefaultParser();
 
 		CommandLine cmd = null;
@@ -121,17 +140,17 @@ public class EntryPoint {
 		int nbDocs = Integer.parseInt(cmd.getOptionValue('n', "100000"));
 		int nbMonths = Integer.parseInt(cmd.getOptionValue('d', "48"));
 
-		long seed = Long.parseLong(cmd.getOptionValue('s', SequenceGenerator.DEFAULT_ACCOUNT_SEED+""));
-		
+		long seed = Long.parseLong(cmd.getOptionValue('s', SequenceGenerator.DEFAULT_ACCOUNT_SEED + ""));
+
 		String model = cmd.getOptionValue('x', "statement");
 		Path pictureDirectory = null;
 		if (model.equalsIgnoreCase("id")) {
 			String dir = cmd.getOptionValue('p', null);
-			if (dir!=null) {
-				pictureDirectory =  Paths.get(dir);
+			if (dir != null) {
+				pictureDirectory = Paths.get(dir);
 			}
 		}
-		
+
 		String modeStr = cmd.getOptionValue('m', "id");
 		Injector.MODE mode = Injector.MODE.ID;
 		try {
@@ -140,18 +159,22 @@ public class EntryPoint {
 			System.err.println("Invalid mode : " + modeStr);
 			return;
 		}
-						
+
 		String out = cmd.getOptionValue('o', "mem");
 		BlobWriter writer = null;
 		if (TmpWriter.NAME.equalsIgnoreCase(out)) {
 			importLogger.log(Level.INFO, "Inititialize Tmp Writer");
 			writer = new TmpWriter();
 		} else if (out.startsWith(FolderWriter.NAME)) {
-			String folder = out.substring(FolderWriter.NAME.length() );
+			String folder = out.substring(FolderWriter.NAME.length());
 			importLogger.log(Level.INFO, "Inititialize Folder Writer in " + folder);
 			writer = new FolderWriter(folder);
+		} else if (out.startsWith(FolderDigestWriter.NAME)) {
+			String folder = out.substring(FolderDigestWriter.NAME.length());
+			importLogger.log(Level.INFO, "Inititialize Folder Digest Writer in " + folder);
+			writer = new FolderDigestWriter(folder);
 		} else if (out.startsWith(S3Writer.NAME)) {
-			String bucketName = out.substring(S3Writer.NAME.length() );
+			String bucketName = out.substring(S3Writer.NAME.length());
 			importLogger.log(Level.INFO, "Inititialize S3 Writer in bucket " + bucketName);
 
 			String aws_key = cmd.getOptionValue("aws_key", null);
@@ -176,64 +199,69 @@ public class EntryPoint {
 			writer = new S3TMAWriter(bucketName, aws_key, aws_secret, aws_session);
 		}
 
-		if (writer!=null) {
+		PDFOutputFilter filter = null;
+		if (writer != null) {
 			String filterName = cmd.getOptionValue('f', "");
-			WriteFilter filter=null;
 			if (TiffFilter.NAME.equalsIgnoreCase(filterName)) {
 				filter = new TiffFilter();
-			} else 	if (JpegFilter.NAME.equalsIgnoreCase(filterName)) {
+			} else if (JpegFilter.NAME.equalsIgnoreCase(filterName)) {
 				filter = new JpegFilter();
-			}			
-			if (filter!=null) {
+			}
+			if (filter != null) {
 				if (model.equalsIgnoreCase("id")) {
 					filter.setDPI(300);
 				}
-				writer.setFilter(filter);
 			}
 		}
-		
+
 		if (cmd.hasOption('h')) {
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("DataGenCLI", options);
 			return;
 		}
 
-		//ctx.getRootLogger().log(Level.INFO, "You Man");
-		cmdLogger.log(Level.INFO,  "Selected Generation mode:" + mode.toString());
-		if (writer==null) {
-			cmdLogger.log(Level.INFO,  "Output Driver: mem");
+		// ctx.getRootLogger().log(Level.INFO, "You Man");
+		cmdLogger.log(Level.INFO, "Selected Generation mode:" + mode.toString());
+		if (writer == null) {
+			cmdLogger.log(Level.INFO, "Output Driver: mem");
 		} else {
-			cmdLogger.log(Level.INFO,  "Output Driver:" + writer.getClass().getSimpleName());	
-		}		
+			cmdLogger.log(Level.INFO, "Output Driver:" + writer.getClass().getSimpleName());
+		}
+		if (filter != null) {
+			cmdLogger.log(Level.INFO, "Activated filter: " + filter.getFilterName() + " (" + filter.getDPI() + " dpi)");
+		}
+		cmdLogger.log(Level.INFO, "Model = " + model);
 		cmdLogger.log(Level.INFO, "Init Injector");
 		cmdLogger.log(Level.INFO, "  Threads:" + nbThreads);
 		cmdLogger.log(Level.INFO, "  nbDocs:" + nbDocs);
 		cmdLogger.log(Level.INFO, "  nbMonths:" + nbMonths);
-		
+
 		try {
-			runInjector(mode, model, pictureDirectory, seed, nbDocs, nbThreads, nbMonths, importLogger, metadataLogger, writer);
+			runInjector(mode, model, pictureDirectory, seed, nbDocs, nbThreads, nbMonths, importLogger, metadataLogger,
+					writer, filter);
 		} catch (Exception e) {
 			System.err.println("Error while running Injector " + e);
 			e.printStackTrace();
 		}
-		
+
 		ctx.close();
 	}
 
-	protected static void runInjector(Injector.MODE mode, String model, Path pictureDirectory, long seed, int total, int threads, int nbMonths, Logger importLogger, Logger metadataLogger,
-			BlobWriter writer) throws Exception {
+	protected static void runInjector(Injector.MODE mode, String model, Path pictureDirectory, long seed, int total,
+			int threads, int nbMonths, Logger importLogger, Logger metadataLogger, BlobWriter writer,
+			PDFOutputFilter filter) throws Exception {
 
-		// Init template Generator		
+		// Init template Generator
 		PDFTemplateGenerator templateGen = null;
 		if (model.equalsIgnoreCase("id")) {
 			templateGen = new ITextIDTemplateCreator();
 			InputStream bg = EntryPoint.class.getResourceAsStream("/id-back.jpeg");
 			templateGen.init(bg);
 		} else {
-			templateGen = new ITextNXBankTemplateCreator2();	
+			templateGen = new ITextNXBankTemplateCreator2();
 			InputStream logo = EntryPoint.class.getResourceAsStream("/NxBank3.png");
 			templateGen.init(logo);
-		}		
+		}
 
 		// Generate the template
 		ByteArrayOutputStream templateOut = new ByteArrayOutputStream();
@@ -245,20 +273,26 @@ public class EntryPoint {
 
 		if (model.equalsIgnoreCase("id")) {
 			gen = new ITextIDGenerator();
-			if (pictureDirectory!=null) {
-				((ITextIDGenerator)gen).setPictureFolder(pictureDirectory);	
+			if (pictureDirectory != null) {
+				((ITextIDGenerator) gen).setPictureFolder(pictureDirectory);
 			} else {
 				InputStream headshot = EntryPoint.class.getResourceAsStream("/jexo.jpeg");
-				((ITextIDGenerator)gen).setPicture(headshot);
-			}			
+				((ITextIDGenerator) gen).setPicture(headshot);
+			}
+			((ITextIDGenerator) gen).computeDigest = true;
 		} else {
-			gen = new ITextNXBankStatementGenerator();	
-			((ITextNXBankStatementGenerator)gen).computeDigest = true;
+			gen = new ITextNXBankStatementGenerator();
+			((ITextNXBankStatementGenerator) gen).computeDigest = true;
 		}
-		
+
+		// connect Filter if needed
+		if (filter != null) {
+			gen.setFilter(filter);
+		}
+
 		gen.init(new ByteArrayInputStream(templateData), templateGen.getKeys());
 
-		Injector injector = new Injector(mode, seed,  gen, total, threads, nbMonths, importLogger, metadataLogger);
+		Injector injector = new Injector(mode, seed, gen, total, threads, nbMonths, importLogger, metadataLogger);
 		injector.setWriter(writer);
 		injector.run();
 

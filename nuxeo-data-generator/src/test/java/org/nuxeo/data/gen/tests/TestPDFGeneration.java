@@ -12,15 +12,20 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.junit.Test;
 import org.nuxeo.data.gen.meta.RandomDataGenerator;
+import org.nuxeo.data.gen.pdf.StatementMeta;
 import org.nuxeo.data.gen.pdf.itext.ITextIDGenerator;
 import org.nuxeo.data.gen.pdf.itext.ITextIDTemplateCreator;
 import org.nuxeo.data.gen.pdf.itext.ITextNXBankStatementGenerator;
 import org.nuxeo.data.gen.pdf.itext.ITextNXBankTemplateCreator;
 import org.nuxeo.data.gen.pdf.itext.ITextNXBankTemplateCreator2;
+import org.nuxeo.data.gen.pdf.itext.filter.JpegFilter;
+import org.nuxeo.data.gen.pdf.itext.filter.PDFOutputFilter;
+import org.nuxeo.data.gen.pdf.itext.filter.TiffFilter;
 
 public class TestPDFGeneration {
 	
@@ -42,11 +47,16 @@ public class TestPDFGeneration {
 		rnd.init(csv);
 		return rnd;
 	}
-		
-	protected void dumpPDF(byte[] pdf) throws Exception {
-		File tmp = File.createTempFile("tmp", ".pdf");
+
+	protected File dumpPDF(byte[] pdf) throws Exception {
+		return dumpFile(pdf, ".pdf");
+	}
+
+	protected File dumpFile(byte[] pdf, String extension) throws Exception {
+		File tmp = File.createTempFile("tmp", extension);
 		Files.copy(new ByteArrayInputStream(pdf), tmp.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		System.out.println(tmp.getAbsolutePath());
+		return tmp;
 	}
 
 	protected String printData(String[] data) {
@@ -132,32 +142,53 @@ public class TestPDFGeneration {
 		templateGen.init(bg);
 		String[] keys = templateGen.getKeys();
 		
-		
-		
 		ByteArrayOutputStream templateOut = new ByteArrayOutputStream();
 		templateGen.generate(templateOut);
 		byte[] templateData =  templateOut.toByteArray();
-
 		
 		RandomDataGenerator rnd = getRndGenerator(false);
 
 		ITextIDGenerator gen = new ITextIDGenerator();
 		gen.init(new ByteArrayInputStream(templateData), keys);
-		gen.computeDigest = false;
+		gen.computeDigest = true;
 		
 		gen.setPicture(ITextIDTemplateCreator.class.getResourceAsStream("/jexo.jpeg"));
 		
 		//Path p = Paths.get("/home/tiry/Pictures/id-faces/small");
 		//gen.setPictureFolder(p);		
 		
+		// PDF GEN
+		String[] data = rnd.generate();
 		ByteArrayOutputStream pdfOut = new ByteArrayOutputStream();
-		gen.generate(pdfOut, rnd.generate());
+		StatementMeta meta = gen.generate(pdfOut, data);
+		assertTrue(meta.getFileName().endsWith("pdf"));
 
 		byte[] pdf = pdfOut.toByteArray();
-
+		assertTrue(meta.getDigest().equalsIgnoreCase(DigestUtils.md5Hex(pdf)));
+		//dumpPDF(pdf);
 		
-		dumpPDF(pdf);
+		// Jpeg Gen
+		ByteArrayOutputStream jpgOut = new ByteArrayOutputStream();
+		PDFOutputFilter filter = new JpegFilter();
+		filter.setDPI(300);
+		gen.setFilter(filter);
+		meta = gen.generate(jpgOut, data);
+		assertTrue(meta.getFileName().endsWith("jpg"));
+		assertTrue(meta.getDigest().equalsIgnoreCase(DigestUtils.md5Hex(jpgOut.toByteArray())));
+		
+		//dumpFile(jpgOut.toByteArray(), filter.getFileExtension());
+		
+		// Tiff Gen
+		ByteArrayOutputStream tifOut = new ByteArrayOutputStream();
+		filter = new TiffFilter();
+		filter.setDPI(300);
+		gen.setFilter(filter);
+		meta = gen.generate(tifOut, data);
+		assertTrue(meta.getFileName().endsWith("tif"));
+		assertTrue(meta.getDigest().equalsIgnoreCase(DigestUtils.md5Hex(tifOut.toByteArray())));
 
+		//dumpFile(tifOut.toByteArray(), filter.getFileExtension());
+		
 	}
 
 	@Test

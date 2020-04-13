@@ -20,24 +20,21 @@
 package org.nuxeo.data.gen.out;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 
-public class FolderWriter extends AbstractBlobWriter implements BlobWriter {
+import org.nuxeo.data.gen.pdf.StatementMeta;
 
-	public static final String NAME = "file:";
+public class FolderDigestWriter extends FolderWriter implements BlobWriter {
+
+	public static final String NAME = "fileDigest:";
 
 	protected File folder;
 
-	public FolderWriter(String folder) {
-		this.folder = new File(folder);
+	public FolderDigestWriter(String folder) {
+		super(folder);
 	}
 
-	@Override
-	public void write(byte[] data, String fileName) throws Exception {
-		Path path = Path.of(folder.getAbsolutePath(), fileName);
-		Files.copy(wrap(data), path, StandardCopyOption.REPLACE_EXISTING);
+	public void write(byte[] data, StatementMeta meta) throws Exception {
+		write(data, meta.getDigest());
 	}
 
 	@Override

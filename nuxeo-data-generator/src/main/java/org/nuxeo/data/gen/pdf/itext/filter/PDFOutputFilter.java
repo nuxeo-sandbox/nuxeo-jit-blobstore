@@ -17,31 +17,20 @@
  *     Tiry
  */
 
-package org.nuxeo.data.gen.out;
+package org.nuxeo.data.gen.pdf.itext.filter;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.io.ByteArrayInputStream;
+import java.io.OutputStream;
 
-public class FolderWriter extends AbstractBlobWriter implements BlobWriter {
+public interface PDFOutputFilter {
 
-	public static final String NAME = "file:";
+	int getDPI();
 
-	protected File folder;
+	void setDPI(int dpi);
 
-	public FolderWriter(String folder) {
-		this.folder = new File(folder);
-	}
+	String getFilterName();
 
-	@Override
-	public void write(byte[] data, String fileName) throws Exception {
-		Path path = Path.of(folder.getAbsolutePath(), fileName);
-		Files.copy(wrap(data), path, StandardCopyOption.REPLACE_EXISTING);
-	}
+	void render(ByteArrayInputStream pdf, OutputStream out) throws Exception;
 
-	@Override
-	public void flush() {
-		// NOP
-	}
+	String getFileExtension();
 }
