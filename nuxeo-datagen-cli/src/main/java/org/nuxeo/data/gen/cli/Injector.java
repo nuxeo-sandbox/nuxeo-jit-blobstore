@@ -108,7 +108,11 @@ public class Injector {
 			sb.append(meta.getFileSize());
 			for (String key : meta.getKeys()) {
 				sb.append(",");
-				sb.append(key.trim());
+				if (key!=null) {
+					sb.append(key.trim());
+				} else {
+					sb.append("null");
+				}
 			}
 			metadataLogger.log(Level.DEBUG, sb.toString());
 		}

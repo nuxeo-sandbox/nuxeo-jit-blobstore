@@ -18,10 +18,16 @@
  */
 package org.nuxeo.data.gen.pdf.itext;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
+import java.util.Date;
+import java.util.Random;
 
 import org.nuxeo.data.gen.meta.FormatUtils;
+import org.nuxeo.data.gen.meta.RandomDataGenerator;
 import org.nuxeo.data.gen.pdf.PDFFileGenerator;
 import org.nuxeo.data.gen.pdf.StatementMeta;
 
@@ -36,18 +42,43 @@ public class ITextIDGenerator extends ITextNXBankStatementGenerator implements P
 
 	protected ImageData head;
 	
+	protected Path imgDirectory;
+	
+	protected String[] imageNames;
+	
+	protected Random rnd = new Random();
+	
 	protected int keySize;
 	
 	public String getName() {
 		return "Template based generation with Index pre-processing using iText";
 	}
 
+	public void setPictureFolder(Path directory) {		
+		imageNames = directory.toFile().list();		
+		imgDirectory=directory;
+	}
+	
 	public void setPicture(InputStream in) throws Exception {
 		if (in != null) {
 			head = ImageDataFactory.create(in.readAllBytes());
 		}
 	}
 	
+	protected ImageData getImageData() throws Exception {		
+		if (head!=null) {
+			return head;	
+		} else {
+			String name = imageNames[rnd.nextInt(imageNames.length)];
+			File img = new File(imgDirectory.toFile(), name);			
+			FileInputStream fileInputStream = new FileInputStream(img);
+			try {
+				return ImageDataFactory.create(fileInputStream.readAllBytes());
+			} finally {
+				fileInputStream.close();	
+			}			
+		}
+	}
 	
 	public void init(InputStream pdf, String[] keys) throws Exception {
 		super.init(pdf, keys);
@@ -57,11 +88,18 @@ public class ITextIDGenerator extends ITextNXBankStatementGenerator implements P
 
 	public StatementMeta generate(OutputStream buffer, String[] tokens) throws Exception {
 		
-		String[] extendedTokens = new String[keySize];		
-		System.arraycopy(tokens, 0, extendedTokens, 0, tokens.length-1);
+		Random rnd = new Random();
 		
-		//extendedTokens[7]="YO";
+		String[] extendedTokens = new String[keySize];		
+		System.arraycopy(tokens, 0, extendedTokens, 0, 6);
 		extendedTokens[6] = FormatUtils.pad(tokens[3].trim().toUpperCase()+ "  ID", 25, true);
+		
+		Date dob = FormatUtils.getDateWithOffset(25*12 + rnd.nextInt(40*12));
+		Date exp = FormatUtils.getDateWithOffset(-rnd.nextInt(5*12));
+		
+		extendedTokens[7] = FormatUtils.pad(RandomDataGenerator.df.get().format(dob), 20, true);
+		extendedTokens[9] = FormatUtils.pad(RandomDataGenerator.df.get().format(exp), 20, true);
+				
 		
 		return super.generate(buffer, extendedTokens);
 	}
@@ -72,7 +110,7 @@ public class ITextIDGenerator extends ITextNXBankStatementGenerator implements P
 	    Rectangle rect = new Rectangle(50, 58);
 	    rect.setX(18f);
 	    rect.setY(18.5f);
-	    canvas.addImage(head, rect, true);	    
+	    canvas.addImage(getImageData(), rect, true);	    
 		return;
 	}
 

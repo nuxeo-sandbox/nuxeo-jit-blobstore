@@ -18,6 +18,7 @@
  */
 package org.nuxeo.data.gen.pdf.itext;
 
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.NumberFormat;
@@ -32,6 +33,8 @@ import org.nuxeo.data.gen.pdf.PDFTemplateGenerator;
 
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.colors.Color;
+import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -94,8 +97,9 @@ public class ITextIDTemplateCreator implements PDFTemplateGenerator {
 		}
 
 		keys.add(mkTag("TITLE", 25));
-		keys.add(mkTag("DOB", 10));
+		keys.add(mkTag("DOB", 20));
 		keys.add(mkTag("IDNUM", 20));
+		keys.add(mkTag("EXP", 20));
 	}
 
 	@Override
@@ -111,22 +115,21 @@ public class ITextIDTemplateCreator implements PDFTemplateGenerator {
 		document.setMargins(0, 0, 0, 0);
 		
 		if (img != null) {
-			//document.add(new Paragraph().add(new Image(img).scale(0.15f, 0.15f)).setFixedPosition(10, 10, 200));
 			document.add(new Image(img).scale(0.24f, 0.24f).setFixedPosition(0.1f, 0.3f));
-			
 		}
 
+		Color titleColor = ColorConstants.BLUE;
 		document.add(new Paragraph().setTextAlignment(TextAlignment.CENTER).setPaddingTop(8f)
-				.add(new Text(key(6))).setFontSize(12).setBold()).setFixedPosition(0.3f, 0.3f, UnitValue.POINT);
-
-		document.add(new Paragraph().setTextAlignment(TextAlignment.RIGHT).setPaddingTop(8f).setPaddingRight(12f).setPaddingBottom(0f)
-				.add(new Text(key(0))).setFontSize(8)).setFixedPosition(0.3f, 0.3f, UnitValue.POINT);
+				.add(new Text(key(6))).setFontSize(12).setBold().setFontColor(titleColor)).setFixedPosition(0.3f, 0.3f, UnitValue.POINT);
+		
+		document.add(new Paragraph().setTextAlignment(TextAlignment.RIGHT).setPaddingTop(0f).setPaddingRight(12f).setPaddingBottom(0f)
+				.add(new Text(key(0) )).setFontSize(8).add(new Text("\n DOB " + key(7) ).setFontSize(5))).setFixedPosition(0.3f, 0.3f, UnitValue.POINT);
 
 		document.add(new Paragraph().setTextAlignment(TextAlignment.CENTER).setPaddingTop(0f).setPaddingRight(0f).setPaddingBottom(0f)
-				.add(new Text(key(1))).add(new Text("\n" +key(2))).setFontSize(7)).setFixedPosition(0.3f, 0.3f, UnitValue.POINT);
+				.add(new Text(key(1))).add(new Text("\n" +key(2) + "\n" +key(3))).setFontSize(6)).setFixedPosition(0.3f, 0.3f, UnitValue.POINT);
 		
 		document.add(new Paragraph().setTextAlignment(TextAlignment.RIGHT).setPaddingTop(0f).setPaddingRight(14f).setPaddingBottom(0f)
-				.add(new Text("expire: " + key(4) )).setFontSize(7)).setFixedPosition(0.3f, 0.3f, UnitValue.POINT);
+				.add(new Text("expires " + key(9) )).setFontSize(5)).setFixedPosition(0.3f, 0.3f, UnitValue.POINT);
 		
 		document.close();
 	}

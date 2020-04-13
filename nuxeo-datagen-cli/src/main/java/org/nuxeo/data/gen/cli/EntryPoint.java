@@ -3,6 +3,8 @@ package org.nuxeo.data.gen.cli;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -30,6 +32,10 @@ import org.nuxeo.data.gen.out.TmpWriter;
 import org.nuxeo.data.gen.out.filter.JpegFilter;
 import org.nuxeo.data.gen.out.filter.TiffFilter;
 import org.nuxeo.data.gen.out.filter.WriteFilter;
+import org.nuxeo.data.gen.pdf.PDFFileGenerator;
+import org.nuxeo.data.gen.pdf.PDFTemplateGenerator;
+import org.nuxeo.data.gen.pdf.itext.ITextIDGenerator;
+import org.nuxeo.data.gen.pdf.itext.ITextIDTemplateCreator;
 import org.nuxeo.data.gen.pdf.itext.ITextNXBankStatementGenerator;
 import org.nuxeo.data.gen.pdf.itext.ITextNXBankTemplateCreator;
 import org.nuxeo.data.gen.pdf.itext.ITextNXBankTemplateCreator2;
@@ -94,6 +100,8 @@ public class EntryPoint {
 		options.addOption("o", "output", true, "generate and output PDF : mem (default), tmp, file:<path>, s3:<bucketName>, s3tm:<bucketName>, s3tma:<bucketName>");
 		options.addOption("h", "help", false, "Help");
 		options.addOption("s", "seed", true, "Seed");
+		options.addOption("x", "model", true, "define the pdf model: statement (default) or id");
+		options.addOption("p", "pictures", true, "path to read the pictures from");
 		options.addOption("f", "filter", true, "rendition to be applied to the pdf: tiff, jpeg");
 		options.addOption("aws_key", true, "AWS_ACCESS_KEY_ID");
 		options.addOption("aws_secret", true, "AWS_SECRET_ACCESS_KEY");
@@ -114,7 +122,16 @@ public class EntryPoint {
 		int nbMonths = Integer.parseInt(cmd.getOptionValue('d', "48"));
 
 		long seed = Long.parseLong(cmd.getOptionValue('s', SequenceGenerator.DEFAULT_ACCOUNT_SEED+""));
-				
+		
+		String model = cmd.getOptionValue('x', "statement");
+		Path pictureDirectory = null;
+		if (model.equalsIgnoreCase("id")) {
+			String dir = cmd.getOptionValue('p', null);
+			if (dir!=null) {
+				pictureDirectory =  Paths.get(dir);
+			}
+		}
+		
 		String modeStr = cmd.getOptionValue('m', "id");
 		Injector.MODE mode = Injector.MODE.ID;
 		try {
@@ -168,6 +185,9 @@ public class EntryPoint {
 				filter = new JpegFilter();
 			}			
 			if (filter!=null) {
+				if (model.equalsIgnoreCase("id")) {
+					filter.setDPI(300);
+				}
 				writer.setFilter(filter);
 			}
 		}
@@ -191,7 +211,7 @@ public class EntryPoint {
 		cmdLogger.log(Level.INFO, "  nbMonths:" + nbMonths);
 		
 		try {
-			runInjector(mode, seed, nbDocs, nbThreads, nbMonths, importLogger, metadataLogger, writer);
+			runInjector(mode, model, pictureDirectory, seed, nbDocs, nbThreads, nbMonths, importLogger, metadataLogger, writer);
 		} catch (Exception e) {
 			System.err.println("Error while running Injector " + e);
 			e.printStackTrace();
@@ -200,25 +220,43 @@ public class EntryPoint {
 		ctx.close();
 	}
 
-	protected static void runInjector(Injector.MODE mode, long seed, int total, int threads, int nbMonths, Logger importLogger, Logger metadataLogger,
+	protected static void runInjector(Injector.MODE mode, String model, Path pictureDirectory, long seed, int total, int threads, int nbMonths, Logger importLogger, Logger metadataLogger,
 			BlobWriter writer) throws Exception {
 
-		// Data Generator
-		ITextNXBankTemplateCreator templateGen = null;
-		templateGen = new ITextNXBankTemplateCreator2();
+		// Init template Generator		
+		PDFTemplateGenerator templateGen = null;
+		if (model.equalsIgnoreCase("id")) {
+			templateGen = new ITextIDTemplateCreator();
+			InputStream bg = EntryPoint.class.getResourceAsStream("/id-back.jpeg");
+			templateGen.init(bg);
+		} else {
+			templateGen = new ITextNXBankTemplateCreator2();	
+			InputStream logo = EntryPoint.class.getResourceAsStream("/NxBank3.png");
+			templateGen.init(logo);
+		}		
 
 		// Generate the template
-		InputStream logo = EntryPoint.class.getResourceAsStream("/NxBank3.png");
-		templateGen.init(logo);
-
 		ByteArrayOutputStream templateOut = new ByteArrayOutputStream();
 		templateGen.generate(templateOut);
 		byte[] templateData = templateOut.toByteArray();
 
 		// Init PDF generator
-		ITextNXBankStatementGenerator gen = new ITextNXBankStatementGenerator();
+		PDFFileGenerator gen = new ITextNXBankStatementGenerator();
+
+		if (model.equalsIgnoreCase("id")) {
+			gen = new ITextIDGenerator();
+			if (pictureDirectory!=null) {
+				((ITextIDGenerator)gen).setPictureFolder(pictureDirectory);	
+			} else {
+				InputStream headshot = EntryPoint.class.getResourceAsStream("/jexo.jpeg");
+				((ITextIDGenerator)gen).setPicture(headshot);
+			}			
+		} else {
+			gen = new ITextNXBankStatementGenerator();	
+			((ITextNXBankStatementGenerator)gen).computeDigest = true;
+		}
+		
 		gen.init(new ByteArrayInputStream(templateData), templateGen.getKeys());
-		gen.computeDigest = true;
 
 		Injector injector = new Injector(mode, seed,  gen, total, threads, nbMonths, importLogger, metadataLogger);
 		injector.setWriter(writer);

@@ -18,7 +18,7 @@ import org.apache.pdfbox.rendering.PDFRenderer;
 
 import com.itextpdf.io.source.ByteArrayOutputStream;
 
-public class TiffFilter implements WriteFilter {
+public class TiffFilter extends AbstractFilter  implements WriteFilter {
 
 	public static final String NAME = "tiff";
 
@@ -34,7 +34,7 @@ public class TiffFilter implements WriteFilter {
 		PDFRenderer renderer = new PDFRenderer(doc);
 
 		ImageWriter tiffWriter = ImageIO.getImageWritersByFormatName("TIFF").next();
-		BufferedImage bim = renderer.renderImageWithDPI(0, 150, ImageType.RGB);
+		BufferedImage bim = renderer.renderImageWithDPI(0, getDPI(), ImageType.RGB);
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 

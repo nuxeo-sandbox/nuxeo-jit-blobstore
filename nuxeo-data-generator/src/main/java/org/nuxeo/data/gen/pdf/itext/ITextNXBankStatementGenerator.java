@@ -25,6 +25,7 @@ import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.io.output.CountingOutputStream;
 import org.nuxeo.data.gen.pdf.PDFFileGenerator;
@@ -131,7 +132,7 @@ public class ITextNXBankStatementGenerator implements PDFFileGenerator {
 
 		String fileName = "stmt-" + tokens[5].trim() + ".pdf";
 		long fileSize = cout.getByteCount();
-		String md5 = "n/a";
+		String md5 = UUID.randomUUID().toString();
 
 		if (db != null) {
 			byte[] digest = db.getMessageDigest().digest();

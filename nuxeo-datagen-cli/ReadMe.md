@@ -27,6 +27,7 @@ Current command line options
     -aws_session <arg>   AWS_SESSION_TOKEN
     -d,--months <arg>    Number of months of statements to generate
     -h,--help            Help
+    -p,--pictures <arg>   path to read the pictures from
     -s,--seed <arg>      Seed used to initialize the Random sequence 
     -f,--filter <arg>    Apply fliter to convert generated PDF: jpeg or tiff
     -m,--mode <arg>      define generation mode: id (default), metadata, pdf
@@ -35,6 +36,8 @@ Current command line options
                          file:<path>, s3:<bucketName>, s3tm:<bucketName>,
                          s3tma:<bucketName>
     -t,--threads <arg>   Number of threads
+    -x,--model <arg>      define the pdf model: statement (default) or id
+
 
 Mode options are:
 
@@ -118,6 +121,9 @@ NB: Generation of Jpeg is much slower than PDF.
 
     java -jar target/nuxeo-datagen-cli-1.0-SNAPSHOT.jar -t 1 -m pdf -n 100 -f tiff -o file:myoutputfolder
 
-NB: Generation of Jpeg is much much slower than PDF.
+NB: Generation of Tiff is much much slower than PDF.
 
+**Generating ID cards**
+
+    java -jar target/nuxeo-datagen-cli-1.0-SNAPSHOT.jar -t 1 -m pdf -d 1 -n 100 -f jpeg  -x id -o file:myoutputfolder
 

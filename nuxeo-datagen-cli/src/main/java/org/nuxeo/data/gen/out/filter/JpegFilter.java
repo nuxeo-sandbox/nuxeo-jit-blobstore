@@ -15,7 +15,7 @@ import org.apache.pdfbox.rendering.PDFRenderer;
 
 import com.itextpdf.io.source.ByteArrayOutputStream;
 
-public class JpegFilter implements WriteFilter {
+public class JpegFilter extends AbstractFilter implements WriteFilter {
 
 	public static final String NAME = "jpeg";
 
@@ -35,7 +35,7 @@ public class JpegFilter implements WriteFilter {
 		jpgWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
 		jpgWriteParam.setCompressionQuality(0.5f);		
 
-		BufferedImage bim = renderer.renderImageWithDPI(0, 150, ImageType.RGB);
+		BufferedImage bim = renderer.renderImageWithDPI(0, getDPI(), ImageType.RGB);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		MemoryCacheImageOutputStream outStream = new MemoryCacheImageOutputStream(out);
 		jpgWriter.setOutput(outStream);

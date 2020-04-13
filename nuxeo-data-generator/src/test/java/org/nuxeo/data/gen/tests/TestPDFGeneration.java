@@ -8,6 +8,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -142,8 +144,11 @@ public class TestPDFGeneration {
 		ITextIDGenerator gen = new ITextIDGenerator();
 		gen.init(new ByteArrayInputStream(templateData), keys);
 		gen.computeDigest = false;
+		
 		gen.setPicture(ITextIDTemplateCreator.class.getResourceAsStream("/jexo.jpeg"));
 		
+		//Path p = Paths.get("/home/tiry/Pictures/id-faces/small");
+		//gen.setPictureFolder(p);		
 		
 		ByteArrayOutputStream pdfOut = new ByteArrayOutputStream();
 		gen.generate(pdfOut, rnd.generate());
