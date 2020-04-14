@@ -1,7 +1,10 @@
 package org.nuxeo.ecm.core.blob.jit.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,12 +16,18 @@ import org.junit.runner.RunWith;
 import org.nuxeo.ecm.automation.AutomationService;
 import org.nuxeo.ecm.automation.OperationContext;
 import org.nuxeo.ecm.automation.test.AutomationFeature;
+import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
+import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
+import org.nuxeo.ecm.core.blob.jit.gen.StatementsBlobGenerator;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
 import org.nuxeo.importer.stream.automation.DocumentConsumers;
+import org.nuxeo.importer.stream.jit.USStateHelper;
+import org.nuxeo.importer.stream.jit.automation.CustomerFolderProducers;
+import org.nuxeo.importer.stream.jit.automation.CustomerProducers;
 import org.nuxeo.importer.stream.jit.automation.StatementFolderProducers;
 import org.nuxeo.importer.stream.jit.automation.StatementProducers;
 import org.nuxeo.runtime.test.runner.Deploy;
@@ -102,10 +111,86 @@ public class TestStreamStatementImporter {
 		}
 	}
 
+	
+	@Test
+	public void canImportCustomers() throws Exception {
+
+		// lazy way to create a Blob
+		String blobTextContent = "I am a fake ID card!";
+		DocumentModel file = session.createDocumentModel("/", "someFilet", "File");
+		Blob idblob = new StringBlob(blobTextContent);
+		idblob.setFilename("whatever.jpg");
+		file.setPropertyValue("file:content", (Serializable)idblob);
+		file = session.createDocument(file);
+		idblob = (Blob) file.getPropertyValue("file:content");
+		String blobDigest = idblob.getDigest();
+		System.out.println(blobDigest);		
+		
+		try (OperationContext ctx = new OperationContext(session)) {
+			Map<String, Serializable> params = new HashMap<>();
+
+			DocumentModel root = session.createDocumentModel("/", "root", "Folder");
+			root = session.createDocument(root);
+			TransactionHelper.commitOrRollbackTransaction();
+			TransactionHelper.startTransaction();
+
+			// *************************
+			// create Folder messages
+			params.put("logConfig", "chronicle");
+
+			automationService.run(ctx, CustomerFolderProducers.ID, params);
+
+			// *************************
+			// consume Folder messages
+			params = new HashMap<>();
+			params.put("rootFolder", root.getPathAsString());
+			params.put("logConfig", "chronicle");
+			automationService.run(ctx, DocumentConsumers.ID, params);
+
+			DocumentModelList docs = session
+					.query("select * from Folder where ecm:path STARTSWITH '/root' order by ecm:path");
+			//dump(docs);
+			assertEquals(USStateHelper.STATES.length, docs.size());
+
+			
+			// *************************
+			// create Customers messages
+			params.put("logConfig", "chronicle");
+			params.put("bufferSize", 5);			
+			
+			InputStream csv = StatementsBlobGenerator.class.getResourceAsStream("/sample-id.csv");
+			String csvContent = new String(csv.readAllBytes());			
+			csvContent = csvContent.replace("<DIGEST>", blobDigest);			
+			Blob blob = new StringBlob(csvContent);
+								
+			ctx.setInput(blob);
+			automationService.run(ctx, CustomerProducers.ID, params);
+
+			// *************************
+			// consume Customers messages
+			params = new HashMap<>();
+			params.put("rootFolder", root.getPathAsString());
+			params.put("logConfig", "chronicle");
+			automationService.run(ctx, DocumentConsumers.ID, params);
+
+			docs = session
+					.query("select * from CustomerDocument order by ecm:path");
+			//dump(docs);
+			assertEquals(11, docs.size());
+			
+			Blob importedBlob = (Blob) docs.get(0).getPropertyValue("file:content");
+			assertNotNull(importedBlob);
+			assertEquals("image/jpeg", importedBlob.getMimeType());
+			assertTrue(importedBlob.getFilename().startsWith("IDCard"));
+
+			// got you !			
+			assertEquals(blobTextContent, importedBlob.getString());				
+		}
+	}
+
 	protected void dump(DocumentModelList docs) {
 		for (DocumentModel doc : docs) {
-			System.out.println(doc.getPathAsString());
-			System.out.println(doc.getPathAsString());
+			System.out.println(doc.getPathAsString() + " -- " + doc.getTitle());
 		}
 	}
 

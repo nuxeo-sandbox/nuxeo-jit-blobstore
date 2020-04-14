@@ -1,8 +1,10 @@
 package org.nuxeo.ecm.core.blob.jit.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.InputStream;
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -20,11 +22,17 @@ import org.nuxeo.data.gen.meta.SequenceGenerator;
 import org.nuxeo.ecm.automation.AutomationService;
 import org.nuxeo.ecm.automation.OperationContext;
 import org.nuxeo.ecm.automation.test.AutomationFeature;
+import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.CoreSession;
+import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
+import org.nuxeo.ecm.core.blob.jit.gen.StatementsBlobGenerator;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
 import org.nuxeo.importer.stream.StreamImporters;
 import org.nuxeo.importer.stream.jit.StatementFolderMessageProducer;
+import org.nuxeo.importer.stream.jit.USStateHelper;
+import org.nuxeo.importer.stream.jit.automation.CustomerFolderProducers;
+import org.nuxeo.importer.stream.jit.automation.CustomerProducers;
 import org.nuxeo.importer.stream.jit.automation.StatementFolderProducers;
 import org.nuxeo.importer.stream.jit.automation.StatementProducers;
 import org.nuxeo.importer.stream.message.DocumentMessage;
@@ -86,6 +94,82 @@ public class TestStreamStatementProducer {
             tailer.close();
         }
     }
+
+    
+    @Test
+    public void canCreateStatesHierarchyMessages() throws Exception{
+
+    	try (OperationContext ctx = new OperationContext(session)) {
+            Map<String, Serializable> params = new HashMap<>();
+
+            params.put("logConfig", "chronicle");
+
+            automationService.run(ctx,CustomerFolderProducers.ID, params);
+                                    
+    		LogManager manager = Framework.getService(StreamService.class).getLogManager("chronicle");
+    		
+            LogTailer<DocumentMessage> tailer = manager.createTailer("test", StreamImporters.DEFAULT_LOG_DOC_NAME);            
+
+            int count=0;
+            
+            List<String> names = new ArrayList<String>();
+            
+            LogRecord<DocumentMessage> record=null;
+            do {
+            	record = tailer.read(Duration.ofSeconds(1));
+            	if (record!=null) {
+            		DocumentMessage docMessage = record.message();
+            		assertEquals("Folder",docMessage.getType());
+            		assertFalse(names.contains(docMessage.getName()));
+            		names.add(docMessage.getName());
+            		count++;
+            	}            		
+            } while (record!=null);
+            
+            assertEquals(USStateHelper.STATES.length, count);
+            tailer.commit();
+            tailer.close();
+        }
+    }
+    
+    @Test
+    public void canCreateCustomerMessages() throws Exception{
+
+    	try (OperationContext ctx = new OperationContext(session)) {
+            Map<String, Serializable> params = new HashMap<>();
+
+            params.put("logConfig", "chronicle");
+            params.put("bufferSize", "5");
+
+			InputStream csv = StatementsBlobGenerator.class.getResourceAsStream("/sample-id.csv");		
+			Blob blob = new StringBlob(new String(csv.readAllBytes()));
+								
+			ctx.setInput(blob);
+			automationService.run(ctx, CustomerProducers.ID, params);
+                                    
+    		LogManager manager = Framework.getService(StreamService.class).getLogManager("chronicle");
+    		
+            LogTailer<DocumentMessage> tailer = manager.createTailer("test", StreamImporters.DEFAULT_LOG_DOC_NAME);            
+
+            int count=0;
+            
+            
+            LogRecord<DocumentMessage> record=null;
+            do {
+            	record = tailer.read(Duration.ofSeconds(1));
+            	if (record!=null) {
+            		DocumentMessage docMessage = record.message();
+            		assertEquals("CustomerDocument",docMessage.getType());
+            		count++;
+            	}            		
+            } while (record!=null);
+            
+            assertEquals(11, count);
+            tailer.commit();
+            tailer.close();
+        }
+    }
+    
 
     protected static String[] expectedAccountID=new String[] {
     		"0E570-08A8E-53AE1E6-01",
