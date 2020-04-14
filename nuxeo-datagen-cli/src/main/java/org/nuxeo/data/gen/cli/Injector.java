@@ -160,6 +160,12 @@ public class Injector {
 		// force init
 		SequenceGenerator.getDataGenerator();
 		
+		if (mode==MODE.ID) {
+			collect("ID", null);
+		} else if (mode==MODE.METADATA) {
+			collect("ID", new String[]{"CustomerName","AddressStreet","AddressCity","AddressState","Date","AccountNumber","BlobKey"});
+		}
+
 		log("----------------------------------------------------------");
 
 		long t0 = System.currentTimeMillis();
