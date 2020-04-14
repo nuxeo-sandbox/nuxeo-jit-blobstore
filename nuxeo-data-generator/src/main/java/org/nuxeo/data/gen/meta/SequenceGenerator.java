@@ -90,7 +90,7 @@ public class SequenceGenerator {
 		}
 	}
 
-	public synchronized RandomDataGenerator getDataGenerator() {
+	public static synchronized RandomDataGenerator getDataGenerator() {
 		if (rnd == null) {
 			rnd = new RandomDataGenerator(false, true);
 			try {

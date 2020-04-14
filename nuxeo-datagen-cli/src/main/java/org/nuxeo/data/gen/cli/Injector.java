@@ -153,6 +153,9 @@ public class Injector {
 		executor.prestartAllCoreThreads();
 		AtomicInteger counter = new AtomicInteger();
 
+		// force init
+		SequenceGenerator.getDataGenerator();
+		
 		log("----------------------------------------------------------");
 
 		long t0 = System.currentTimeMillis();
