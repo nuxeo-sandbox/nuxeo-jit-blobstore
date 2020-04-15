@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<component name="org.nuxeo.ecm.core.blob.jit.es.contrib">
+
+  <!-- custom writer to tweak full text indexing -->
+  <extension point="elasticSearchDocWriter" target="org.nuxeo.elasticsearch.ElasticSearchComponent">
+    <writer class="org.nuxeo.ecm.core.blob.jit.es.StatementESDocumentWriter" />
+  </extension>
+  
+</component>

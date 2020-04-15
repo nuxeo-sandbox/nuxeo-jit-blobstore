@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.benchmark.repository.config">
+
+  <require>default-repository-config</require>
+
+  <extension target="org.nuxeo.ecm.core.storage.mongodb.MongoDBRepositoryService" point="repository">
+    <repository name="default">
+      
+      <!-- Use native shorter UIDs for documents -->
+      <idType>sequenceHexRandomized</idType>
+      <nativeId>true</nativeId>
+      
+      <!-- Disable Full text at the Repository level -->
+      <fulltext disabled="true" searchDisabled="true">
+      </fulltext>
+      
+    </repository>
+  </extension>
+  
+</component>  
