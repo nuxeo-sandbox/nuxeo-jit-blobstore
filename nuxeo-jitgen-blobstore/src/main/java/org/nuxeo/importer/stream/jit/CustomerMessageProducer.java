@@ -35,11 +35,14 @@ public class CustomerMessageProducer extends AbstractProducer<DocumentMessage> {
 
 	protected int idx = 0;
 
+	protected String blobStore;
+	
 	protected String[] csv;
 	
-	public CustomerMessageProducer(int producerId, String[] csv) {
+	public CustomerMessageProducer(int producerId, String blobStore, String[] csv) {
 		super(producerId);
 		this.csv = csv;
+		this.blobStore = blobStore;
 		log.info("CustomerMessageProducer created");
 	}
 
@@ -89,7 +92,7 @@ public class CustomerMessageProducer extends AbstractProducer<DocumentMessage> {
 		DocumentMessage.Builder builder = DocumentMessage.builder("CustomerDocument", "/" +stateName, name).setProperties(props);
 
 		BlobInfo bi = new BlobInfo();
-		bi.key = "test:" + meta[0].trim();
+		bi.key = blobStore + ":" + meta[0].trim();
 		bi.digest=meta[0].trim();
 		bi.filename=meta[1].trim();
 		bi.mimeType="image/jpeg";

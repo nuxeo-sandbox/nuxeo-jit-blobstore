@@ -2,6 +2,8 @@ package org.nuxeo.data.gen.cli;
 
 import java.io.File;
 import java.io.FileReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -14,15 +16,18 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.nuxeo.client.NuxeoClient;
 import org.nuxeo.client.NuxeoVersion;
+import org.nuxeo.client.objects.Operation;
+import org.nuxeo.client.objects.blob.Blob;
+import org.nuxeo.client.objects.blob.FileBlob;
 import org.nuxeo.data.gen.meta.SequenceGenerator;
 
 public class RestCli {
 
 	private static final Map<String, String> opMap = new HashMap<String, String>();
     static {
-        opMap.put("statementTree", "StreamImporter.runStatementFolderProducers");
+        opMap.put("statementtree", "StreamImporter.runStatementFolderProducers");
         opMap.put("statements", "StreamImporter.runStatementProducers");
-        opMap.put("consumerTree", "StreamImporter.runConsumerFolderProducers");
+        opMap.put("consumertree", "StreamImporter.runConsumerFolderProducers");
         opMap.put("consumers", "StreamImporter.runConsumerProducers");
         opMap.put("import", "StreamImporter.runDocumentConsumers");        
     }
@@ -37,6 +42,7 @@ public class RestCli {
 		options.addOption("d", "months", true, "Number of months of statements to generate");
 		options.addOption("h", "help", false, "Help");
 		options.addOption("s", "seed", true, "Seed");
+		options.addOption("f", "file", true, "location of CSV file to import");
 
 		CommandLineParser parser = new DefaultParser();
 
@@ -51,6 +57,8 @@ public class RestCli {
 		String operation = cmd.getOptionValue('o',null);
 		if (operation==null) {
 			System.err.println("No Operation defined");
+		} else {
+			operation = operation.strip().toLowerCase();
 		}
 
 		if (cmd.hasOption('h') || operation==null) {
@@ -80,14 +88,38 @@ public class RestCli {
 		int nbMonths = Integer.parseInt(cmd.getOptionValue('d', "48"));
 		long seed = Long.parseLong(cmd.getOptionValue('s', SequenceGenerator.DEFAULT_ACCOUNT_SEED + ""));
 
-		System.out.println("  Operation:" + operation);		
+		if (!opMap.containsKey(operation)) {
+			System.err.println("unknown operation " + operation);
+			return;
+		}
+		
+		String opId = opMap.get(operation);
+		
+		System.out.println("  Operation:" + opId);		
 		System.out.println("  Threads:" + nbThreads);
 		System.out.println("  nbDocs:" + nbDocs);
 		System.out.println("  nbMonths:" + nbMonths);
 		System.out.println("  seed:" + seed);
-				
+		
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("nbThreads", nbThreads);
+		params.put("nbDocs", nbDocs);
+		params.put("nbMonths", nbMonths);
+		params.put("nbThreads", nbThreads);
+		params.put("seed", seed);
+		
+		String csvFileName = cmd.getOptionValue('f',null);
+		File csvFile=null;
+		csvFile = new File(csvFileName);
+		
+		Operation op = nuxeoClient.operation(opId).parameters(params);
+		if (csvFile!=null) {
+			Blob csvBlob = new FileBlob(csvFile);
+			op.input(csvBlob);
+		}
+		op.voidOperation(true).execute();
+		
 		nuxeoClient.disconnect();
-
 	}
 	
 	protected static NuxeoClient createClient(Properties config) {

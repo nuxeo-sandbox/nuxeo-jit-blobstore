@@ -25,14 +25,16 @@ import org.nuxeo.lib.stream.pattern.producer.ProducerIterator;
 public class CustomerMessageProducerFactory implements ProducerFactory<DocumentMessage> {
 
 	protected String[] csv;
+	protected String blobStore;
 	
-	public CustomerMessageProducerFactory(String[] csv) {	
+	public CustomerMessageProducerFactory(String blobStore, String[] csv) {	
 		this.csv = csv;
+		this.blobStore = blobStore;
 	}
 
 	@Override
 	public ProducerIterator<DocumentMessage> createProducer(int producerId) {
-		return new CustomerMessageProducer(producerId, csv);
+		return new CustomerMessageProducer(producerId, blobStore, csv);
 	}
 
 	protected String getGroupName(int producerId) {

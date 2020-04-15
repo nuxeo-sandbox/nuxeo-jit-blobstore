@@ -82,7 +82,7 @@ public class CustomerProducers {
     public void run(Blob csvData) throws OperationException {
         
     	checkAccess();
-    	
+    	    	
         LogManager manager = Framework.getService(StreamService.class).getLogManager(logConfig);
         manager.createIfNotExists(logName, getLogSize());
     	
@@ -113,7 +113,9 @@ public class CustomerProducers {
 
     protected void startProducer(LogManager manager, String[] lines) throws OperationException {
 
-    	CustomerMessageProducerFactory factory = new CustomerMessageProducerFactory(lines);
+    	String repositoryName = context.getCoreSession().getRepositoryName();
+
+    	CustomerMessageProducerFactory factory = new CustomerMessageProducerFactory(repositoryName, lines);
     	
         Codec<DocumentMessage> codec = StreamImporters.getDocCodec();
         try (ProducerPool<DocumentMessage> producers = new ProducerPool<>(logName, manager, codec, factory,
