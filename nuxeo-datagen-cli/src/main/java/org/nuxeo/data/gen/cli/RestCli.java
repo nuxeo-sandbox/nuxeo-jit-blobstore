@@ -43,6 +43,7 @@ public class RestCli {
 		options.addOption("h", "help", false, "Help");
 		options.addOption("s", "seed", true, "Seed");
 		options.addOption("f", "file", true, "location of CSV file to import");
+		options.addOption("r", "root", true, "define the root where to import documents");
 
 		CommandLineParser parser = new DefaultParser();
 
@@ -54,6 +55,8 @@ public class RestCli {
 			return;
 		}
 
+		String root = cmd.getOptionValue('r',null);
+		
 		String operation = cmd.getOptionValue('o',null);
 		if (operation==null) {
 			System.err.println("No Operation defined");
@@ -103,14 +106,23 @@ public class RestCli {
 		
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("nbThreads", nbThreads);
-		params.put("nbDocs", nbDocs);
+		params.put("nbDocuments", nbDocs);
 		params.put("nbMonths", nbMonths);
 		params.put("nbThreads", nbThreads);
 		params.put("seed", seed);
+		if (root!=null) {
+			if (!root.startsWith("/")) {
+				// avoid losing time debuging documents not being imported 
+				root = "/" + root;
+			}
+			params.put("rootFolder", root);
+		}
 		
 		String csvFileName = cmd.getOptionValue('f',null);
 		File csvFile=null;
-		csvFile = new File(csvFileName);
+		if (csvFileName!=null) {
+			csvFile = new File(csvFileName);
+		}
 		
 		Operation op = nuxeoClient.operation(opId).parameters(params);
 		if (csvFile!=null) {
@@ -136,6 +148,9 @@ public class RestCli {
 		NuxeoClient nuxeoClient = new NuxeoClient.Builder()
                 .url(url)
                 .authentication(login, pwd)
+                .readTimeout(24*3600)
+                .connectTimeout(60)
+                .transactionTimeout(24*3600)
                 .connect();
 
 		return nuxeoClient;

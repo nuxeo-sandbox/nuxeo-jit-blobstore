@@ -156,7 +156,7 @@ public class ITextNXBankStatementGenerator implements PDFFileGenerator {
 
 		if (db != null) {
 			byte[] digest = db.getMessageDigest().digest();
-			md5 = toHexString(digest).toUpperCase();
+			md5 = toHexString(digest);
 		}
 		return new StatementMeta(md5, fileName, fileSize, tokens);
 	}
