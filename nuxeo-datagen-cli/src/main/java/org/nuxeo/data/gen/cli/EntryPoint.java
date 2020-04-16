@@ -125,6 +125,7 @@ public class EntryPoint {
 		options.addOption("aws_key", true, "AWS_ACCESS_KEY_ID");
 		options.addOption("aws_secret", true, "AWS_SECRET_ACCESS_KEY");
 		options.addOption("aws_session", true, "AWS_SESSION_TOKEN");
+		options.addOption("aws_endpoint", true, "AWS_ENDPOINT");
 
 		CommandLineParser parser = new DefaultParser();
 
@@ -173,30 +174,24 @@ public class EntryPoint {
 			String folder = out.substring(FolderDigestWriter.NAME.length());
 			importLogger.log(Level.INFO, "Inititialize Folder Digest Writer in " + folder);
 			writer = new FolderDigestWriter(folder);
-		} else if (out.startsWith(S3Writer.NAME)) {
+		} else if (out.startsWith("s3")) {
 			String bucketName = out.substring(S3Writer.NAME.length());
-			importLogger.log(Level.INFO, "Inititialize S3 Writer in bucket " + bucketName);
 
 			String aws_key = cmd.getOptionValue("aws_key", null);
 			String aws_secret = cmd.getOptionValue("aws_secret", null);
 			String aws_session = cmd.getOptionValue("aws_session", null);
-			writer = new S3Writer(bucketName, aws_key, aws_secret, aws_session);
-		} else if (out.startsWith(S3TMWriter.NAME)) {
-			String bucketName = out.substring(S3TMWriter.NAME.length());
-			importLogger.log(Level.INFO, "Inititialize S3TM Writer in bucket " + bucketName);
-
-			String aws_key = cmd.getOptionValue("aws_key", null);
-			String aws_secret = cmd.getOptionValue("aws_secret", null);
-			String aws_session = cmd.getOptionValue("aws_session", null);
-			writer = new S3TMWriter(bucketName, aws_key, aws_secret, aws_session);
-		} else if (out.startsWith(S3TMAWriter.NAME)) {
-			String bucketName = out.substring(S3TMAWriter.NAME.length());
-			importLogger.log(Level.INFO, "Inititialize S3TMA Writer in bucket " + bucketName);
-
-			String aws_key = cmd.getOptionValue("aws_key", null);
-			String aws_secret = cmd.getOptionValue("aws_secret", null);
-			String aws_session = cmd.getOptionValue("aws_session", null);
-			writer = new S3TMAWriter(bucketName, aws_key, aws_secret, aws_session);
+			String aws_endpoint = cmd.getOptionValue("aws_endpoint", null);
+			
+			if 	(out.startsWith(S3Writer.NAME)) {
+				importLogger.log(Level.INFO, "Inititialize S3 Writer in bucket " + bucketName);
+				writer = new S3Writer(bucketName, aws_key, aws_secret, aws_session, aws_endpoint);
+			} else if (out.startsWith(S3TMWriter.NAME)) {
+				importLogger.log(Level.INFO, "Inititialize S3TM Writer in bucket " + bucketName);
+				writer = new S3TMWriter(bucketName, aws_key, aws_secret, aws_session, aws_endpoint);
+			} else if (out.startsWith(S3TMAWriter.NAME)) {
+				importLogger.log(Level.INFO, "Inititialize S3TMA Writer in bucket " + bucketName);
+				writer = new S3TMAWriter(bucketName, aws_key, aws_secret, aws_session, aws_endpoint);
+			}
 		}
 
 		PDFOutputFilter filter = null;

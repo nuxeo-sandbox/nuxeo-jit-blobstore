@@ -36,11 +36,11 @@ public class S3TMAWriter extends S3TMWriter {
 	protected AtomicInteger pendingUploads = new AtomicInteger();
 
 	public S3TMAWriter(String bucketName) {
-		super(bucketName, null, null, null);
+		super(bucketName, null, null, null, null);
 	}
 
-	public S3TMAWriter(String bucketName, String accessKeyId, String secretKey, String sessionToken) {
-		super(bucketName, accessKeyId, secretKey, sessionToken);
+	public S3TMAWriter(String bucketName, String accessKeyId, String secretKey, String sessionToken, String awsEndPoint) {
+		super(bucketName, accessKeyId, secretKey, sessionToken, awsEndPoint);
 	}
 
 	@Override

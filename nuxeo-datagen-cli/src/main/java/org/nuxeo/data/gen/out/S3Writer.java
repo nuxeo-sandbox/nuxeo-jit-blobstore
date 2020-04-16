@@ -27,6 +27,7 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.regions.DefaultAwsRegionProviderChain;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -43,6 +44,8 @@ public class S3Writer extends AbstractBlobWriter implements BlobWriter {
 	protected AWSCredentialsProvider credProvider;
 
 	protected AmazonS3 s3;
+	
+	protected String awsEndpoint;
 
 	public void initAWSCredentials(String accessKeyId, String secretKey, String sessionToken) {
 
@@ -56,6 +59,7 @@ public class S3Writer extends AbstractBlobWriter implements BlobWriter {
 		} else {
 			credProvider = new DefaultAWSCredentialsProviderChain();
 		}
+		
 	}
 
 	protected void initClient() {
@@ -66,20 +70,26 @@ public class S3Writer extends AbstractBlobWriter implements BlobWriter {
 		clientConfiguration.setMaxConnections(500);
 		clientConfiguration.setUseGzip(false);
 		clientConfiguration.setUseTcpKeepAlive(true);
-
+		
 		AmazonS3ClientBuilder s3Builder = AmazonS3ClientBuilder.standard().withCredentials(credProvider)
 				.withClientConfiguration(clientConfiguration).withRegion(region);
+		
+		if (awsEndpoint!=null) {
+			EndpointConfiguration epc = new EndpointConfiguration(awsEndpoint, "us-east-1");
+			s3Builder = s3Builder.withEndpointConfiguration(epc);
+		}
 
 		s3 = s3Builder.build();
 
 	}
 
 	public S3Writer(String bucketName) {
-		this(bucketName, null, null, null);
+		this(bucketName, null, null, null, null);
 	}
 
-	public S3Writer(String bucketName, String accessKeyId, String secretKey, String sessionToken) {
+	public S3Writer(String bucketName, String accessKeyId, String secretKey, String sessionToken, String awsEndPoint) {
 		this.bucketName = bucketName;
+		this.awsEndpoint=awsEndPoint;
 		initAWSCredentials(accessKeyId, secretKey, sessionToken);
 		initClient();
 	}

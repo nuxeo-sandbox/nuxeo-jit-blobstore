@@ -33,11 +33,11 @@ public class S3TMWriter extends S3Writer {
 	protected TransferManager tm;
 
 	public S3TMWriter(String bucketName) {
-		this(bucketName, null, null, null);
+		this(bucketName, null, null, null, null);
 	}
 
-	public S3TMWriter(String bucketName, String accessKeyId, String secretKey, String sessionToken) {
-		super(bucketName, accessKeyId, secretKey, sessionToken);
+	public S3TMWriter(String bucketName, String accessKeyId, String secretKey, String sessionToken, String awsEndPoint) {
+		super(bucketName, accessKeyId, secretKey, sessionToken, awsEndPoint);
 
 		tm = TransferManagerBuilder.standard().withMultipartUploadThreshold(1024L * 1024).withS3Client(s3)
 //                 .withExecutorFactory(executorFactory)
