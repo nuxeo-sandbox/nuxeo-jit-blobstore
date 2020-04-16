@@ -65,18 +65,23 @@ public class S3Writer extends AbstractBlobWriter implements BlobWriter {
 	protected void initClient() {
 
 		ClientConfiguration clientConfiguration = new ClientConfiguration();
-		String region = new DefaultAwsRegionProviderChain().getRegion();
 
 		clientConfiguration.setMaxConnections(500);
 		clientConfiguration.setUseGzip(false);
 		clientConfiguration.setUseTcpKeepAlive(true);
 		
 		AmazonS3ClientBuilder s3Builder = AmazonS3ClientBuilder.standard().withCredentials(credProvider)
-				.withClientConfiguration(clientConfiguration).withRegion(region);
+				.withClientConfiguration(clientConfiguration);
 		
 		if (awsEndpoint!=null) {
 			EndpointConfiguration epc = new EndpointConfiguration(awsEndpoint, "us-east-1");
 			s3Builder = s3Builder.withEndpointConfiguration(epc);
+			// see https://docs.aws.amazon.com/snowball/latest/developer-guide/using-adapter.html
+			s3Builder = s3Builder.disableChunkedEncoding();
+			s3Builder.setPathStyleAccessEnabled(true);
+		} else {
+			String region = new DefaultAwsRegionProviderChain().getRegion();
+			s3Builder = s3Builder.withRegion(region);
 		}
 
 		s3 = s3Builder.build();
