@@ -176,7 +176,8 @@ public class TestPDFGeneration {
 		assertTrue(meta.getFileName().endsWith("jpg"));
 		assertTrue(meta.getDigest().equalsIgnoreCase(DigestUtils.md5Hex(jpgOut.toByteArray())));
 		
-		//dumpFile(jpgOut.toByteArray(), filter.getFileExtension());
+		System.out.println(jpgOut.toByteArray().length/1024);
+		dumpFile(jpgOut.toByteArray(), filter.getFileExtension());
 		
 		// Tiff Gen
 		ByteArrayOutputStream tifOut = new ByteArrayOutputStream();

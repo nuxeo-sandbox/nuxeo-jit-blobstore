@@ -37,6 +37,8 @@ import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
+import com.itextpdf.kernel.pdf.xobject.PdfImageXObject;
+import com.itextpdf.kernel.pdf.xobject.PdfXObject;
 
 public class ITextIDGenerator extends ITextNXBankStatementGenerator implements PDFFileGenerator {
 
@@ -108,7 +110,12 @@ public class ITextIDGenerator extends ITextNXBankStatementGenerator implements P
 	    Rectangle rect = new Rectangle(50, 58);
 	    rect.setX(18f);
 	    rect.setY(18.5f);
-	    canvas.addImage(getImageData(), rect, true);	    
+	    
+	    // avoid warning for images > 4 KB
+	    //canvas.addImage(getImageData(), rect, true);
+	    PdfImageXObject pim = new PdfImageXObject(getImageData());
+	    canvas.addXObject(pim, rect);	    
+	    
 		return;
 	}
 

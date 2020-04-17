@@ -18,13 +18,16 @@
  */
 package org.nuxeo.data.gen.pdf.itext.filter;
 
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
 
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
+import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -44,17 +47,30 @@ public class JpegFilter extends AbstractFilter implements PDFOutputFilter {
 	public void render(ByteArrayInputStream pdf, OutputStream out) throws Exception {
 
 		PDDocument doc = PDDocument.load(pdf);
+		doc.setAllSecurityToBeRemoved(true);
 		PDFRenderer renderer = new PDFRenderer(doc);
-
+		RenderingHints hints = new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+		hints.add(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF));
+		hints.add(new RenderingHints(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE));
+		renderer.setRenderingHints(hints);
+				
 		ImageWriter jpgWriter = ImageIO.getImageWritersByFormatName("jpg").next();
-		ImageWriteParam jpgWriteParam = jpgWriter.getDefaultWriteParam();
+		JPEGImageWriteParam jpgWriteParam = (JPEGImageWriteParam) jpgWriter.getDefaultWriteParam();
+
+		jpgWriteParam.setOptimizeHuffmanTables(true);
 		jpgWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
 		jpgWriteParam.setCompressionQuality(0.5f);
+		jpgWriteParam.setCompressionType("JPEG");
+		jpgWriteParam.setProgressiveMode(ImageWriteParam.MODE_DISABLED);
+		jpgWriteParam.setController(null);
 
 		BufferedImage bim = renderer.renderImageWithDPI(0, getDPI(), ImageType.RGB);
 		MemoryCacheImageOutputStream outStream = new MemoryCacheImageOutputStream(out);
 		jpgWriter.setOutput(outStream);
-		jpgWriter.write(bim);
+
+		jpgWriter.removeAllIIOWriteProgressListeners();
+		jpgWriter.removeAllIIOWriteWarningListeners();
+		jpgWriter.write(null, new IIOImage(bim, null, null), jpgWriteParam);
 
 		doc.close();
 		jpgWriter.dispose();
