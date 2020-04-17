@@ -273,7 +273,7 @@ public class Injector {
 
 	protected void printProjections(int throughput) {
 		
-		int[] targets = new int[] {100000000, 1000000000, 1000000000 };
+		long[] targets = new long[] {100000000, 1000000000, 10000000000L };
 		String[] labels = new String[] {"100M", "1B", "10B" };
 		
 		log("#### Projected generation time:");
