@@ -265,7 +265,7 @@ public class TestStreamStatementProducer {
             
             LogRecord<DocumentMessage> record=null;
             do {
-            	record = tailer.read(Duration.ofSeconds(5));
+            	record = tailer.read(Duration.ofSeconds(10));
             	if (record!=null) {
             		DocumentMessage docMessage = record.message();
             		String account = (String) docMessage.getProperties().get("statement:accountNumber");

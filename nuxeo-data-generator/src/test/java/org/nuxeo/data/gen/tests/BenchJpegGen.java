@@ -20,7 +20,7 @@ import org.nuxeo.data.gen.pdf.itext.filter.PDFOutputFilter;
 
 public class BenchJpegGen {
 
-	protected static final int NB_CALLS = 200;
+	protected static final int NB_CALLS = 100;
 	protected static final int NB_THREADS = 6;
 
 	@Test
@@ -49,9 +49,6 @@ public class BenchJpegGen {
 		gen.init(new ByteArrayInputStream(templateData), keys);
 		gen.computeDigest = true;		
 		gen.setPicture(ITextIDTemplateCreator.class.getResourceAsStream("/jexo.jpeg"));
-
-		
-		
 		
 		long t0 = System.currentTimeMillis();
 		

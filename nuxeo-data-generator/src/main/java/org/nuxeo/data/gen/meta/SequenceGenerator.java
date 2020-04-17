@@ -40,7 +40,10 @@ public class SequenceGenerator {
 
 	protected static RandomDataGenerator rnd;
 
+	protected int monthOffset = 0;
 	protected int accountsRange = 3;
+
+	public boolean sync = true;
 
 	public int getAccountsRange() {
 		return accountsRange;
@@ -48,6 +51,21 @@ public class SequenceGenerator {
 
 	public void setAccountsRange(int accountsRange) {
 		this.accountsRange = accountsRange;
+	}	
+	
+	public int getMonthOffset() {
+		return monthOffset;
+	}
+
+	public void setMonthOffset(int monthOffset) {
+		this.monthOffset = monthOffset;
+	}
+
+	public void skip(long nb) {
+		while (nb > 0) {
+			next();
+			nb--;
+		}
 	}
 
 	public class Entry {
@@ -121,6 +139,16 @@ public class SequenceGenerator {
 
 	public Entry next() {
 
+		if (sync) {
+			synchronized (this) {
+				return _next();
+			}
+		}
+		return _next();
+	}
+
+	protected Entry _next() {
+
 		Entry result = new Entry();
 		if (accountIdx > nbAccounts || accountIdx == 0) {
 			currentIdentitySeed = acccountSeedGen.nextLong();
@@ -144,7 +172,7 @@ public class SequenceGenerator {
 		}
 		result.accountKey = currentIdentityIdx.asLongKey();
 		result.dataKey = dataSeedGen.nextLong();
-		result.month = month;
+		result.month = month + monthOffset;
 
 		month++;
 		return result;

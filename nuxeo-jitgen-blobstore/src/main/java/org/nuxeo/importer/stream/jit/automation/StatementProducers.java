@@ -59,6 +59,9 @@ public class StatementProducers {
     @Param(name = "nbMonths")
     protected Integer nbMonths = 12*10;
 
+    @Param(name = "monthOffset" , required = false)
+    protected Integer monthOffset = 0;
+
     @Param(name = "nbThreads", required = false)
     protected Integer nbThreads = 8;
 
@@ -96,7 +99,7 @@ public class StatementProducers {
         	docPerThreads++;
         }
         
-        factory = new StatementDocumentMessageProducerFactory(seed, docPerThreads, nbMonths);
+        factory = new StatementDocumentMessageProducerFactory(seed, docPerThreads, nbMonths, monthOffset);
 
         Codec<DocumentMessage> codec = StreamImporters.getDocCodec();
         try (ProducerPool<DocumentMessage> producers = new ProducerPool<>(logName, manager, codec, factory,

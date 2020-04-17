@@ -40,6 +40,7 @@ public class RestCli {
 		options.addOption("t", "threads", true, "Number of threads");
 		options.addOption("n", "nbDoc", true, "Number of Documents to generate");
 		options.addOption("d", "months", true, "Number of months of statements to generate");
+		options.addOption("monthOffset", true, "Months offset");
 		options.addOption("h", "help", false, "Help");
 		options.addOption("s", "seed", true, "Seed");
 		options.addOption("f", "file", true, "location of CSV file to import");
@@ -89,6 +90,8 @@ public class RestCli {
 		int nbThreads = Integer.parseInt(cmd.getOptionValue('t', "10"));
 		int nbDocs = Integer.parseInt(cmd.getOptionValue('n', "100000"));
 		int nbMonths = Integer.parseInt(cmd.getOptionValue('d', "48"));
+		int monthOffset = Integer.parseInt(cmd.getOptionValue("monthOffset", "0"));
+		
 		long seed = Long.parseLong(cmd.getOptionValue('s', SequenceGenerator.DEFAULT_ACCOUNT_SEED + ""));
 
 		if (!opMap.containsKey(operation)) {
@@ -108,7 +111,8 @@ public class RestCli {
 		params.put("nbThreads", nbThreads);
 		params.put("nbDocuments", nbDocs);
 		params.put("nbMonths", nbMonths);
-		params.put("nbThreads", nbThreads);
+		params.put("monthOffset", monthOffset);
+		params.put("nbThreads", nbThreads);		
 		params.put("seed", seed);
 		if (root!=null) {
 			if (!root.startsWith("/")) {

@@ -18,29 +18,31 @@
  */
 package org.nuxeo.importer.stream.jit;
 
+import org.nuxeo.data.gen.meta.SequenceGenerator;
+import org.nuxeo.ecm.automation.core.annotations.Param;
 import org.nuxeo.importer.stream.message.DocumentMessage;
 import org.nuxeo.lib.stream.pattern.producer.ProducerFactory;
 import org.nuxeo.lib.stream.pattern.producer.ProducerIterator;
 
 public class StatementDocumentMessageProducerFactory implements ProducerFactory<DocumentMessage> {
 
-	protected final Long seed;
 	protected final long nbDocuments;
 	protected final int nbMonth;
-	protected int seedIncrement=0;
-
+	protected SequenceGenerator sequenceGen;    
+	
 	/**
 	 * Generates random documents messages that point to existing blobs.
 	 */
-	public StatementDocumentMessageProducerFactory(Long seed, long nbDocuments,int nbMonth) {
+	public StatementDocumentMessageProducerFactory(Long seed, long nbDocuments,int nbMonth, int monthOffset) {
 		this.nbDocuments = nbDocuments;
-		this.nbMonth = nbMonth;
-		this.seed=seed;
+		this.nbMonth=nbMonth;
+		sequenceGen = new SequenceGenerator(seed, nbMonth);	
+		sequenceGen.setMonthOffset(monthOffset);
 	}
 
 	@Override
 	public ProducerIterator<DocumentMessage> createProducer(int producerId) {
-		return new StatementDocumentMessageProducer(seed+(seedIncrement++), producerId, nbDocuments, nbMonth);
+		return new StatementDocumentMessageProducer(sequenceGen, producerId, nbDocuments, nbMonth);
 	}
 
 	protected String getGroupName(int producerId) {

@@ -146,6 +146,9 @@ public class ITextNXBankStatementGenerator implements PDFFileGenerator {
 		String extension=".pdf";
 		
 		if (filter!=null) {
+			if (tmpBuffer==null) {
+				System.out.println("WTF!!!");
+			}
 			filter.render(new ByteArrayInputStream(tmpBuffer.toByteArray()), cout);
 			extension = filter.getFileExtension();
 		} 

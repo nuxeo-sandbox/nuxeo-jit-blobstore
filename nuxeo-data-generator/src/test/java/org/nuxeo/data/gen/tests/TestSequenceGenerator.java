@@ -1,6 +1,7 @@
 package org.nuxeo.data.gen.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -10,6 +11,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.nuxeo.data.gen.meta.IdentityIndex;
@@ -193,5 +197,107 @@ public class TestSequenceGenerator {
     	}
 
     }
+
+    
+	@Test
+	public void checkConcurrency() throws Exception {		
+		
+		SequenceGenerator sg = new SequenceGenerator(1);		
+		sg.sync=false;
+		
+		int nbThreads = 48;
+		int nbKeys = nbThreads* 100000;
+		
+		long t0 = System.currentTimeMillis();
+		Set<Long> allKeys = new HashSet<Long>();
+		for (int i = 0; i < nbKeys; i++) {
+			allKeys.add(sg.next().getAccountKeyLong());			
+		}		
+		long t1 = System.currentTimeMillis();
+		Double throughput = nbKeys* 1.0 / (t1 - t0);
+		System.out.println("Throughput mono-thread (K/ms):" + throughput);
+
+		assertEquals(nbKeys, allKeys.size());				
+		
+		
+		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(nbThreads);
+		executor.prestartAllCoreThreads();
+		Set<Long> allKeys2 = new HashSet<Long>();
+
+		SequenceGenerator sg2 = new SequenceGenerator(1);				
+		
+		final class Task implements Runnable {
+
+			Set<Long> keys = new HashSet<Long>();			
+			@Override
+			public void run() {
+				for (int i =0; i < nbKeys/nbThreads; i++) {
+					keys.add(sg2.next().getAccountKeyLong());
+				}				
+			}
+			
+			Set<Long> getKeys() {
+				return keys;
+			}		
+		}
+
+		t0 = System.currentTimeMillis();
+		List<Task> tasks = new ArrayList<Task>();		
+		for (int i =0; i < nbThreads; i++) {
+			Task t = new Task();
+			tasks.add(t);
+			executor.submit(t);
+		}
+		
+		executor.shutdown();
+		boolean finished = executor.awaitTermination(3 * 60, TimeUnit.SECONDS);
+		if (!finished) {
+			System.out.println("Timeout !!!!");			
+		}
+		assertTrue(finished);
+
+		t1 = System.currentTimeMillis();
+		throughput = nbKeys* 1.0 / (t1 - t0);
+		System.out.println("Throughput (K/ms):" + throughput);
+
+		
+		for (Task t : tasks) {
+			allKeys2.addAll(t.getKeys());
+		}
+
+		assertEquals(nbKeys, allKeys2.size());
+		for (Long k : allKeys2) {
+			assertTrue(allKeys.contains(k));
+		}
+		
+	}
+
+	
+	@Test
+	public void checkContinuousSeq() {		
+		
+		int nbEntries = 5000;
+		SequenceGenerator sg = new SequenceGenerator(12);
+
+		Set<String> allAccounts = new HashSet<String>();
+		Set<String> allDates = new HashSet<String>();
+		
+		for (int i = 0; i < nbEntries; i++) {
+			SequenceGenerator.Entry e = sg.next();
+			allAccounts.add(e.getAccountID());
+			allDates.add(e.getMetaData()[4]);
+			//System.out.println(e.getAccountID() + " --- " + e.getMetaData()[4]);
+		}		
+
+		// verify that we can regenerate the same sequence of accounts but with a different date
+		sg = new SequenceGenerator(12);
+		sg.setMonthOffset(12);		
+		for (int i = 0; i < nbEntries; i++) {
+			SequenceGenerator.Entry e = sg.next();
+			assertTrue(allAccounts.contains(e.getAccountID()));
+			assertFalse(allDates.contains(e.getMetaData()[4]));
+			//System.out.println(e.getAccountID() + " --- " + e.getMetaData()[4]);
+		}		
+	}
 
 }

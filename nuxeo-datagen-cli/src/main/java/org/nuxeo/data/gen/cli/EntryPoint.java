@@ -115,6 +115,8 @@ public class EntryPoint {
 		options.addOption("t", "threads", true, "Number of threads");
 		options.addOption("n", "nbDoc", true, "Number of Documents to generate");
 		options.addOption("d", "months", true, "Number of months of statements to generate");
+		options.addOption("monthOffset", true, "Months offset");
+		
 		options.addOption("o", "output", true,
 				"generate and output PDF : mem (default), tmp, file:<path>, fileDigest:<path>, s3:<bucketName>, s3tm:<bucketName>, s3tma:<bucketName>");
 		options.addOption("h", "help", false, "Help");
@@ -140,7 +142,8 @@ public class EntryPoint {
 		int nbThreads = Integer.parseInt(cmd.getOptionValue('t', "10"));
 		int nbDocs = Integer.parseInt(cmd.getOptionValue('n', "100000"));
 		int nbMonths = Integer.parseInt(cmd.getOptionValue('d', "48"));
-
+		int monthOffset = Integer.parseInt(cmd.getOptionValue("monthOffset", "0"));
+		
 		long seed = Long.parseLong(cmd.getOptionValue('s', SequenceGenerator.DEFAULT_ACCOUNT_SEED + ""));
 
 		String model = cmd.getOptionValue('x', "statement");
@@ -232,7 +235,7 @@ public class EntryPoint {
 		cmdLogger.log(Level.INFO, "  nbMonths:" + nbMonths);
 
 		try {
-			runInjector(mode, model, pictureDirectory, seed, nbDocs, nbThreads, nbMonths, importLogger, metadataLogger,
+			runInjector(mode, model, pictureDirectory, seed, nbDocs, nbThreads, nbMonths, monthOffset, importLogger, metadataLogger,
 					writer, filter);
 		} catch (Exception e) {
 			System.err.println("Error while running Injector " + e);
@@ -243,7 +246,7 @@ public class EntryPoint {
 	}
 
 	protected static void runInjector(Injector.MODE mode, String model, Path pictureDirectory, long seed, int total,
-			int threads, int nbMonths, Logger importLogger, Logger metadataLogger, BlobWriter writer,
+			int threads, int nbMonths, int monthOffset, Logger importLogger, Logger metadataLogger, BlobWriter writer,
 			PDFOutputFilter filter) throws Exception {
 
 		// Init template Generator
@@ -287,7 +290,7 @@ public class EntryPoint {
 
 		gen.init(new ByteArrayInputStream(templateData), templateGen.getKeys());
 
-		Injector injector = new Injector(mode, seed, gen, total, threads, nbMonths, importLogger, metadataLogger);
+		Injector injector = new Injector(mode, seed, gen, total, threads, nbMonths, monthOffset,  importLogger, metadataLogger);
 		injector.setWriter(writer);
 		injector.run();
 

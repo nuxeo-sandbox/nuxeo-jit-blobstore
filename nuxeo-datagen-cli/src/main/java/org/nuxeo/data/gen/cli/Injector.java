@@ -43,7 +43,8 @@ public class Injector {
 
 	protected int nbThreads = 10;
 	protected int nbMonths = 48;
-
+	protected int monthOffset=0;
+	
 	protected static final int BUFFER_SIZE = 10 * 1024;
 
 	protected static final int MAX_PAUSE = 60 * 5;
@@ -63,7 +64,7 @@ public class Injector {
 
 	protected final long seed;
 
-	public Injector(MODE mode, long seed, PDFFileGenerator gen, int total, int nbThreads, int nbMonths,
+	public Injector(MODE mode, long seed, PDFFileGenerator gen, int total, int nbThreads, int nbMonths, int monthOffset,
 			Logger importLogger, Logger metadataLogger) {
 		this.mode = mode;
 		this.gen = gen;
@@ -73,6 +74,8 @@ public class Injector {
 		this.metadataLogger = metadataLogger;
 		this.importLogger = importLogger;
 		this.nbMonths = nbMonths;
+		this.monthOffset=monthOffset;
+		
 		this.seed = seed;
 
 		if (mode == MODE.PDF) {
@@ -160,7 +163,8 @@ public class Injector {
 
 		long t0 = System.currentTimeMillis();
 
-		AtomicLong seqGenSeed = new AtomicLong(seed);
+		SequenceGenerator sg = new SequenceGenerator(seed, nbMonths);
+		sg.setMonthOffset(monthOffset);
 
 		final class Task implements Runnable {
 
@@ -168,7 +172,6 @@ public class Injector {
 			public void run() {
 				ByteArrayOutputStream buffer = new ByteArrayOutputStream(BUFFER_SIZE);
 
-				SequenceGenerator sg = new SequenceGenerator(seqGenSeed.getAndIncrement(), nbMonths);
 				for (int i = 0; i < callsPerThreads; i++) {
 					try {
 						buffer.reset();
