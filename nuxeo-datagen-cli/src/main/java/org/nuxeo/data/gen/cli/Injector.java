@@ -25,7 +25,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Logger;
@@ -57,6 +56,7 @@ public class Injector {
 
 	protected Logger importLogger;
 	protected Logger metadataLogger;
+	protected Logger cmdLogger;
 
 	protected final MODE mode;
 
@@ -65,7 +65,7 @@ public class Injector {
 	protected final long seed;
 
 	public Injector(MODE mode, long seed, PDFFileGenerator gen, int total, int nbThreads, int nbMonths, int monthOffset,
-			Logger importLogger, Logger metadataLogger) {
+			Logger importLogger, Logger metadataLogger, Logger cmdLogger) {
 		this.mode = mode;
 		this.gen = gen;
 		this.total = total;
@@ -73,6 +73,7 @@ public class Injector {
 		this.callsPerThreads = Math.round(total / nbThreads) + 1;
 		this.metadataLogger = metadataLogger;
 		this.importLogger = importLogger;
+		this.cmdLogger = cmdLogger;
 		this.nbMonths = nbMonths;
 		this.monthOffset=monthOffset;
 		
@@ -97,8 +98,8 @@ public class Injector {
 	}
 
 	protected void log(String message) {
-		if (importLogger != null) {
-			importLogger.log(Level.INFO, message);
+		if (cmdLogger != null) {
+			cmdLogger.log(Level.INFO, message);
 		} else {
 			System.out.println(message);
 		}
@@ -166,6 +167,8 @@ public class Injector {
 		SequenceGenerator sg = new SequenceGenerator(seed, nbMonths);
 		sg.setMonthOffset(monthOffset);
 
+		importLogger.log(Level.INFO, "Initialized data generator with seed %d on %d months and offse %d", seed, nbMonths, monthOffset);
+		
 		final class Task implements Runnable {
 
 			@Override
@@ -202,7 +205,9 @@ public class Injector {
 						}
 						counter.incrementAndGet();
 					} catch (Exception e) {
+						importLogger.log(Level.ERROR, "Unable to write", e);					
 						e.printStackTrace();
+						return;
 					}
 				}
 				if (writer != null) {
@@ -252,21 +257,30 @@ public class Injector {
 		long t1 = System.currentTimeMillis();
 		throughput = Math.round(counter.get() * 1.0 / ((t1 - t0) / 1000));
 
-		log("---=------------------------------------------------------");
 		log("----------------------------------------------------------");
 
-		log(counter.get() + " pdfs files generated.");
+		log(counter.get() + " files generated.");
 
 		Duration d = Duration.ofSeconds(((t1 - t0) / 1000));
 		logDuration(d, "  Execution time: ");
 
 		log("  Average throughput:" + throughput.intValue() + " docs/s");
 
-		d = Duration.ofSeconds(10000000000L / throughput.intValue());
-		log("[  Projected generation time for 10B files: " + d.toDaysPart() + " day(s) and " + d.toHoursPart()
-				+ " hour(s)]");
+		printProjections(throughput.intValue());
 
 		return throughput.intValue();
 	}
 
+	protected void printProjections(int throughput) {
+		
+		int[] targets = new int[] {100000000, 1000000000, 1000000000 };
+		String[] labels = new String[] {"100M", "1B", "10B" };
+		
+		log("#### Projected generation time:");
+		for (int i= 0 ; i < targets.length; i++) {
+			Duration d = Duration.ofSeconds(targets[i] / throughput);
+			log("     - for " + labels[i] + " files: " + d.toDaysPart() + " day(s) and " + d.toHoursPart()
+					+ " hour(s)]");			
+		}
+	}
 }

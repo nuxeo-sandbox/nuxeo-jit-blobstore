@@ -183,7 +183,7 @@ public class EntryPoint {
 			String aws_key = cmd.getOptionValue("aws_key", null);
 			String aws_secret = cmd.getOptionValue("aws_secret", null);
 			String aws_session = cmd.getOptionValue("aws_session", null);
-			String aws_endpoint = cmd.getOptionValue("aws_endpoint", null);
+			String aws_endpoint = cmd.getOptionValue("aws_endpoint", null);						
 			
 			if 	(out.startsWith(S3Writer.NAME)) {
 				importLogger.log(Level.INFO, "Inititialize S3 Writer in bucket " + bucketName);
@@ -235,7 +235,7 @@ public class EntryPoint {
 		cmdLogger.log(Level.INFO, "  nbMonths:" + nbMonths);
 
 		try {
-			runInjector(mode, model, pictureDirectory, seed, nbDocs, nbThreads, nbMonths, monthOffset, importLogger, metadataLogger,
+			runInjector(mode, model, pictureDirectory, seed, nbDocs, nbThreads, nbMonths, monthOffset, importLogger, metadataLogger,cmdLogger,
 					writer, filter);
 		} catch (Exception e) {
 			System.err.println("Error while running Injector " + e);
@@ -246,7 +246,7 @@ public class EntryPoint {
 	}
 
 	protected static void runInjector(Injector.MODE mode, String model, Path pictureDirectory, long seed, int total,
-			int threads, int nbMonths, int monthOffset, Logger importLogger, Logger metadataLogger, BlobWriter writer,
+			int threads, int nbMonths, int monthOffset, Logger importLogger, Logger metadataLogger, Logger cmdLogger, BlobWriter writer,
 			PDFOutputFilter filter) throws Exception {
 
 		// Init template Generator
@@ -290,7 +290,7 @@ public class EntryPoint {
 
 		gen.init(new ByteArrayInputStream(templateData), templateGen.getKeys());
 
-		Injector injector = new Injector(mode, seed, gen, total, threads, nbMonths, monthOffset,  importLogger, metadataLogger);
+		Injector injector = new Injector(mode, seed, gen, total, threads, nbMonths, monthOffset,  importLogger, metadataLogger, cmdLogger);
 		injector.setWriter(writer);
 		injector.run();
 
