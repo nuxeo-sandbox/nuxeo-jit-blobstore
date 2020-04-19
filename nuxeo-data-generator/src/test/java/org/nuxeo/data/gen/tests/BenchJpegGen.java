@@ -49,7 +49,11 @@ public class BenchJpegGen {
 		gen.init(new ByteArrayInputStream(templateData), keys);
 		gen.computeDigest = true;		
 		gen.setPicture(ITextIDTemplateCreator.class.getResourceAsStream("/jexo.jpeg"));
-		
+
+		PDFOutputFilter filter = new JpegFilter();
+		filter.setDPI(300);
+		gen.setFilter(filter);
+
 		long t0 = System.currentTimeMillis();
 		
 		final class Task implements Runnable {
@@ -61,18 +65,10 @@ public class BenchJpegGen {
 					for (int i = 0; i < NB_CALLS; i++) {
 
 						String[] data = rnd.generate();
-						ByteArrayOutputStream pdfOut = new ByteArrayOutputStream();
-						StatementMeta meta = gen.generate(pdfOut, data);
-
-						byte[] pdf = pdfOut.toByteArray();
-						assertTrue(meta.getDigest().equalsIgnoreCase(DigestUtils.md5Hex(pdf)));
 						
 						// Jpeg Gen
 						ByteArrayOutputStream jpgOut = new ByteArrayOutputStream();
-						PDFOutputFilter filter = new JpegFilter();
-						filter.setDPI(300);
-						gen.setFilter(filter);
-						meta = gen.generate(jpgOut, data);
+						StatementMeta meta = gen.generate(jpgOut, data);
 						
 						counter.incrementAndGet();
 					}

@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import org.nuxeo.data.gen.BaseBankTemplate;
 import org.nuxeo.data.gen.pdf.PDFTemplateGenerator;
 
 import com.itextpdf.io.image.ImageData;
@@ -48,20 +49,7 @@ import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.UnitValue;
 
-public class ITextNXBankTemplateCreator implements PDFTemplateGenerator {
-
-	public static String mkTag(String value, int size) {
-		String tag = "#" + value;
-		return tag + "-".repeat(size - 1 - tag.length()) + "#";
-	}
-
-	public static final String[] _keys = new String[] {
-			mkTag("NAME", 41), 
-			mkTag("STREET", 20), 
-			mkTag("CITY", 20),
-			mkTag("STATE", 20), 
-			mkTag("DATE", 20), 
-			mkTag("ACCOUNTID", 22), };
+public class ITextNXBankTemplateCreator extends BaseBankTemplate implements PDFTemplateGenerator {
 
 	public static final String ACCOUNT_LABEL = "Primary Account Number: ";
 
@@ -93,11 +81,6 @@ public class ITextNXBankTemplateCreator implements PDFTemplateGenerator {
 			op.value = Math.random() * 10000 - 5000;
 			operations.add(op);
 		}
-	}
-
-	@Override
-	public String[] getKeys() {
-		return _keys;
 	}
 
 	protected String key(int idx) {

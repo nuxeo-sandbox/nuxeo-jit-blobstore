@@ -192,6 +192,10 @@ public class Injector {
 								sg.setAccountsRange(0);
 								String[] meta = entry.getMetaData();
 								smeta = gen.generate(buffer, meta);
+							} else if (gen.getType().equalsIgnoreCase("NewAccountLetter")) {
+								//sg.setAccountsRange(0);
+								String[] meta = entry.getMetaData();
+								smeta = gen.generate(buffer, meta);
 							} else {
 								String[] meta = rndGen.generate(entry.getAccountKeyLong(), entry.getDataKey(),
 										entry.getMonth());

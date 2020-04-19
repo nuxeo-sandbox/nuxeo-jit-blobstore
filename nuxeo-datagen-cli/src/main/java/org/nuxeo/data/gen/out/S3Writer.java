@@ -79,6 +79,7 @@ public class S3Writer extends AbstractBlobWriter implements BlobWriter {
 			// see https://docs.aws.amazon.com/snowball/latest/developer-guide/using-adapter.html
 			s3Builder = s3Builder.disableChunkedEncoding();
 			s3Builder.setPathStyleAccessEnabled(true);
+			//s3Builder = s3Builder.enableAccelerateMode();			
 		} else {
 			String region = new DefaultAwsRegionProviderChain().getRegion();
 			s3Builder = s3Builder.withRegion(region);

@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.output.CountingOutputStream;
+import org.nuxeo.data.gen.BaseBankGenerator;
 import org.nuxeo.data.gen.pdf.PDFFileGenerator;
 import org.nuxeo.data.gen.pdf.StatementMeta;
 import org.nuxeo.data.gen.pdf.itext.filter.PDFOutputFilter;
@@ -43,23 +44,17 @@ import com.itextpdf.kernel.pdf.PdfVersion;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.WriterProperties;
 
-public class ITextNXBankStatementGenerator implements PDFFileGenerator {
+public class ITextNXBankStatementGenerator extends BaseBankGenerator implements PDFFileGenerator {
 
 	protected byte[] template;
 
 	protected Map<Integer, Integer> index = new HashMap<Integer, Integer>();
 
-	public boolean computeDigest = false;
-
-	protected PDFOutputFilter filter;
 
 	public String getName() {
 		return "Template based generation with Index pre-processing using iText";
 	}
 
-	public void setFilter(PDFOutputFilter filter) {
-		this.filter=filter;
-	}
 	
 	public void init(InputStream pdf, String[] keys) throws Exception {
 
@@ -93,35 +88,17 @@ public class ITextNXBankStatementGenerator implements PDFFileGenerator {
 		doc.close();
 	}
 	
-	public StatementMeta generate(OutputStream buffer, String[] tokens) throws Exception {
-
-		DigestOutputStream db = null;
-
-		CountingOutputStream cout = null;
-		ByteArrayOutputStream tmpBuffer = null;
-		
+	protected void doGenerate(OutputStream buffer, String[] tokens) throws Exception {
 		PdfReader pdfReader = new PdfReader(new ByteArrayInputStream(template));
 
 		WriterProperties wp = new WriterProperties();
 		wp.setPdfVersion(PdfVersion.PDF_1_4);
 		wp.useSmartMode();
-
 		PdfWriter writer=null;
-		if (computeDigest) {
-			db = new DigestOutputStream(buffer, MessageDigest.getInstance("MD5"));
-			cout = new CountingOutputStream(db);
-		} else {
-			cout = new CountingOutputStream(buffer);
-		}
-		if (filter!=null) {
-			tmpBuffer = new ByteArrayOutputStream();
-			writer = new PdfWriter(tmpBuffer, wp);
-		} else {
-			writer = new PdfWriter(cout, wp);	
-		}
+
+		writer = new PdfWriter(buffer, wp);
 		
 		PdfDocument doc = new HackedPDFDocument(pdfReader, writer);
-
 		PdfPage page = doc.getFirstPage();
 		PdfDictionary dict = page.getPdfObject();
 		PdfObject object = dict.get(PdfName.Contents);
@@ -139,55 +116,23 @@ public class ITextNXBankStatementGenerator implements PDFFileGenerator {
 		
 		postProcessDoc(doc);		
 		
-		doc.close();		
+		doc.close();				
 		writer.flush();
 		writer.close();
-		
-		String extension=".pdf";
-		
-		if (filter!=null) {
-			if (tmpBuffer==null) {
-				System.out.println("WTF!!!");
-			}
-			filter.render(new ByteArrayInputStream(tmpBuffer.toByteArray()), cout);
-			extension = filter.getFileExtension();
-		} 
-		
-		String fileName = getFileName(tokens, extension);
-		long fileSize = cout.getByteCount();
-		String md5 = "not-computed";
-
-		if (db != null) {
-			byte[] digest = db.getMessageDigest().digest();
-			md5 = toHexString(digest);
-		}
-		return new StatementMeta(md5, fileName, fileSize, tokens);
 	}
 	
-	protected String getFileName(String[] tokens, String extension) {
 		
-		return getType() + "-" + tokens[5].trim() + extension;
-	}
-	
 	protected void postProcessDoc(PdfDocument doc) throws Exception {
+		// NOP
 		return;
-	}
-
-	public static String toHexString(byte[] bytes) {
-		StringBuilder hexString = new StringBuilder();
-
-		for (int i = 0; i < bytes.length; i++) {
-			String hex = Integer.toHexString(0xFF & bytes[i]);
-			if (hex.length() == 1) {
-				hexString.append('0');
-			}
-			hexString.append(hex);
-		}
-
-		return hexString.toString();
 	}
 	
 	public String getType() {
 		return "Statement";
+	}
+
+	@Override
+	protected String getDefaultExtension() {
+		return ".pdf";
 	}
 }

@@ -31,7 +31,6 @@ public class TmpWriter extends AbstractBlobWriter implements BlobWriter {
 	public void write(byte[] data, String fileName) throws Exception {
 		String[] parts = fileName.split(".");
 		File tmp = File.createTempFile(parts[0], parts[1]);
-		;
 		Files.copy(wrap(data), tmp.toPath(), StandardCopyOption.REPLACE_EXISTING);
 	}
 

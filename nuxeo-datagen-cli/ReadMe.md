@@ -36,7 +36,7 @@ Current command line options
                          file:<path>, fileDigest:<path>, s3:<bucketName>, s3tm:<bucketName>,
                          s3tma:<bucketName>
     -t,--threads <arg>   Number of threads
-    -x,--model <arg>      define the pdf model: statement (default) or id
+    -x,--model <arg>      define the pdf model: statement (default), id or letter
 
 
 Mode options are:
@@ -62,6 +62,17 @@ Output options are:
  - `s3tma`: store the PDFs in S3 using the TransferManager asynchronous API
 
 NB: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_SESSION_TOKEN` can also be set as environment variables.
+
+### Templates
+
+There currently 3 supported templates:
+
+ - statement: generate a bank statement
+    - iText PDF based
+ - id: generate a ID card 
+    - iText PDF based + filter to convert to JPG or TIFF
+ - letter: generate an Account Opening letter
+    - docx based
 
 ### How the data is generated
 
@@ -127,4 +138,8 @@ NB: Generation of Tiff is much much slower than PDF.
 **Generating ID cards**
 
     java -jar target/nuxeo-datagen-cli-1.0-SNAPSHOT.jar -t 1 -m pdf -d 1 -n 100 -f jpeg  -x id -o fileDigest:myoutputfolder
+
+**Generating Account Opening Letter**
+
+    java -jar target/nuxeo-datagen-cli-1.0-SNAPSHOT.jar -t 1 -m pdf -d 1 -n 100   -x letter -o fileDigest:myoutputfolder
 

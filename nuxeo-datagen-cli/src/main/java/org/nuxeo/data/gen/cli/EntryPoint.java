@@ -41,6 +41,7 @@ import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFact
 import org.apache.logging.log4j.core.config.builder.api.LoggerComponentBuilder;
 import org.apache.logging.log4j.core.config.builder.api.RootLoggerComponentBuilder;
 import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
+import org.nuxeo.data.gen.docx.DocXLetterGenerator;
 import org.nuxeo.data.gen.meta.SequenceGenerator;
 import org.nuxeo.data.gen.out.BlobWriter;
 import org.nuxeo.data.gen.out.FolderDigestWriter;
@@ -121,7 +122,7 @@ public class EntryPoint {
 				"generate and output PDF : mem (default), tmp, file:<path>, fileDigest:<path>, s3:<bucketName>, s3tm:<bucketName>, s3tma:<bucketName>");
 		options.addOption("h", "help", false, "Help");
 		options.addOption("s", "seed", true, "Seed");
-		options.addOption("x", "model", true, "define the pdf model: statement (default) or id");
+		options.addOption("x", "model", true, "define the pdf model: statement (default), id or letter");
 		options.addOption("p", "pictures", true, "path to read the pictures from");
 		options.addOption("f", "filter", true, "rendition to be applied to the pdf: tiff, jpeg");
 		options.addOption("aws_key", true, "AWS_ACCESS_KEY_ID");
@@ -255,19 +256,24 @@ public class EntryPoint {
 			templateGen = new ITextIDTemplateCreator();
 			InputStream bg = EntryPoint.class.getResourceAsStream("/id-back.jpeg");
 			templateGen.init(bg);
+		} else if (model.equalsIgnoreCase("letter")) {
+			templateGen = null;
 		} else {
 			templateGen = new ITextNXBankTemplateCreator2();
 			InputStream logo = EntryPoint.class.getResourceAsStream("/NxBank3.png");
 			templateGen.init(logo);
 		}
 
-		// Generate the template
-		ByteArrayOutputStream templateOut = new ByteArrayOutputStream();
-		templateGen.generate(templateOut);
-		byte[] templateData = templateOut.toByteArray();
+		byte[] templateData=null;
+		if (templateGen!=null) {
+			// Generate the template
+			ByteArrayOutputStream templateOut = new ByteArrayOutputStream();
+			templateGen.generate(templateOut);
+			templateData = templateOut.toByteArray();			
+		}
 
 		// Init PDF generator
-		PDFFileGenerator gen = new ITextNXBankStatementGenerator();
+		PDFFileGenerator gen = null;
 
 		if (model.equalsIgnoreCase("id")) {
 			gen = new ITextIDGenerator();
@@ -278,17 +284,21 @@ public class EntryPoint {
 				((ITextIDGenerator) gen).setPicture(headshot);
 			}
 			((ITextIDGenerator) gen).computeDigest = true;
+			gen.init(new ByteArrayInputStream(templateData), templateGen.getKeys());
+		} else if (model.equalsIgnoreCase("letter")) {
+			gen = new DocXLetterGenerator();
+			((DocXLetterGenerator)gen).defaultInit(); 
 		} else {
 			gen = new ITextNXBankStatementGenerator();
+			gen = new ITextNXBankStatementGenerator();
 			((ITextNXBankStatementGenerator) gen).computeDigest = true;
+			gen.init(new ByteArrayInputStream(templateData), templateGen.getKeys());
 		}
 
 		// connect Filter if needed
 		if (filter != null) {
 			gen.setFilter(filter);
 		}
-
-		gen.init(new ByteArrayInputStream(templateData), templateGen.getKeys());
 
 		Injector injector = new Injector(mode, seed, gen, total, threads, nbMonths, monthOffset,  importLogger, metadataLogger, cmdLogger);
 		injector.setWriter(writer);
