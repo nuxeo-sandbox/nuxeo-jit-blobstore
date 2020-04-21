@@ -48,7 +48,7 @@ public class Injector {
 
 	protected static final int MAX_PAUSE = 60 * 5;
 
-	protected int total;
+	protected long total;
 	protected int callsPerThreads = 5000;
 	protected final PDFFileGenerator gen;
 
@@ -63,8 +63,10 @@ public class Injector {
 	protected RandomDataGenerator rndGen;
 
 	protected final long seed;
+	protected final long jump;
+	
 
-	public Injector(MODE mode, long seed, PDFFileGenerator gen, int total, int nbThreads, int nbMonths, int monthOffset,
+	public Injector(MODE mode, long seed, PDFFileGenerator gen, long jump, long total, int nbThreads, int nbMonths, int monthOffset,
 			Logger importLogger, Logger metadataLogger, Logger cmdLogger) {
 		this.mode = mode;
 		this.gen = gen;
@@ -78,6 +80,7 @@ public class Injector {
 		this.monthOffset=monthOffset;
 		
 		this.seed = seed;
+		this.jump=jump;
 
 		if (mode == MODE.PDF) {
 			rndGen = new RandomDataGenerator(true, true);
@@ -172,6 +175,12 @@ public class Injector {
 
 		SequenceGenerator sg = new SequenceGenerator(seed, nbMonths);
 		sg.setMonthOffset(monthOffset);
+		
+		if (jump>0) {
+			importLogger.log(Level.INFO, "Skipping sequence generator until " + jump);
+			sg.skip(jump);
+			importLogger.log(Level.INFO, "Skip completed - starting import");
+		}
 
 		importLogger.log(Level.INFO, "Initialized data generator with seed %d on %d months and offse %d", seed, nbMonths, monthOffset);
 		

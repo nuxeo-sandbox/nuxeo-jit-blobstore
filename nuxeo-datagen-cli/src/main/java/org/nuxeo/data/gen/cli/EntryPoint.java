@@ -24,6 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -36,8 +37,10 @@ import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder;
+import org.apache.logging.log4j.core.config.builder.api.ComponentBuilder;
 import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
 import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
+import org.apache.logging.log4j.core.config.builder.api.LayoutComponentBuilder;
 import org.apache.logging.log4j.core.config.builder.api.LoggerComponentBuilder;
 import org.apache.logging.log4j.core.config.builder.api.RootLoggerComponentBuilder;
 import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
@@ -70,10 +73,23 @@ public class EntryPoint {
 
 		AppenderComponentBuilder file1 = builder.newAppender("metadata", "File");
 		file1.addAttribute("fileName", "metadata.csv");
+		file1.addAttribute("filePattern", "metadata-%d{MM-dd-yy--hh:mm}-%i.csv");
+		ComponentBuilder rolloverPolicy = builder.newComponent("Policies")
+		        .addComponent(builder.newComponent("OnStartupTriggeringPolicy"));
+		file1.addComponent(rolloverPolicy);	
+
 		builder.add(file1);
 
-		AppenderComponentBuilder file2 = builder.newAppender("injector", "File");
+		AppenderComponentBuilder file2 = builder.newAppender("injector", "RollingFile");
 		file2.addAttribute("fileName", "injector.log");
+		file2.addAttribute("filePattern", "injector-%d{MM-dd-yy--hh:mm}-%i.log");
+		LayoutComponentBuilder layoutBuilder = builder.newLayout("PatternLayout").addAttribute("pattern","%d [%t] %-5level: %msg%n");
+		file2.add(layoutBuilder);
+        
+		ComponentBuilder rolloverPolicy2 = builder.newComponent("Policies")
+		        .addComponent(builder.newComponent("OnStartupTriggeringPolicy"));
+		file2.addComponent(rolloverPolicy2);	
+		
 		builder.add(file2);
 
 		// Use Async Logger
@@ -111,17 +127,20 @@ public class EntryPoint {
 		Logger metadataLogger = ctx.getLogger("metadataLogger");
 		Logger cmdLogger = ctx.getLogger("cmdLogger");
 
+		importLogger.log(Level.INFO, "#".repeat(80));
+		importLogger.log(Level.INFO, "# Executing command " + Arrays.toString(args));
+
 		Options options = new Options();
 		options.addOption("m", "mode", true, "define generation mode: id (default), metadata, pdf");
 		options.addOption("t", "threads", true, "Number of threads");
 		options.addOption("n", "nbDoc", true, "Number of Documents to generate");
 		options.addOption("d", "months", true, "Number of months of statements to generate");
 		options.addOption("monthOffset", true, "Months offset");
-		
-		options.addOption("o", "output", true,
-				"generate and output PDF : mem (default), tmp, file:<path>, fileDigest:<path>, s3:<bucketName>, s3tm:<bucketName>, s3tma:<bucketName>");
+
+		options.addOption("o", "output", true, "generate and output PDF : mem (default), tmp, file:<path>, fileDigest:<path>, s3:<bucketName>, s3tm:<bucketName>, s3tma:<bucketName>");
 		options.addOption("h", "help", false, "Help");
 		options.addOption("s", "seed", true, "Seed");
+		options.addOption("j", "jump", true, "Jump to later in the sequence");
 		options.addOption("x", "model", true, "define the pdf model: statement (default), id or letter");
 		options.addOption("p", "pictures", true, "path to read the pictures from");
 		options.addOption("f", "filter", true, "rendition to be applied to the pdf: tiff, jpeg");
@@ -141,10 +160,11 @@ public class EntryPoint {
 		}
 
 		int nbThreads = Integer.parseInt(cmd.getOptionValue('t', "10"));
-		int nbDocs = Integer.parseInt(cmd.getOptionValue('n', "100000"));
+		long nbDocs = Long.parseLong(cmd.getOptionValue('n', "100000"));
 		int nbMonths = Integer.parseInt(cmd.getOptionValue('d', "48"));
 		int monthOffset = Integer.parseInt(cmd.getOptionValue("monthOffset", "0"));
-		
+		long jump = Long.parseLong(cmd.getOptionValue('j', "0"));
+
 		long seed = Long.parseLong(cmd.getOptionValue('s', SequenceGenerator.DEFAULT_ACCOUNT_SEED + ""));
 
 		String model = cmd.getOptionValue('x', "statement");
@@ -184,9 +204,9 @@ public class EntryPoint {
 			String aws_key = cmd.getOptionValue("aws_key", null);
 			String aws_secret = cmd.getOptionValue("aws_secret", null);
 			String aws_session = cmd.getOptionValue("aws_session", null);
-			String aws_endpoint = cmd.getOptionValue("aws_endpoint", null);						
-			
-			if 	(out.startsWith(S3Writer.NAME)) {
+			String aws_endpoint = cmd.getOptionValue("aws_endpoint", null);
+
+			if (out.startsWith(S3Writer.NAME)) {
 				importLogger.log(Level.INFO, "Inititialize S3 Writer in bucket " + bucketName);
 				writer = new S3Writer(bucketName, aws_key, aws_secret, aws_session, aws_endpoint);
 			} else if (out.startsWith(S3TMWriter.NAME)) {
@@ -236,8 +256,8 @@ public class EntryPoint {
 		cmdLogger.log(Level.INFO, "  nbMonths:" + nbMonths);
 
 		try {
-			runInjector(mode, model, pictureDirectory, seed, nbDocs, nbThreads, nbMonths, monthOffset, importLogger, metadataLogger,cmdLogger,
-					writer, filter);
+			runInjector(mode, model, pictureDirectory, seed, jump, nbDocs, nbThreads, nbMonths, monthOffset,
+					importLogger, metadataLogger, cmdLogger, writer, filter);
 		} catch (Exception e) {
 			System.err.println("Error while running Injector " + e);
 			e.printStackTrace();
@@ -246,9 +266,9 @@ public class EntryPoint {
 		ctx.close();
 	}
 
-	protected static void runInjector(Injector.MODE mode, String model, Path pictureDirectory, long seed, int total,
-			int threads, int nbMonths, int monthOffset, Logger importLogger, Logger metadataLogger, Logger cmdLogger, BlobWriter writer,
-			PDFOutputFilter filter) throws Exception {
+	protected static void runInjector(Injector.MODE mode, String model, Path pictureDirectory, long seed, long jump,
+			long total, int threads, int nbMonths, int monthOffset, Logger importLogger, Logger metadataLogger,
+			Logger cmdLogger, BlobWriter writer, PDFOutputFilter filter) throws Exception {
 
 		// Init template Generator
 		PDFTemplateGenerator templateGen = null;
@@ -264,12 +284,12 @@ public class EntryPoint {
 			templateGen.init(logo);
 		}
 
-		byte[] templateData=null;
-		if (templateGen!=null) {
+		byte[] templateData = null;
+		if (templateGen != null) {
 			// Generate the template
 			ByteArrayOutputStream templateOut = new ByteArrayOutputStream();
 			templateGen.generate(templateOut);
-			templateData = templateOut.toByteArray();			
+			templateData = templateOut.toByteArray();
 		}
 
 		// Init PDF generator
@@ -287,7 +307,7 @@ public class EntryPoint {
 			gen.init(new ByteArrayInputStream(templateData), templateGen.getKeys());
 		} else if (model.equalsIgnoreCase("letter")) {
 			gen = new DocXLetterGenerator();
-			((DocXLetterGenerator)gen).defaultInit(); 
+			((DocXLetterGenerator) gen).defaultInit();
 		} else {
 			gen = new ITextNXBankStatementGenerator();
 			gen = new ITextNXBankStatementGenerator();
@@ -300,7 +320,8 @@ public class EntryPoint {
 			gen.setFilter(filter);
 		}
 
-		Injector injector = new Injector(mode, seed, gen, total, threads, nbMonths, monthOffset,  importLogger, metadataLogger, cmdLogger);
+		Injector injector = new Injector(mode, seed, gen, jump, total, threads, nbMonths, monthOffset, importLogger,
+				metadataLogger, cmdLogger);
 		injector.setWriter(writer);
 		injector.run();
 
