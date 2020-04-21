@@ -10,6 +10,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.nuxeo.data.gen.BaseBankGenerator;
 import org.nuxeo.data.gen.BaseBankTemplate;
 import org.nuxeo.data.gen.pdf.PDFFileGenerator;
@@ -47,8 +48,9 @@ public class DocXLetterGenerator extends BaseBankGenerator implements PDFFileGen
 		ZipFile zipFile = new ZipFile(docXTemplate);
 		InputStream is=null;
 		try {
+			
 			is = zipFile.getInputStream(new ZipEntry(DOC_ENTRY));						
-			xmlTemplate = new String(is.readAllBytes());
+			xmlTemplate = new String(IOUtils.toByteArray(is));
 		} finally {
 			is.close();
 			zipFile.close();	

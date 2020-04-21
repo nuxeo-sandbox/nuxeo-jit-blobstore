@@ -19,6 +19,8 @@
 
 package org.nuxeo.data.gen.key;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class AsciiKeyCodec implements KeyCodec {
 
 	protected static final String SEP = "-";
@@ -78,7 +80,7 @@ public class AsciiKeyCodec implements KeyCodec {
 	}
 
 	protected static String pad(String s, int size) {
-		return PAD.repeat(size - s.length()) + s;
+		return StringUtils.repeat(PAD, size - s.length()) + s;
 	}
 
 	protected static String clean(String s) {

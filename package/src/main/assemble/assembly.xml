@@ -58,6 +58,7 @@
         <includes>
           <artifact groupId="!org.nuxeo*" />
           <artifact groupId="org.nuxeo.lib*" />
+          <artifact groupId="org.apache.pdfbox" />
         </includes>
         <excludes>
           <artifact scope="test" />

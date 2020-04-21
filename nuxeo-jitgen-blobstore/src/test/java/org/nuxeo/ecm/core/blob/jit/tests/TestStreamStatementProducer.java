@@ -16,6 +16,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.data.gen.meta.SequenceGenerator;
@@ -28,13 +29,13 @@ import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
 import org.nuxeo.ecm.core.blob.jit.gen.StatementsBlobGenerator;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
-import org.nuxeo.importer.stream.StreamImporters;
 import org.nuxeo.importer.stream.jit.StatementFolderMessageProducer;
 import org.nuxeo.importer.stream.jit.USStateHelper;
 import org.nuxeo.importer.stream.jit.automation.CustomerFolderProducers;
 import org.nuxeo.importer.stream.jit.automation.CustomerProducers;
 import org.nuxeo.importer.stream.jit.automation.StatementFolderProducers;
 import org.nuxeo.importer.stream.jit.automation.StatementProducers;
+import org.nuxeo.importer.stream.jit.automation.StreamImporters;
 import org.nuxeo.importer.stream.message.DocumentMessage;
 import org.nuxeo.lib.stream.log.LogManager;
 import org.nuxeo.lib.stream.log.LogRecord;
@@ -44,6 +45,7 @@ import org.nuxeo.runtime.stream.StreamService;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
+
 
 @RunWith(FeaturesRunner.class)
 @Features(AutomationFeature.class)
@@ -142,7 +144,7 @@ public class TestStreamStatementProducer {
             params.put("bufferSize", "5");
 
 			InputStream csv = StatementsBlobGenerator.class.getResourceAsStream("/sample-id.csv");		
-			Blob blob = new StringBlob(new String(csv.readAllBytes()));
+			Blob blob = new StringBlob(new String(IOUtils.toByteArray(csv)));
 								
 			ctx.setInput(blob);
 			automationService.run(ctx, CustomerProducers.ID, params);

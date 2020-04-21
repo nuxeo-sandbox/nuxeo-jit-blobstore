@@ -64,10 +64,6 @@
       <artifactId>nuxeo-core-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.pdfbox</groupId>
-      <artifactId>pdfbox</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.nuxeo.ecm.core</groupId>
       <artifactId>nuxeo-core</artifactId>
     </dependency>
@@ -143,9 +139,28 @@
       <groupId>javax.xml.bind</groupId>
       <artifactId>jaxb-api</artifactId>
     </dependency>
+
+
+    <dependency>
+      <groupId>org.apache.pdfbox</groupId>
+      <artifactId>pdfbox</artifactId>
+      <version>2.0.19</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.pdfbox</groupId>
+        <artifactId>fontbox</artifactId>
+        <version>2.0.19</version>
+      </dependency>
+      <dependency>
+      <groupId>org.apache.pdfbox</groupId>
+      <artifactId>pdfbox-tools</artifactId>
+        <version>2.0.19</version>
+    </dependency>
+
   </dependencies>
 
-  <build>
+
+    <build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -163,6 +178,9 @@
                     <exclude>org.nuxeo*</exclude>
                   </excludes>
                 </requireReleaseDeps>
+                <requireJavaVersion>
+                  <version>[1.8,9, 11)</version>
+                </requireJavaVersion>
               </rules>
             </configuration>
           </execution>

@@ -25,7 +25,7 @@
   <!-- If you require JSF UI package:  -->
   <!-- <package>nuxeo-jsf-ui</package> -->
   <!-- If you require WEB UI package:  -->
-  <!-- <package>nuxeo-web-ui</package> -->
+  <package>nuxeo-web-ui</package> 
   <!-- </dependencies> -->
   <!-- Conflicts with other packages -->
   <!-- <conflicts> -->

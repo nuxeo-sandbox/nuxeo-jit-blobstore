@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
 
+import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.data.gen.key.AsciiKeyCodec;
 import org.nuxeo.data.gen.key.DummyKeyCodec;
 import org.nuxeo.data.gen.key.KeyCodec;
@@ -251,7 +252,7 @@ public class RandomDataGenerator {
 
 		result[5] = genAccountNumber(fNameIdx, lNameIdx, streetIdx, cityIdx, accountIdx);
 
-		result[0] = result[0] + " ".repeat(41 - result[0].length());
+		result[0] = result[0] + StringUtils.repeat(" ", 41 - result[0].length());
 
 		for (int i = 1; i < 4; i++) {
 			result[i] = FormatUtils.pad(result[i], 20, true);

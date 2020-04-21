@@ -19,9 +19,6 @@
 
 package org.nuxeo.importer.stream.jit.automation;
 
-import static org.nuxeo.importer.stream.StreamImporters.DEFAULT_LOG_CONFIG;
-import static org.nuxeo.importer.stream.StreamImporters.DEFAULT_LOG_DOC_NAME;
-
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.logging.Log;
@@ -34,7 +31,6 @@ import org.nuxeo.ecm.automation.core.annotations.Operation;
 import org.nuxeo.ecm.automation.core.annotations.OperationMethod;
 import org.nuxeo.ecm.automation.core.annotations.Param;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
-import org.nuxeo.importer.stream.StreamImporters;
 import org.nuxeo.importer.stream.jit.StatementFolderMessageProducerFactory;
 import org.nuxeo.importer.stream.message.DocumentMessage;
 import org.nuxeo.lib.stream.codec.Codec;
@@ -56,13 +52,13 @@ public class StatementFolderProducers {
 	protected Integer nbMonths;
 
 	@Param(name = "logName", required = false)
-	protected String logName = DEFAULT_LOG_DOC_NAME;
+	protected String logName = StreamImporters.DEFAULT_LOG_DOC_NAME;
 
 	@Param(name = "logSize", required = false)
 	protected Integer logSize;
 
 	@Param(name = "logConfig", required = false)
-	protected String logConfig = DEFAULT_LOG_CONFIG;
+	protected String logConfig = StreamImporters.DEFAULT_LOG_CONFIG;
 
 	protected void checkAccess() {
 		NuxeoPrincipal principal = context.getPrincipal();
@@ -81,9 +77,8 @@ public class StatementFolderProducers {
 
 		StatementFolderMessageProducerFactory factory = new StatementFolderMessageProducerFactory(nbMonths);
 
-		Codec<DocumentMessage> codec = StreamImporters.getDocCodec();
 
-		try (ProducerPool<DocumentMessage> producers = new ProducerPool<>(logName, manager, codec, factory,
+		try (ProducerPool<DocumentMessage> producers = new ProducerPool<>(logName, manager, factory,
 				(short) 1)) {
 			producers.start().get();
 		} catch (InterruptedException e) {

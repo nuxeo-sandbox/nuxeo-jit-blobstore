@@ -22,6 +22,8 @@ package org.nuxeo.data.gen.meta;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class FormatUtils {
 
 	public static final int START_YEAR = 2020;
@@ -31,9 +33,9 @@ public class FormatUtils {
 			v = v.substring(0, size - 1);
 		}
 		if (left) {
-			return v + " ".repeat(size - v.length());
+			return v + StringUtils.repeat(" ", size - v.length());
 		} else {
-			return " ".repeat(size - v.length()) + v;
+			return StringUtils.repeat(" ", size - v.length()) + v;
 		}
 	}
 

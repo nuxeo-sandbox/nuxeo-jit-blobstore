@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.automation.AutomationService;
@@ -159,7 +160,7 @@ public class TestStreamStatementImporter {
 			params.put("bufferSize", 5);			
 			
 			InputStream csv = StatementsBlobGenerator.class.getResourceAsStream("/sample-id.csv");
-			String csvContent = new String(csv.readAllBytes());			
+			String csvContent = new String(IOUtils.toByteArray(csv));			
 			csvContent = csvContent.replace("<DIGEST>", blobDigest);			
 			Blob blob = new StringBlob(csvContent);
 								

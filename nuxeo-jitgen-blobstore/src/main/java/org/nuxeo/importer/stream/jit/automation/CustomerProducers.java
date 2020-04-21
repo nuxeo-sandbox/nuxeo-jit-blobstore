@@ -19,8 +19,6 @@
 
 package org.nuxeo.importer.stream.jit.automation;
 
-import static org.nuxeo.importer.stream.StreamImporters.DEFAULT_LOG_CONFIG;
-import static org.nuxeo.importer.stream.StreamImporters.DEFAULT_LOG_DOC_NAME;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -38,7 +36,6 @@ import org.nuxeo.ecm.automation.core.annotations.OperationMethod;
 import org.nuxeo.ecm.automation.core.annotations.Param;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
-import org.nuxeo.importer.stream.StreamImporters;
 import org.nuxeo.importer.stream.jit.CustomerMessageProducerFactory;
 import org.nuxeo.importer.stream.message.DocumentMessage;
 import org.nuxeo.lib.stream.codec.Codec;
@@ -58,13 +55,13 @@ public class CustomerProducers {
     protected OperationContext context;
 
     @Param(name = "logName", required = false)
-    protected String logName = DEFAULT_LOG_DOC_NAME;
+    protected String logName = StreamImporters.DEFAULT_LOG_DOC_NAME;
 
     @Param(name = "logSize", required = false)
     protected Integer logSize;
 
     @Param(name = "logConfig", required = false)
-    protected String logConfig = DEFAULT_LOG_CONFIG;
+    protected String logConfig = StreamImporters.DEFAULT_LOG_CONFIG;
 
     @Param(name = "bufferSize", required = false)
     protected Integer bufferSize = BUFFER_SIZE;
@@ -117,8 +114,7 @@ public class CustomerProducers {
 
     	CustomerMessageProducerFactory factory = new CustomerMessageProducerFactory(repositoryName, lines);
     	
-        Codec<DocumentMessage> codec = StreamImporters.getDocCodec();
-        try (ProducerPool<DocumentMessage> producers = new ProducerPool<>(logName, manager, codec, factory,
+        try (ProducerPool<DocumentMessage> producers = new ProducerPool<>(logName, manager, factory,
         		(short) 1)) {
             producers.start().get();
         } catch (InterruptedException e) {

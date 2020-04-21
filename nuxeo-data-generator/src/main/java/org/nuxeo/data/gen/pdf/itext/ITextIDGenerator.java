@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.util.Date;
 import java.util.Random;
 
+import org.apache.commons.io.IOUtils;
 import org.nuxeo.data.gen.meta.FormatUtils;
 import org.nuxeo.data.gen.meta.RandomDataGenerator;
 import org.nuxeo.data.gen.pdf.PDFFileGenerator;
@@ -63,7 +64,7 @@ public class ITextIDGenerator extends ITextNXBankStatementGenerator implements P
 	
 	public void setPicture(InputStream in) throws Exception {
 		if (in != null) {
-			head = ImageDataFactory.create(in.readAllBytes());
+			head = ImageDataFactory.create(IOUtils.toByteArray(in));
 		}
 	}
 	
@@ -75,7 +76,7 @@ public class ITextIDGenerator extends ITextNXBankStatementGenerator implements P
 			File img = new File(imgDirectory.toFile(), name);			
 			FileInputStream fileInputStream = new FileInputStream(img);
 			try {
-				return ImageDataFactory.create(fileInputStream.readAllBytes());
+				return ImageDataFactory.create(IOUtils.toByteArray(fileInputStream));
 			} finally {
 				fileInputStream.close();	
 			}			

@@ -81,14 +81,14 @@ public class TestPDFGeneration {
 
 		// ID appended to data
 		assertEquals(keys.length+1, data.length);
-		for (var i = 0; i < keys.length; i++) {
+		for (int i = 0; i < keys.length; i++) {
 			assertFalse(data[i].isEmpty());
 		}
 		
 		rnd = getRndGenerator(true);
 		String[] data2 = rnd.generate();
 		assertTrue(data2.length> data.length);
-		for (var i = 0; i < data2.length; i++) {
+		for (int i = 0; i < data2.length; i++) {
 			assertFalse(data2[i].isEmpty());
 			//System.out.println(data2[i]);
 		}
@@ -111,7 +111,7 @@ public class TestPDFGeneration {
 		String txt = stripper.getText(PDDocument.load(new ByteArrayInputStream(templateData)));
 
 		assertTrue(txt.contains(ITextNXBankTemplateCreator.ACCOUNT_LABEL));
-		for (var i = 0; i < keys.length; i++) {
+		for (int i = 0; i < keys.length; i++) {
 			assertTrue(txt.contains(keys[i]));
 		}		
 	}
@@ -129,7 +129,7 @@ public class TestPDFGeneration {
 		String txt = stripper.getText(PDDocument.load(new ByteArrayInputStream(templateData)));
 
 		assertTrue(txt.contains(ITextNXBankTemplateCreator.ACCOUNT_LABEL));
-		for (var i = 0; i < keys.length; i++) {
+		for (int i = 0; i < keys.length; i++) {
 			assertTrue(txt.contains(keys[i]));
 		}		
 	}
@@ -180,14 +180,15 @@ public class TestPDFGeneration {
 		dumpFile(jpgOut.toByteArray(), filter.getFileExtension());
 		
 		// Tiff Gen
-		ByteArrayOutputStream tifOut = new ByteArrayOutputStream();
+		// Tiff gen not possible in java 8
+		/*ByteArrayOutputStream tifOut = new ByteArrayOutputStream();
 		filter = new TiffFilter();
 		filter.setDPI(300);
 		gen.setFilter(filter);
 		meta = gen.generate(tifOut, data);
 		assertTrue(meta.getFileName().endsWith("tif"));
 		assertTrue(meta.getDigest().equalsIgnoreCase(DigestUtils.md5Hex(tifOut.toByteArray())));
-
+		*/
 		//dumpFile(tifOut.toByteArray(), filter.getFileExtension());
 		
 	}
@@ -234,7 +235,7 @@ public class TestPDFGeneration {
 		String txt = stripper.getText(PDDocument.load(new ByteArrayInputStream(pdf)));
 
 		assertTrue(txt.contains(ITextNXBankTemplateCreator.ACCOUNT_LABEL));
-		for (var i = 0; i < keys.length; i++) {
+		for (int i = 0; i < keys.length; i++) {
 			assertFalse(txt.contains(keys[i]));
 		}
 
@@ -263,7 +264,7 @@ public class TestPDFGeneration {
 		String txt = stripper.getText(PDDocument.load(new ByteArrayInputStream(pdf)));
 
 		assertTrue(txt.contains(ITextNXBankTemplateCreator.ACCOUNT_LABEL));
-		for (var i = 0; i < keys.length; i++) {
+		for (int i = 0; i < keys.length; i++) {
 			assertFalse(txt.contains(keys[i]));
 		}
 		
