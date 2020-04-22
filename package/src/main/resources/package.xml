@@ -16,17 +16,15 @@
   <production-state>testing</production-state>
   <supported>false</supported>
   <platforms>
+    <platform>server-10.10</platform>
     <platform>server-@DISTRIB_VERSION@</platform>
     <platform>server-@DISTRIB_VERSION@-HF*</platform>
   </platforms>
   <!-- Dependencies on other packages -->
-  <!-- <dependencies> -->
-  <!-- <package>another-package:1.0.0:1.0.0</package> -->
-  <!-- If you require JSF UI package:  -->
-  <!-- <package>nuxeo-jsf-ui</package> -->
-  <!-- If you require WEB UI package:  -->
-  <package>nuxeo-web-ui</package> 
-  <!-- </dependencies> -->
+  <dependencies>
+    <package>nuxeo-10.10-HF25</package>
+    <package>nuxeo-web-ui</package> 
+  </dependencies>
   <!-- Conflicts with other packages -->
   <!-- <conflicts> -->
   <!-- <package>a-conflicting-package:1.0.0:1.0.0</package> -->
