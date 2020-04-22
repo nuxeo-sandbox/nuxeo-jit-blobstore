@@ -33,11 +33,14 @@ public class StatementDocumentMessageProducerFactory implements ProducerFactory<
 	/**
 	 * Generates random documents messages that point to existing blobs.
 	 */
-	public StatementDocumentMessageProducerFactory(Long seed, long nbDocuments,int nbMonth, int monthOffset) {
+	public StatementDocumentMessageProducerFactory(Long seed, long skip, long nbDocuments,int nbMonth, int monthOffset) {
 		this.nbDocuments = nbDocuments;
 		this.nbMonth=nbMonth;
 		sequenceGen = new SequenceGenerator(seed, nbMonth);	
 		sequenceGen.setMonthOffset(monthOffset);
+		if (skip>0) {
+			sequenceGen.skip(skip);
+		}
 	}
 
 	@Override

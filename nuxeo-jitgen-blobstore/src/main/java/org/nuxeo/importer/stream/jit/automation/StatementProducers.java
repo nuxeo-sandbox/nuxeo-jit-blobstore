@@ -73,7 +73,10 @@ public class StatementProducers {
 
     @Param(name = "seed", required = false)
     protected Long seed = SequenceGenerator.DEFAULT_ACCOUNT_SEED;
-    
+
+    @Param(name = "skip", required = false)
+    protected Long skip = 0L;
+
     protected void checkAccess() {
         NuxeoPrincipal principal = context.getPrincipal();
         if (principal == null || !principal.isAdministrator()) {
@@ -96,7 +99,7 @@ public class StatementProducers {
         	docPerThreads++;
         }
         
-        factory = new StatementDocumentMessageProducerFactory(seed, docPerThreads, nbMonths, monthOffset);
+        factory = new StatementDocumentMessageProducerFactory(seed, skip, docPerThreads, nbMonths, monthOffset);
 
         try (ProducerPool<DocumentMessage> producers = new ProducerPool<>(logName, manager, factory,
                 nbThreads.shortValue())) {
