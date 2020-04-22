@@ -11,8 +11,7 @@ import javax.imageio.stream.MemoryCacheImageOutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.rendering.ImageType;
-import org.apache.pdfbox.rendering.PDFRenderer;
+import org.apache.pdfbox.pdmodel.PDPage;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
@@ -28,15 +27,15 @@ public class StatementThumbnailFactory implements ThumbnailFactory {
     
     public static Blob computeThumb(byte[] pdf) throws Exception {
 		PDDocument doc = PDDocument.load(new ByteArrayInputStream(pdf));
+		PDPage pdPage = (PDPage) doc.getDocumentCatalog().getAllPages().get(0);
 		
-		PDFRenderer renderer = new PDFRenderer(doc);
-				
+		BufferedImage bim = pdPage.convertToImage(BufferedImage.TYPE_INT_RGB, 30);
+		
 		ImageWriter jpgWriter = ImageIO.getImageWritersByFormatName("jpg").next();
 		ImageWriteParam jpgWriteParam = jpgWriter.getDefaultWriteParam();
 		jpgWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
 		jpgWriteParam.setCompressionQuality(0.5f);		
 		
-		BufferedImage bim = renderer.renderImageWithDPI(0, 30, ImageType.RGB);
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();				    
 	    	   
 	    MemoryCacheImageOutputStream outStream = new MemoryCacheImageOutputStream(out);

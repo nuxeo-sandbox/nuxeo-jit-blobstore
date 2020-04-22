@@ -8,13 +8,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.pdfbox.util.PDFTextStripper;
 import org.junit.Test;
 import org.nuxeo.data.gen.meta.RandomDataGenerator;
 import org.nuxeo.data.gen.pdf.StatementMeta;
@@ -25,7 +23,6 @@ import org.nuxeo.data.gen.pdf.itext.ITextNXBankTemplateCreator;
 import org.nuxeo.data.gen.pdf.itext.ITextNXBankTemplateCreator2;
 import org.nuxeo.data.gen.pdf.itext.filter.JpegFilter;
 import org.nuxeo.data.gen.pdf.itext.filter.PDFOutputFilter;
-import org.nuxeo.data.gen.pdf.itext.filter.TiffFilter;
 
 public class TestPDFGeneration {
 	

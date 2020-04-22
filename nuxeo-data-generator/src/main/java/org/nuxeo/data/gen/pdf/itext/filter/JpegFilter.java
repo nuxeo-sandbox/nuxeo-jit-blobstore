@@ -31,8 +31,8 @@ import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.rendering.ImageType;
-import org.apache.pdfbox.rendering.PDFRenderer;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.util.ImageIOUtil;
 
 public class JpegFilter extends AbstractFilter implements PDFOutputFilter {
 
@@ -47,13 +47,10 @@ public class JpegFilter extends AbstractFilter implements PDFOutputFilter {
 	public void render(ByteArrayInputStream pdf, OutputStream out) throws Exception {
 
 		PDDocument doc = PDDocument.load(pdf);
-		doc.setAllSecurityToBeRemoved(true);
-		PDFRenderer renderer = new PDFRenderer(doc);
-		RenderingHints hints = new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
-		hints.add(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF));
-		hints.add(new RenderingHints(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE));
-		renderer.setRenderingHints(hints);
-				
+		PDPage pdPage = (PDPage) doc.getDocumentCatalog().getAllPages().get(0);
+		
+		BufferedImage bim = pdPage.convertToImage(BufferedImage.TYPE_INT_RGB, getDPI());
+						
 		ImageWriter jpgWriter = ImageIO.getImageWritersByFormatName("jpg").next();
 		JPEGImageWriteParam jpgWriteParam = (JPEGImageWriteParam) jpgWriter.getDefaultWriteParam();
 
@@ -64,7 +61,6 @@ public class JpegFilter extends AbstractFilter implements PDFOutputFilter {
 		jpgWriteParam.setProgressiveMode(ImageWriteParam.MODE_DISABLED);
 		jpgWriteParam.setController(null);
 
-		BufferedImage bim = renderer.renderImageWithDPI(0, getDPI(), ImageType.RGB);
 		MemoryCacheImageOutputStream outStream = new MemoryCacheImageOutputStream(out);
 		jpgWriter.setOutput(outStream);
 
