@@ -1,0 +1,34 @@
+<component name="org.nuxeo.benchmark.web.ui.properties.contrib">
+
+  <require>org.nuxeo.web.ui.properties.contrib</require>
+    
+  <extension target="org.nuxeo.runtime.ConfigurationService" point="configuration">
+    <!-- enrichers -->
+    <property name="org.nuxeo.web.ui.enrichers.document" override="true" list="true">hasContent</property>
+    <property name="org.nuxeo.web.ui.enrichers.document">firstAccessibleAncestor</property>
+    <property name="org.nuxeo.web.ui.enrichers.document">permissions</property>
+    <property name="org.nuxeo.web.ui.enrichers.document">breadcrumb</property>
+    <property name="org.nuxeo.web.ui.enrichers.document">preview</property>
+    <property name="org.nuxeo.web.ui.enrichers.document">favorites</property>
+    <property name="org.nuxeo.web.ui.enrichers.document">subscribedNotifications</property>
+    <property name="org.nuxeo.web.ui.enrichers.document">thumbnail</property>
+    <property name="org.nuxeo.web.ui.enrichers.document">renditions</property>
+    <property name="org.nuxeo.web.ui.enrichers.document">pendingTasks</property>
+    <property name="org.nuxeo.web.ui.enrichers.document">runnableWorkflows</property>
+    <property name="org.nuxeo.web.ui.enrichers.document">runningWorkflows</property>
+    <property name="org.nuxeo.web.ui.enrichers.document">collections</property>
+    <property name="org.nuxeo.web.ui.enrichers.document">audit</property>
+    <property name="org.nuxeo.web.ui.enrichers.document">subtypes</property>
+    <property name="org.nuxeo.web.ui.enrichers.document">tags</property>
+    <!-- just to remove this guy
+    <property name="org.nuxeo.web.ui.enrichers.document">publications</property>
+    -->
+   </extension>
+  
+  <!--  force kill this enricher since the previous contrib does not seem to do the job --> 
+  <require>org.nuxeo.ecm.platform.rendition.marshallers</require>  
+  <extension target="org.nuxeo.ecm.core.io.MarshallerRegistry" point="marshallers">
+    <register class="org.nuxeo.ecm.platform.rendition.io.PublicationJsonEnricher" enable="false"/>
+  </extension>
+  
+</component>
