@@ -157,7 +157,12 @@ public class StatementESDocumentWriter extends JsonESDocumentWriter {
 
 	protected String getTextFromPDF(Blob blob) throws IOException {
 		PDFTextStripper stripper = new PDFTextStripper();
-		return stripper.getText(PDDocument.load(blob.getStream()));
+		PDDocument doc = PDDocument.load(blob.getStream());
+		try {
+			return stripper.getText(doc);
+		} finally {
+			doc.close();
+		}		
 	}
 
 }
