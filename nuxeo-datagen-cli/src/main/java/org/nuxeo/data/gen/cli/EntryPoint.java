@@ -49,6 +49,7 @@ import org.nuxeo.data.gen.meta.SequenceGenerator;
 import org.nuxeo.data.gen.out.BlobWriter;
 import org.nuxeo.data.gen.out.FolderDigestWriter;
 import org.nuxeo.data.gen.out.FolderWriter;
+import org.nuxeo.data.gen.out.S3BulkArchiveWriter;
 import org.nuxeo.data.gen.out.S3TMAWriter;
 import org.nuxeo.data.gen.out.S3TMWriter;
 import org.nuxeo.data.gen.out.S3Writer;
@@ -137,7 +138,7 @@ public class EntryPoint {
 		options.addOption("d", "months", true, "Number of months of statements to generate");
 		options.addOption("monthOffset", true, "Months offset");
 
-		options.addOption("o", "output", true, "generate and output PDF : mem (default), tmp, file:<path>, fileDigest:<path>, s3:<bucketName>, s3tm:<bucketName>, s3tma:<bucketName>");
+		options.addOption("o", "output", true, "generate and output PDF : mem (default), tmp, file:<path>, fileDigest:<path>, s3:<bucketName>, s3tm:<bucketName>, s3tma:<bucketName>, s3a:<bucketName>");
 		options.addOption("h", "help", false, "Help");
 		options.addOption("s", "seed", true, "Seed");
 		options.addOption("j", "jump", true, "Jump to later in the sequence");
@@ -215,6 +216,9 @@ public class EntryPoint {
 			} else if (out.startsWith(S3TMAWriter.NAME)) {
 				importLogger.log(Level.INFO, "Inititialize S3TMA Writer in bucket " + bucketName);
 				writer = new S3TMAWriter(bucketName, aws_key, aws_secret, aws_session, aws_endpoint);
+			} else if (out.startsWith(S3BulkArchiveWriter.NAME)) {
+				importLogger.log(Level.INFO, "Inititialize S3Archive Writer in bucket " + bucketName);
+				writer = new S3BulkArchiveWriter(bucketName, 10, aws_key, aws_secret, aws_session, aws_endpoint);
 			}
 		}
 
