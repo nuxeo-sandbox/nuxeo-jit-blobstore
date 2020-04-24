@@ -32,8 +32,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.util.PDFTextStripper;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
@@ -176,7 +174,6 @@ public class StatementESDocumentWriter extends JsonESDocumentWriter {
 		}
 	}
 
-
 	protected String getTextFromPDF(Blob blob) throws IOException {
 		PDFFulltextExtractor extractor = getExtractor();
 		if (extractor!=null) {
@@ -188,16 +185,6 @@ public class StatementESDocumentWriter extends JsonESDocumentWriter {
 		} else {
 			return "";
 		}
-	}
-
-	protected String getTextFromPDFOld(Blob blob) throws IOException {
-		PDFTextStripper stripper = new PDFTextStripper();
-		PDDocument doc = PDDocument.load(blob.getStream());
-		try {
-			return stripper.getText(doc);
-		} finally {
-			doc.close();
-		}		
 	}
 
 }
