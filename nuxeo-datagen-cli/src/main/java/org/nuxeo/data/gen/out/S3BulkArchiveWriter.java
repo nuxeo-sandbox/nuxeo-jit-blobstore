@@ -21,10 +21,12 @@ package org.nuxeo.data.gen.out;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -44,32 +46,52 @@ public class S3BulkArchiveWriter extends S3Writer {
 
 	public static final String NAME = "s3a:";
 
-	protected final ThreadPoolExecutor tpe;
-	
-	protected Long currentArchiveSize = 0L;
-	
-	protected ByteArrayOutputStream zipBuffer;
-	protected ZipOutputStream zipArchive;
-	protected static final long FLUSH_SIZE = 1024*1024;
+	public static final String SB_AUTO_EXTRACT_PROP = "snowball-auto-extract";
 
-	protected boolean debug=false;
-	
+	protected final ThreadPoolExecutor tpe;
+
+	protected Long currentArchiveSize = 0L;
+
+	protected ByteArrayOutputStream zipBuffer;
+
+	protected ZipOutputStream zipArchive;
+
+	protected static final long DEFAULT_FLUSH_SIZE = 1024 * 1024;
+
+	protected boolean debug = false;
+
+	protected List<Path> debugArchives = new ArrayList<Path>();
+
+	protected long flushSize = DEFAULT_FLUSH_SIZE;
+
+	public void setDebug(boolean debug) {
+		this.debug = debug;
+	}
+
+	public long getFlushSize() {
+		return flushSize;
+	}
+
+	public void setFlushSize(long flushSize) {
+		this.flushSize = flushSize;
+	}
+
 	public S3BulkArchiveWriter(String bucketName, int nbThreads) {
 		this(bucketName, nbThreads, null, null, null, null);
 	}
 
-	public S3BulkArchiveWriter(String bucketName,  int nbThreads, String accessKeyId, String secretKey, String sessionToken, String awsEndPoint) {
+	public S3BulkArchiveWriter(String bucketName, int nbThreads, String accessKeyId, String secretKey,
+			String sessionToken, String awsEndPoint) {
 		super(bucketName, accessKeyId, secretKey, sessionToken, awsEndPoint);
 		tpe = (ThreadPoolExecutor) Executors.newFixedThreadPool(nbThreads);
 		tpe.prestartAllCoreThreads();
 		initArchive();
-
 	}
-	
+
 	@Override
-	public synchronized void write(byte[] data, StatementMeta smeta) throws Exception {
-		addToBuffer(data, smeta);	
-		if (currentArchiveSize> FLUSH_SIZE) {
+	public void write(byte[] data, StatementMeta smeta) throws Exception {
+		addToBuffer(data, smeta);
+		if (currentArchiveSize > getFlushSize()) {
 			flushArchive();
 		}
 	}
@@ -78,76 +100,75 @@ public class S3BulkArchiveWriter extends S3Writer {
 		zipBuffer = new ByteArrayOutputStream();
 		zipArchive = new ZipOutputStream(zipBuffer);
 		zipArchive.setLevel(0);
-		currentArchiveSize=0L;
-	}
-	
-	protected synchronized void flushArchive() throws Exception {		
-		if (debug) {
-			flushArchiveDebug();
-		} else {
-			flushArchiveToS3();
-		}		
-	}
-	
-	protected synchronized void flushArchiveToS3() throws Exception {
-		zipArchive.close();		
-		byte[] data = zipBuffer.toByteArray();
-		
-		tpe.execute(new Runnable() {			
-			@Override
-			public void run() {
-				ObjectMetadata meta = new ObjectMetadata();
-				meta.setContentLength(data.length);
-				// snowball-auto-extract=true
-				meta.addUserMetadata("snowball-auto-extract", "true");				
-				try {
-					PutObjectRequest put = new PutObjectRequest(bucketName, "arch-" + UUID.randomUUID().toString(), wrap(data), meta);
-					PutObjectResult res = s3.putObject(put);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		
-		initArchive();		
-		
+		currentArchiveSize = 0L;
 	}
 
-	protected synchronized void flushArchiveDebug() throws Exception {
-		zipArchive.close();		
+	protected synchronized void flushArchive() throws Exception {
+		zipArchive.close();
 		byte[] data = zipBuffer.toByteArray();
-		
-		tpe.execute(new Runnable() {			
-			@Override
-			public void run() {
-				
-				String fname = "arch-" + UUID.randomUUID();
-				
-				File tmp = new File(fname);
-				try {
-					Files.copy(new ByteArrayInputStream(data), tmp.toPath(), StandardCopyOption.REPLACE_EXISTING);
-				} catch (IOException e) {
-					throw new RuntimeException(e);
+
+		if (data.length > 100) {
+			tpe.execute(new Runnable() {
+				@Override
+				public void run() {
+
+					try {
+						if (debug) {
+							flushArchiveToFS(data);
+						} else {
+							flushArchiveToS3(data);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+						throw new RuntimeException(e);
+					}
 				}
-				System.out.println("Saveed as " + tmp.getAbsolutePath());
-			}
-		});
-		
-		initArchive();		
-		
+			});
+		}
+		initArchive();
+
+	}
+
+	protected void flushArchiveToS3(byte[] data) throws Exception {
+		ObjectMetadata meta = new ObjectMetadata();
+		meta.setContentLength(data.length);
+		// snowball-auto-extract=true
+		meta.addUserMetadata(SB_AUTO_EXTRACT_PROP, "true");
+		try {
+			PutObjectRequest put = new PutObjectRequest(bucketName, "arch-" + UUID.randomUUID().toString(), wrap(data),
+					meta);
+			PutObjectResult res = s3.putObject(put);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	protected void flushArchiveToFS(byte[] data) throws Exception {
+
+		Path tmp = Files.createTempFile("arch-", ".zip");
+
+		try {
+			Files.copy(new ByteArrayInputStream(data), tmp, StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		debugArchives.add(tmp);
 	}
 
 	protected synchronized void addToBuffer(byte[] data, StatementMeta smeta) throws Exception {
-		  ZipEntry entry = new ZipEntry(smeta.getDigest());			  
-		  zipArchive.putNextEntry(entry);
-		  zipArchive.write(data);
-		  zipArchive.closeEntry();
-		  currentArchiveSize+=data.length;	
-		  
+		ZipEntry entry = new ZipEntry(smeta.getDigest());
+		zipArchive.putNextEntry(entry);
+		zipArchive.write(data);
+		zipArchive.closeEntry();
+		currentArchiveSize += data.length;
 	}
-	
+
+	public List<Path> getArchives() {
+		return debugArchives;
+	}
+
 	@Override
-	public void flush() {		
+	public void flush() {
 		try {
 			flushArchive();
 			tpe.shutdown();
@@ -159,5 +180,4 @@ public class S3BulkArchiveWriter extends S3Writer {
 			throw new RuntimeException(e);
 		}
 	}
-
 }
