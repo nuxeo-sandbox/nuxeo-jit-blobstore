@@ -219,7 +219,7 @@ public class EntryPoint {
 				writer = new S3TMAWriter(bucketName, aws_key, aws_secret, aws_session, aws_endpoint);
 			} else if (out.startsWith(S3BulkArchiveWriter.NAME)) {
 				importLogger.log(Level.INFO, "Inititialize S3Archive Writer in bucket " + bucketName);
-				writer = new S3BulkArchiveWriter(bucketName, 10, aws_key, aws_secret, aws_session, aws_endpoint);
+				writer = new S3BulkArchiveWriter(bucketName, 20, aws_key, aws_secret, aws_session, aws_endpoint);
 			}
 		}
 

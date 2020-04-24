@@ -56,7 +56,7 @@ public class S3BulkArchiveWriter extends S3Writer {
 
 	protected ZipOutputStream zipArchive;
 
-	protected static final long DEFAULT_FLUSH_SIZE = 1024 * 1024;
+	protected static final long DEFAULT_FLUSH_SIZE = 5* 1024 * 1024;
 
 	protected boolean debug = false;
 
@@ -106,7 +106,7 @@ public class S3BulkArchiveWriter extends S3Writer {
 	protected synchronized void flushArchive() throws Exception {
 		zipArchive.close();
 		byte[] data = zipBuffer.toByteArray();
-
+		initArchive();
 		if (data.length > 100) {
 			tpe.execute(new Runnable() {
 				@Override
@@ -125,7 +125,6 @@ public class S3BulkArchiveWriter extends S3Writer {
 				}
 			});
 		}
-		initArchive();
 
 	}
 
@@ -168,7 +167,10 @@ public class S3BulkArchiveWriter extends S3Writer {
 	}
 
 	@Override
-	public void flush() {
+	public synchronized void flush() {
+		if (tpe.isShutdown()) {
+			return;
+		}
 		try {
 			flushArchive();
 			tpe.shutdown();

@@ -229,9 +229,6 @@ public class Injector {
 						return;
 					}
 				}
-				if (writer != null) {
-					writer.flush();
-				}
 			}
 		}
 
@@ -271,6 +268,13 @@ public class Injector {
 			}
 
 			finished = executor.awaitTermination(pauseTimeS, TimeUnit.SECONDS);
+		}
+
+		
+		if (writer != null) {
+			log("Flushing ...");
+			writer.flush();
+			log("Flush done.");
 		}
 
 		long t1 = System.currentTimeMillis();
