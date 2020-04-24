@@ -8,5 +8,6 @@ Nuxeo-Component: OSGI-INF/JITBlobGen-service.xml,
  OSGI-INF/thumbnail-contrib.xml,
  OSGI-INF/elasticsearch-contrib.xml,
  OSGI-INF/optimized-repository-config.xml,
- OSGI-INF/web-ui-properties-override.xml
+ OSGI-INF/web-ui-properties-override.xml,
+ OSGI-INF/bulk-config.xml
 

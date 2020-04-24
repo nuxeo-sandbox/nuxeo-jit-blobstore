@@ -1,0 +1,13 @@
+## Edit this file to customize your configuration ##
+#10b-benchmark-package.target=
+
+# Set list of templates to include, comma separated values.
+nuxeo.template.includes=common,perf
+
+## Number of replicas: keep to 1
+elasticsearch.indexNumberOfReplicas=1
+
+## Number of shards: 35 shard so that we can reach 1B
+elasticsearch.indexNumberOfShards=35
+
+org.nuxeo.ecm.instance.description=Nuxeo ECM customized with 10B Benchmark Package
