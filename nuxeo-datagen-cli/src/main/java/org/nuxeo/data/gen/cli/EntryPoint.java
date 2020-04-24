@@ -200,7 +200,8 @@ public class EntryPoint {
 			importLogger.log(Level.INFO, "Inititialize Folder Digest Writer in " + folder);
 			writer = new FolderDigestWriter(folder);
 		} else if (out.startsWith("s3")) {
-			String bucketName = out.substring(S3Writer.NAME.length());
+			int idx = out.indexOf(":");
+			String bucketName = out.substring(idx+1);
 
 			String aws_key = cmd.getOptionValue("aws_key", null);
 			String aws_secret = cmd.getOptionValue("aws_secret", null);

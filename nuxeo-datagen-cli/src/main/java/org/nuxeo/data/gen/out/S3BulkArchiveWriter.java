@@ -19,7 +19,12 @@
 
 package org.nuxeo.data.gen.out;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -47,6 +52,8 @@ public class S3BulkArchiveWriter extends S3Writer {
 	protected ZipOutputStream zipArchive;
 	protected static final long FLUSH_SIZE = 1024*1024;
 
+	protected boolean debug=false;
+	
 	public S3BulkArchiveWriter(String bucketName, int nbThreads) {
 		this(bucketName, nbThreads, null, null, null, null);
 	}
@@ -60,8 +67,11 @@ public class S3BulkArchiveWriter extends S3Writer {
 	}
 	
 	@Override
-	public void write(byte[] data, StatementMeta smeta) throws Exception {
-		addToBuffer(data, smeta);		
+	public synchronized void write(byte[] data, StatementMeta smeta) throws Exception {
+		addToBuffer(data, smeta);	
+		if (currentArchiveSize> FLUSH_SIZE) {
+			flushArchive();
+		}
 	}
 
 	protected void initArchive() {
@@ -71,7 +81,15 @@ public class S3BulkArchiveWriter extends S3Writer {
 		currentArchiveSize=0L;
 	}
 	
-	protected synchronized void flushArchive() throws Exception {
+	protected synchronized void flushArchive() throws Exception {		
+		if (debug) {
+			flushArchiveDebug();
+		} else {
+			flushArchiveToS3();
+		}		
+	}
+	
+	protected synchronized void flushArchiveToS3() throws Exception {
 		zipArchive.close();		
 		byte[] data = zipBuffer.toByteArray();
 		
@@ -94,19 +112,44 @@ public class S3BulkArchiveWriter extends S3Writer {
 		initArchive();		
 		
 	}
-	
+
+	protected synchronized void flushArchiveDebug() throws Exception {
+		zipArchive.close();		
+		byte[] data = zipBuffer.toByteArray();
+		
+		tpe.execute(new Runnable() {			
+			@Override
+			public void run() {
+				
+				String fname = "arch-" + UUID.randomUUID();
+				
+				File tmp = new File(fname);
+				try {
+					Files.copy(new ByteArrayInputStream(data), tmp.toPath(), StandardCopyOption.REPLACE_EXISTING);
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+				System.out.println("Saveed as " + tmp.getAbsolutePath());
+			}
+		});
+		
+		initArchive();		
+		
+	}
+
 	protected synchronized void addToBuffer(byte[] data, StatementMeta smeta) throws Exception {
 		  ZipEntry entry = new ZipEntry(smeta.getDigest());			  
 		  zipArchive.putNextEntry(entry);
 		  zipArchive.write(data);
 		  zipArchive.closeEntry();
-		  currentArchiveSize+=data.length;			  
+		  currentArchiveSize+=data.length;	
+		  
 	}
 	
 	@Override
 	public void flush() {		
 		try {
-			flushArchive();		
+			flushArchive();
 			tpe.shutdown();
 			boolean finished = false;
 			while (!finished) {
