@@ -13,14 +13,13 @@ import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.regions.DefaultAwsRegionProviderChain;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
+import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 public class S3LS {
-
-	public static final String NAME = "s3:";
-
 	
 	protected static AmazonS3 initClient(AWSCredentialsProvider credProvider, String awsEndpoint) {
 
@@ -74,24 +73,63 @@ public class S3LS {
 
 		AmazonS3 s3Client = initS3(aws_endpoint);
 		
-        ListObjectsV2Request req = new ListObjectsV2Request().withBucketName(bucket).withMaxKeys(1000);
-        ListObjectsV2Result result;
+		listV1(s3Client, bucket);
+		//listV2(s3Client, bucket);
+	}
+	
+	protected static void listV2(AmazonS3 s3Client, String bucket) {
 
+		ListObjectsV2Request req = new ListObjectsV2Request().withBucketName(bucket).withMaxKeys(1000);
+        ListObjectsV2Result result;
+                
         long c=0;
+        String lastKey=null;
         do {
             result = s3Client.listObjectsV2(req);
-
             for (S3ObjectSummary objectSummary : result.getObjectSummaries()) {
             	c++;
-            	if (objectSummary.getKey().startsWith("arch-")) {
+            	if (c%1000==0) {
+            		System.out.println( c + " - "  + objectSummary.getKey());
+            	}
+            	lastKey = objectSummary.getKey();
+            	if (lastKey.startsWith("arch-")) {
             		System.out.printf(" - %s (size: %d)\n", objectSummary.getKey(), objectSummary.getSize());
-            	}                
+            	}           
+            	
             }
             String token = result.getNextContinuationToken();
             //System.out.println("Next Continuation Token: " + token);
             req.setContinuationToken(token);
+            req.setStartAfter(lastKey);
+        } while (result.isTruncated());		
+        System.out.println("Scanned " + c + " entries");		
+	}
+	
+	protected static void listV1(AmazonS3 s3Client, String bucket) {
+
+        ListObjectsRequest req = new ListObjectsRequest().withBucketName(bucket);
+        long c=0;
+        String lastKey=null;
+        ObjectListing result;
+		do {
+            result = s3Client.listObjects(req);
+            
+            for (S3ObjectSummary objectSummary : result.getObjectSummaries()) {
+            	c++;
+            	if (c%10000==0) {
+            		System.out.println( c + " - "  + objectSummary.getKey());
+            	}
+            	lastKey = objectSummary.getKey();
+            	if (lastKey.startsWith("arch-")) {
+            		System.out.printf(" - %s (size: %d)\n", objectSummary.getKey(), objectSummary.getSize());
+            	}           
+            	
+            }
+            //System.out.println("last Key = " + lastKey);
+            req.setMarker(lastKey);
         } while (result.isTruncated());		
         System.out.println("Scanned " + c + " entries");
-        
+		
 	}
+
 }

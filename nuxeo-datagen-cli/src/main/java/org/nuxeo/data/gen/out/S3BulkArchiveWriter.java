@@ -34,6 +34,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.Logger;
 import org.nuxeo.data.gen.pdf.StatementMeta;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -63,6 +65,20 @@ public class S3BulkArchiveWriter extends S3Writer {
 	protected List<Path> debugArchives = new ArrayList<Path>();
 
 	protected long flushSize = DEFAULT_FLUSH_SIZE;
+
+	protected Logger importLogger;
+		
+	public void setImportLogger(Logger importLogger) {
+		this.importLogger = importLogger;
+	}
+
+	protected void log(String message) {
+		if (importLogger != null) {
+			importLogger.log(Level.INFO, message);
+		} else {
+			System.out.println(message);
+		}
+	}
 
 	public void setDebug(boolean debug) {
 		this.debug = debug;
@@ -134,9 +150,12 @@ public class S3BulkArchiveWriter extends S3Writer {
 		// snowball-auto-extract=true
 		meta.addUserMetadata(SB_AUTO_EXTRACT_PROP, "true");
 		try {
-			PutObjectRequest put = new PutObjectRequest(bucketName, "arch-" + UUID.randomUUID().toString(), wrap(data),
+			String name = "0arch-" + UUID.randomUUID().toString();
+			PutObjectRequest put = new PutObjectRequest(bucketName, name, wrap(data),
 					meta);
-			PutObjectResult res = s3.putObject(put);
+			PutObjectResult res = s3.putObject(put);			
+			String msg = "saved archive " + name + " - pending archives in queue " + tpe.getQueue().size();			
+			log(msg);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
