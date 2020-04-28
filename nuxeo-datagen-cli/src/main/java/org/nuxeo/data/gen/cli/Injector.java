@@ -167,6 +167,8 @@ public class Injector {
 			collect("ID", null);
 		} else if (mode==MODE.METADATA) {
 			collect("ID", new String[]{"CustomerName","AddressStreet","AddressCity","AddressState","Date","AccountNumber","BlobKey"});
+		} else if (mode == MODE.PDF) {
+			collect("digest", new String[]{"filename","fileSize","CustomerName","AddressStreet","AddressCity","AddressState","Date","AccountNumber","BlobKey"});
 		}
 
 		log("----------------------------------------------------------");
