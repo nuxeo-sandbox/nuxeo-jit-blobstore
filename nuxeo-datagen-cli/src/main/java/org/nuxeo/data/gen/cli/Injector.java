@@ -301,9 +301,11 @@ public class Injector {
 		
 		log("#### Projected generation time:");
 		for (int i= 0 ; i < targets.length; i++) {
-			Duration d = Duration.ofSeconds(targets[i] / throughput);
-			log("     - for " + labels[i] + " files: " + d.toDaysPart() + " day(s) and " + d.toHoursPart()
-					+ " hour(s)]");			
+			if (throughput > 0) {
+				Duration d = Duration.ofSeconds(targets[i] / throughput);
+				log("     - for " + labels[i] + " files: " + d.toDaysPart() + " day(s) and " + d.toHoursPart()
+						+ " hour(s)]");
+			}
 		}
 	}
 }
