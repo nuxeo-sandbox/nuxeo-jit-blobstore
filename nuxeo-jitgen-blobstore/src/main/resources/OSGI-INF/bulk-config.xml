@@ -9,11 +9,11 @@
 
   <extension target="org.nuxeo.runtime.stream.service" point="streamProcessor">
     <streamProcessor name="reindex" class="org.nuxeo.elasticsearch.bulk.IndexAction" logConfig="bulk"
-      defaultConcurrency="4" defaultPartitions="8" enabled="true">
+      defaultConcurrency="6" defaultPartitions="12" enabled="true">
       <!-- concurrency to build indexing requests -->
-      <computation name="index" concurrency="4" />
+      <computation name="index" concurrency="6" />
       <!-- concurrency to execute indexing requests -->
-      <computation name="bulkIndex" concurrency="4" />
+      <computation name="bulkIndex" concurrency="6" />
       <computation name="indexCompletion" concurrency="1" />
       <!-- flush elasticsearch bulk request interval -->
       <option name="flushIntervalSeconds">10</option>
