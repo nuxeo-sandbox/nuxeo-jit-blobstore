@@ -21,6 +21,7 @@ package org.nuxeo.ecm.core.blob.jit.es;
 import java.io.IOException;
 
 import org.nuxeo.ecm.core.api.Blob;
+import org.nuxeo.ecm.core.blob.ManagedBlob;
 import org.nuxeo.ecm.core.blob.SimpleManagedBlob;
 import org.nuxeo.ecm.core.blob.jit.gen.InMemoryBlobGenerator;
 import org.nuxeo.ecm.core.blob.jit.gen.StatementsBlobGenerator;
@@ -59,8 +60,8 @@ public class BlobTextExtractor {
 	}
 	
 	protected String getTextFromBlobProvider(Blob blob) {		
-		SimpleManagedBlob sblob = (SimpleManagedBlob) blob;		
-		String key = sblob.getKey();
+		ManagedBlob mblob = (ManagedBlob) blob;		
+		String key = mblob.getKey();
 		key = key.split(":")[1];		
 		InMemoryBlobGenerator imbg = Framework.getService(InMemoryBlobGenerator.class);
 		String[] meta = ((StatementsBlobGenerator)imbg).getMetaDataForBlobKey(key);		
