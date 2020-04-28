@@ -1,10 +1,13 @@
 package org.nuxeo.ecm.core.blob.jit.tests;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.io.output.NullOutputStream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.data.gen.meta.SequenceGenerator;
@@ -42,8 +45,11 @@ public class BenchStatementsProducer {
 				
 				StatementDocumentMessageProducer producer = new StatementDocumentMessageProducer(sequenceGen, ids.incrementAndGet(), NB_CALLS, 60); 				
 				try {
+					
 					while (producer.hasNext()) {
-						producer.next();
+						
+						ObjectOutputStream out = new ObjectOutputStream(new NullOutputStream());
+						producer.next().writeExternal(out);;
 						counter.incrementAndGet();
 					}					
 				} catch (Exception e) {
