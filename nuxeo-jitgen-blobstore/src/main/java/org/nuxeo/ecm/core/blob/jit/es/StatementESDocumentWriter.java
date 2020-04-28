@@ -48,27 +48,6 @@ import org.nuxeo.runtime.api.Framework;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 public class StatementESDocumentWriter extends JsonESDocumentWriter {
-
-	
-	protected static final String PDF_TEXT_EXTRACTOR_PROP="org.nuxeo.bencmark.pdf.text.extractor";
-	
-	protected final String extractorName;
-	
-	public StatementESDocumentWriter() {
-		super();
-		extractorName = Framework.getProperty(PDF_TEXT_EXTRACTOR_PROP, PDFBoxFTExtractor.class.getSimpleName());
-	}
-
-	protected PDFFulltextExtractor getExtractor() {
-		if (iTextFTExtractor.class.getSimpleName().equalsIgnoreCase(extractorName)) {
-			return new iTextFTExtractor();
-		} else if (PDFBoxFTExtractor2.class.getSimpleName().equalsIgnoreCase(extractorName)) {
-			return new PDFBoxFTExtractor2();
-		} else if ("none".equalsIgnoreCase(extractorName)) {
-			return null;
-		}
-		return new PDFBoxFTExtractor();
-	}
 	
 	protected void writeSystemProperties(JsonGenerator jg, DocumentModel doc) throws IOException {
 		String docId = doc.getId();
@@ -175,16 +154,7 @@ public class StatementESDocumentWriter extends JsonESDocumentWriter {
 	}
 
 	protected String getTextFromPDF(Blob blob) throws IOException {
-		PDFFulltextExtractor extractor = getExtractor();
-		if (extractor!=null) {
-			try {
-				return extractor.getText(blob.getStream());
-			} catch (Exception e) {
-				throw new IOException(e);
-			}
-		} else {
-			return "";
-		}
+		return BlobTextExtractor.instance().getTextFromBlobProvider(blob);
 	}
 
 }

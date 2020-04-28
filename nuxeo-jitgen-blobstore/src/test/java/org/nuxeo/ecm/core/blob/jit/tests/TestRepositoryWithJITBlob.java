@@ -37,6 +37,7 @@ import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
 import org.nuxeo.ecm.core.blob.BlobInfo;
 import org.nuxeo.ecm.core.blob.BlobManager;
 import org.nuxeo.ecm.core.blob.SimpleManagedBlob;
+import org.nuxeo.ecm.core.blob.jit.es.BlobTextExtractor;
 import org.nuxeo.ecm.core.blob.jit.gen.DocInfo;
 import org.nuxeo.ecm.core.blob.jit.gen.InMemoryBlobGenerator;
 import org.nuxeo.ecm.core.test.CoreFeature;
@@ -147,6 +148,20 @@ public class TestRepositoryWithJITBlob {
 		assertTrue(txt.contains(di.getMeta("ACCOUNTID")));
 		
 		assertEquals(di.getMeta("ACCOUNTID"), doc.getPropertyValue("dc:description"));
+		
+		// check FT extraction
+		
+		blob = (Blob)doc.getPropertyValue("file:content");
+		String ft = BlobTextExtractor.instance().getTextFromPDF(blob);
+		// should be the same except for the day numbers that are random...
+		for (String keyword: txt.split("[\\n\\t ]")) {
+			keyword = keyword.trim();
+			if (!ft.contains(keyword.trim())) {
+				assertTrue(keyword.matches("^[0-9]+"));
+			}
+		}
 	}
 
+	
+	
 }
