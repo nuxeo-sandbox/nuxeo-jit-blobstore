@@ -62,7 +62,7 @@ public class RestCli {
 		if (operation==null) {
 			System.err.println("No Operation defined");
 		} else {
-			operation = operation.strip().toLowerCase();
+			operation = operation.trim().toLowerCase();
 		}
 
 		if (cmd.hasOption('h') || operation==null) {

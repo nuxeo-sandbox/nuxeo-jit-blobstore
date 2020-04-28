@@ -144,13 +144,7 @@ public class Injector {
 
 	protected void logDuration(Duration d, String message) {
 		StringBuilder sb = new StringBuilder(message);
-		if (d.toDaysPart() > 0)
-			sb.append(d.toDaysPart()).append(" days,");
-		if (d.toHoursPart() > 0)
-			sb.append(d.toHoursPart()).append(" h,");
-		if (d.toMinutesPart() > 0)
-			sb.append(d.toMinutesPart()).append(" m,");
-		sb.append(d.toSecondsPart()).append(" s");
+		sb.append(d.toString());
 		log(sb.toString());
 	}
 
@@ -263,8 +257,8 @@ public class Injector {
 			if (throughput.intValue() > 0) {
 				Duration d = Duration.ofSeconds((total - count) / throughput.intValue());
 				logDuration(d, "   Projected remaining time: ");
-
-				pauseTimeS = 1 + Math.round(d.toSeconds() / 100);
+				
+				pauseTimeS = 1 + Math.round(d.toMinutes()*60 / 100);
 				if (pauseTimeS > MAX_PAUSE) {
 					pauseTimeS = MAX_PAUSE;
 				}
@@ -285,21 +279,8 @@ public class Injector {
 
 		log("  Average throughput:" + throughput.intValue() + " docs/s");
 
-		printProjections(throughput.intValue());
 
 		return throughput.intValue();
 	}
 
-	protected void printProjections(int throughput) {
-		
-		long[] targets = new long[] {100000000, 1000000000, 10000000000L };
-		String[] labels = new String[] {"100M", "1B", "10B" };
-		
-		log("#### Projected generation time:");
-		for (int i= 0 ; i < targets.length; i++) {
-			Duration d = Duration.ofSeconds(targets[i] / throughput);
-			log("     - for " + labels[i] + " files: " + d.toDaysPart() + " day(s) and " + d.toHoursPart()
-					+ " hour(s)]");			
-		}
-	}
 }

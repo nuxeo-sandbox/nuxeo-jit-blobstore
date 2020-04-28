@@ -19,6 +19,7 @@
 package org.nuxeo.data.gen.out;
 
 import java.io.File;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.Executors;
@@ -110,7 +111,7 @@ public abstract class AbstractFolderBatchWriter extends AbstractBlobWriter imple
 	public void write(byte[] data, String digest) throws Exception {
 		Batch batch = getCurrentBatchId();
 		String directory = getBatchFolderPath(batch.batchId);
-		Path path = Path.of(directory, digest);
+		Path path = FileSystems.getDefault().getPath(directory, digest);
 		Files.copy(wrap(data), path);
 		fileCompleted(batch);
 	}

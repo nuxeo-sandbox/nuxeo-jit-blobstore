@@ -61,7 +61,6 @@ import org.nuxeo.data.gen.pdf.itext.ITextNXBankStatementGenerator;
 import org.nuxeo.data.gen.pdf.itext.ITextNXBankTemplateCreator2;
 import org.nuxeo.data.gen.pdf.itext.filter.JpegFilter;
 import org.nuxeo.data.gen.pdf.itext.filter.PDFOutputFilter;
-import org.nuxeo.data.gen.pdf.itext.filter.TiffFilter;
 
 public class EntryPoint {
 
@@ -127,7 +126,6 @@ public class EntryPoint {
 		Logger metadataLogger = ctx.getLogger("metadataLogger");
 		Logger cmdLogger = ctx.getLogger("cmdLogger");
 
-		importLogger.log(Level.INFO, "#".repeat(80));
 		importLogger.log(Level.INFO, "# Executing command " + Arrays.toString(args));
 
 		Options options = new Options();
@@ -221,9 +219,7 @@ public class EntryPoint {
 		PDFOutputFilter filter = null;
 		if (writer != null) {
 			String filterName = cmd.getOptionValue('f', "");
-			if (TiffFilter.NAME.equalsIgnoreCase(filterName)) {
-				filter = new TiffFilter();
-			} else if (JpegFilter.NAME.equalsIgnoreCase(filterName)) {
+			if (JpegFilter.NAME.equalsIgnoreCase(filterName)) {
 				filter = new JpegFilter();
 			}
 			if (filter != null) {
