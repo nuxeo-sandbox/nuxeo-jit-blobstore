@@ -68,9 +68,7 @@
     },
     "analyzer": {
       "fulltext": {
-        "char_filter": [
-          "html_strip"
-        ],
+        "char_filter": [ ],
         "filter": [
           "word_delimiter_filter",
           "lowercase",
@@ -82,9 +80,7 @@
         "tokenizer": "standard"
       },
       "fulltext_fr": {
-        "char_filter": [
-          "html_strip"
-        ],
+        "char_filter": [ ],
         "filter": [
           "word_delimiter_filter",
           "lowercase",
