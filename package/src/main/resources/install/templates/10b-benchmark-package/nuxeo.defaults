@@ -12,10 +12,10 @@ elasticsearch.indexNumberOfShards=35
 
 # default perf template set to 10min = 600000
 # => bump to 2h : 2* 3600 * 1000 
-max.poll.interval.ms=7200000
+kafka.max.poll.interval.ms=7200000
 
-# 2h
-nuxeo.db.transactiontimeout=7200
+# 10h
+nuxeo.db.transactiontimeout=36000
 
 org.nuxeo.ecm.instance.description=Nuxeo ECM customized with 10B Benchmark Package
 
