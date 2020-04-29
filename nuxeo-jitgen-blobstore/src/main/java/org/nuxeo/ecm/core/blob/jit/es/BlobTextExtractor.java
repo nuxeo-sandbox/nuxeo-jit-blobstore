@@ -20,32 +20,33 @@ package org.nuxeo.ecm.core.blob.jit.es;
 
 import java.io.IOException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.blob.ManagedBlob;
-import org.nuxeo.ecm.core.blob.SimpleManagedBlob;
 import org.nuxeo.ecm.core.blob.jit.gen.InMemoryBlobGenerator;
 import org.nuxeo.ecm.core.blob.jit.gen.StatementsBlobGenerator;
 import org.nuxeo.runtime.api.Framework;
 
 public class BlobTextExtractor {
-	
-	protected static BlobTextExtractor instance = new BlobTextExtractor(); 
-	
-	protected static final String STMT_TEMPLATE_TXT= "Primary Account Number:\n" + 
-			"Date: Label: Debit: Credit:\n" + 
-			"Beginning Balance\n"; 
-			
-	
-	public static BlobTextExtractor instance() {		
+
+	private static final Log log = LogFactory.getLog(BlobTextExtractor.class);
+
+	protected static BlobTextExtractor instance = new BlobTextExtractor();
+
+	protected static final String PDF_TEXT_EXTRACTOR_PROP = "org.nuxeo.bencmark.pdf.text.extractor";
+
+	protected final String extractorName;
+
+	protected static final String STMT_TEMPLATE_TXT = "Primary Account Number:\n" + "Date: Label: Debit: Credit:\n"
+			+ "Beginning Balance\n";
+
+	public static BlobTextExtractor instance() {
 		return instance;
 	}
-	
-	protected static final String PDF_TEXT_EXTRACTOR_PROP="org.nuxeo.bencmark.pdf.text.extractor";
-	
-	protected final String extractorName;
-	
+
 	public BlobTextExtractor() {
-		extractorName = Framework.getProperty(PDF_TEXT_EXTRACTOR_PROP, null);
+		extractorName = Framework.getProperty(PDF_TEXT_EXTRACTOR_PROP, PDFBoxFTExtractor2.class.getSimpleName());
 	}
 
 	protected PDFFulltextExtractor getExtractor() {
@@ -58,33 +59,43 @@ public class BlobTextExtractor {
 		}
 		return new PDFBoxFTExtractor();
 	}
-	
-	protected String getTextFromBlobProvider(Blob blob) {		
-		ManagedBlob mblob = (ManagedBlob) blob;		
-		String key = mblob.getKey();
-		key = key.split(":")[1];		
-		InMemoryBlobGenerator imbg = Framework.getService(InMemoryBlobGenerator.class);
-		String[] meta = ((StatementsBlobGenerator)imbg).getMetaDataForBlobKey(key);		
-		return STMT_TEMPLATE_TXT + String.join(" ", meta);
-	}
-	
-	public String getTextFromPDF(Blob blob) throws IOException {
-		
-		if (extractorName!=null) {
-			PDFFulltextExtractor extractor = getExtractor();
-			if (extractor!=null) {
-				try {
-					return extractor.getText(blob.getStream());
-				} catch (Exception e) {
-					throw new IOException(e);
-				}
-			} else {
-				return "";
-			}			
-		} else {
-			return getTextFromBlobProvider(blob);
-		}		
+
+	protected String getTextFromBlobProvider(String providerId, String key) {
+		try {
+			InMemoryBlobGenerator imbg = Framework.getService(InMemoryBlobGenerator.class);
+			String[] meta = ((StatementsBlobGenerator) imbg).getMetaDataForBlobKey(key);
+			return STMT_TEMPLATE_TXT + String.join(" ", meta);
+		} catch (Exception e) {
+			log.error("Unable to extract Full Text for BlobKey " + key, e);
+			return STMT_TEMPLATE_TXT;
+		}
 	}
 
-	
+	public String getTextFromBlob(Blob blob) throws IOException {
+		
+		ManagedBlob mblob = (ManagedBlob) blob;
+		String blobKey = mblob.getKey();
+		String keys[] = blobKey.split(":");
+
+		if ("jit".equalsIgnoreCase(keys[0])) {
+			return getTextFromBlobProvider(keys[0], keys[1]);
+		} else {
+			String mtype = mblob.getMimeType();
+			if ("application/pdf".equalsIgnoreCase(mtype)) {
+				PDFFulltextExtractor extractor = getExtractor();
+				if (extractor != null) {
+					try {
+						return extractor.getText(blob.getStream());
+					} catch (Exception e) {
+						throw new IOException(e);
+					}
+				} else {
+					return "";
+				}	
+			} else {
+				log.warn("Statement has a blob of type " + mtype + ": skipping Fulltext");
+				return "";
+			}
+		}		
+	}
 }

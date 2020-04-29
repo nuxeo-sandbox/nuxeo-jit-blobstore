@@ -143,18 +143,13 @@ public class StatementESDocumentWriter extends JsonESDocumentWriter {
 		}
 	}
 
-	protected Map<String, String> getFullText(DocumentModel doc) throws IOException {
+	public Map<String, String> getFullText(DocumentModel doc) throws IOException {
 		if (doc.getType().equalsIgnoreCase("Statement")) {
 			Blob smt = (Blob) doc.getPropertyValue("file:content");
-			String txtContent = getTextFromPDF(smt);
+			String txtContent = BlobTextExtractor.instance().getTextFromBlob(smt);
 			return Collections.singletonMap("binarytext", txtContent);
 		} else {
 			return doc.getBinaryFulltext();
 		}
 	}
-
-	protected String getTextFromPDF(Blob blob) throws IOException {
-		return BlobTextExtractor.instance().getTextFromBlobProvider(blob);
-	}
-
 }

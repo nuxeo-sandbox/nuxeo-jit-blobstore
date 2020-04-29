@@ -116,9 +116,7 @@ public class TestRepositoryWithJITBlob {
 		doc = session.getDocument(doc.getRef());		
 		blob = (Blob)doc.getPropertyValue("file:content");		
 		
-		assertEquals(blobContent, blob.getString());
-		
-		
+		assertEquals(blobContent, blob.getString());				
 	}
 
 
@@ -152,7 +150,7 @@ public class TestRepositoryWithJITBlob {
 		// check FT extraction
 		
 		blob = (Blob)doc.getPropertyValue("file:content");
-		String ft = BlobTextExtractor.instance().getTextFromPDF(blob);
+		String ft = BlobTextExtractor.instance().getTextFromBlob(blob);
 		// should be the same except for the day numbers that are random...
 		for (String keyword: txt.split("[\\n\\t ]")) {
 			keyword = keyword.trim();

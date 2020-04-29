@@ -6,8 +6,10 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.io.Serializable;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -22,9 +24,17 @@ import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
 import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
+import org.nuxeo.ecm.core.blob.jit.es.StatementESDocumentWriter;
 import org.nuxeo.ecm.core.blob.jit.gen.StatementsBlobGenerator;
+import org.nuxeo.ecm.core.bulk.BulkService;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
+import org.nuxeo.ecm.core.work.api.WorkManager;
+import org.nuxeo.elasticsearch.api.ElasticSearchAdmin;
+import org.nuxeo.elasticsearch.api.ElasticSearchIndexing;
+import org.nuxeo.elasticsearch.api.ElasticSearchService;
+import org.nuxeo.elasticsearch.commands.IndexingCommand;
+import org.nuxeo.elasticsearch.test.RepositoryElasticSearchFeature;
 import org.nuxeo.importer.stream.automation.DocumentConsumers;
 import org.nuxeo.importer.stream.jit.USStateHelper;
 import org.nuxeo.importer.stream.jit.automation.CustomerFolderProducers;
@@ -39,7 +49,7 @@ import org.nuxeo.runtime.test.runner.TargetExtensions;
 import org.nuxeo.runtime.transaction.TransactionHelper;
 
 @RunWith(FeaturesRunner.class)
-@Features(AutomationFeature.class)
+@Features({AutomationFeature.class, RepositoryElasticSearchFeature.class})
 @Deploy("org.nuxeo.runtime.stream")
 @Deploy("org.nuxeo.importer.stream")
 
@@ -56,6 +66,21 @@ public class TestStreamStatementImporter {
 
 	@Inject
 	protected AutomationService automationService;
+
+    @Inject
+    protected WorkManager workManager;
+
+    @Inject
+    protected BulkService bulk;
+
+    @Inject
+    ElasticSearchService ess;
+
+    @Inject
+    ElasticSearchIndexing esi;
+
+    @Inject
+    ElasticSearchAdmin esa;
 
 	@Test
 	public void canImportStatements() throws Exception {
@@ -105,12 +130,26 @@ public class TestStreamStatementImporter {
 			params.put("logConfig", "chronicle");
 			automationService.run(ctx, DocumentConsumers.ID, params);
 
-			docs = session.query("select * from File order by ecm:path");
+			docs = session.query("select * from Statement order by ecm:path");
 			dump(docs);
 			assertEquals(nbDocs, docs.size());
-
+			
+			esi.indexNonRecursive(new IndexingCommand(docs.get(0), IndexingCommand.Type.INSERT, true, false));
+			
+			waitForCompletion();
+			StatementESDocumentWriter esWriter = new StatementESDocumentWriter();
+			for (DocumentModel doc : docs) {
+				System.out.println(esWriter.getFullText(doc));
+			}
 		}
 	}
+
+	 public void waitForCompletion() throws Exception {
+	        bulk.await(Duration.ofSeconds(20));
+	        workManager.awaitCompletion(20, TimeUnit.SECONDS);
+	        esa.prepareWaitForIndexing().get(20, TimeUnit.SECONDS);
+	        esa.refresh();
+	    }
 
 	
 	@Test
@@ -191,7 +230,7 @@ public class TestStreamStatementImporter {
 
 	protected void dump(DocumentModelList docs) {
 		for (DocumentModel doc : docs) {
-			System.out.println(doc.getPathAsString() + " -- " + doc.getTitle());
+			System.out.println(doc.getType() + ": " + doc.getPathAsString() + " -- " + doc.getTitle());
 		}
 	}
 

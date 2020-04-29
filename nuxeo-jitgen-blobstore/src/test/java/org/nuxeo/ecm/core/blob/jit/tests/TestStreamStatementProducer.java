@@ -29,6 +29,7 @@ import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
 import org.nuxeo.ecm.core.blob.jit.gen.StatementsBlobGenerator;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
+import org.nuxeo.elasticsearch.test.RepositoryElasticSearchFeature;
 import org.nuxeo.importer.stream.jit.StatementFolderMessageProducer;
 import org.nuxeo.importer.stream.jit.USStateHelper;
 import org.nuxeo.importer.stream.jit.automation.CustomerFolderProducers;
@@ -48,13 +49,14 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
 
 
 @RunWith(FeaturesRunner.class)
-@Features(AutomationFeature.class)
+@Features({AutomationFeature.class, RepositoryElasticSearchFeature.class})
 @Deploy("org.nuxeo.runtime.stream")
 @Deploy("org.nuxeo.importer.stream")
 
 @RepositoryConfig(cleanup = Granularity.METHOD)
 @Deploy("org.nuxeo.ecm.core.blob.jit:OSGI-INF/JITBlobGen-service.xml")
 @Deploy("org.nuxeo.ecm.core.blob.jit:OSGI-INF/operations-contrib.xml")
+@Deploy("org.nuxeo.ecm.core.blob.jit:OSGI-INF/elasticsearch-contrib.xml")
 @Deploy("org.nuxeo.ecm.core.blob.jit.test:OSGI-INF/test-stream-contrib.xml")
 public class TestStreamStatementProducer {
 

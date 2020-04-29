@@ -111,6 +111,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.nuxeo.elasticsearch</groupId>
+      <artifactId>nuxeo-elasticsearch-core</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.itextpdf</groupId>
       <artifactId>kernel</artifactId>
       <version>7.1.10</version>
