@@ -71,9 +71,11 @@ public class BlobTextExtractor {
 		}
 	}
 
-	public String getTextFromBlob(Blob blob) throws IOException {
-		
-		ManagedBlob mblob = (ManagedBlob) blob;
+	public String getTextFromBlob(Blob blob) throws IOException {		
+		if (blob==null) {
+			return "";
+		}		
+		ManagedBlob mblob = (ManagedBlob) blob;		
 		String blobKey = mblob.getKey();
 		String keys[] = blobKey.split(":");
 
