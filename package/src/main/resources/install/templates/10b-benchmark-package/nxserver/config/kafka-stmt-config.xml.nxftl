@@ -1,16 +1,25 @@
 <#escape x as x?xml>
 <?xml version="1.0"?>
 <component name="org.nuxeo.jit.kafka.stmtConfig">
+
 <#if "${kafka.enabled}" == "true">
   <require>org.nuxeo.runtime.stream.kafka.service</require>
   <require>org.nuxeo.kafka.defaultConfig</require>
+
+  <extension target="org.nuxeo.runtime.stream.service" point="logConfig">
+    <logConfig name="stmt" type="kafka">
+      <option name="kafkaConfig">stmt</option>
+    </logConfig>
+  </extension>
+
   <extension point="kafkaConfig" target="org.nuxeo.runtime.stream.kafka.service">
     <kafkaConfig name="stmt" topicPrefix="${kafka.topicPrefix}">
       <producer>
         <property name="bootstrap.servers">${kafka.bootstrap.servers}</property>
         <property name="default.replication.factor">${kafka.default.replication.factor}</property>
         <property name="delivery.timeout.ms">${kafka.delivery.timeout.ms}</property>
-        <property name="acks">${kafka.acks}</property>
+        <!-- do not ack ??? -->        
+        <property name="acks">0</property>
 <#if "${kafka.ssl}" == "true">
 <#if "${kafka.sasl.enabled}" == "true">
         <property name="security.protocol">${kafka.security.protocol}</property>
@@ -29,10 +38,13 @@
 </#if>
 </#if>
 
-		<!--  some custom settings to speed up producers? -->
-        <property name="linger.ms">100</property>
-        <property name="batch.size">65536</property>
-        <property name="compression.type">snappy</property>
+		    <!--some custom settings to speed up producers? -->
+        <!-- allow to pack messages together => NOPE -->
+        <property name="linger.ms">0</property>
+        <!-- buffer / batch 256KB -->
+        <property name="batch.size">262144</property>
+        <!-- no compression (should be the default)-->
+        <property name="compression.type">none</property>
         
       </producer>
       <consumer>
