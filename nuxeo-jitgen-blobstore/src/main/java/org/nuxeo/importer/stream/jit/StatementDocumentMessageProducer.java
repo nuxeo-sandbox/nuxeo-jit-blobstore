@@ -46,12 +46,15 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 	protected final List<NodeInfo> hierarchy;
 	
 	protected final SequenceGenerator sequenceGen;
+
+	protected final String batchTag;
 	
-	public StatementDocumentMessageProducer(SequenceGenerator sequenceGen, int producerId, long nbDocuments, int nbMonths, int monthOffset) {
+	public StatementDocumentMessageProducer(SequenceGenerator sequenceGen, int producerId, long nbDocuments, int nbMonths, int monthOffset, String batchTag) {
 		super(producerId);
 		this.nbDocuments = nbDocuments;
 		hierarchy = getGen().getTimeHierarchy(monthOffset+nbMonths, true);
 		this.sequenceGen=sequenceGen;
+		this.batchTag=batchTag;
 		log.info("StatementDocumentMessageProducer created, nbDocuments: " + nbDocuments);
 	}
 
@@ -92,7 +95,10 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 
 		HashMap<String, Serializable> props = new HashMap<>();
 		props.put("dc:source", "initialImport");
-		props.put("dc:title", title);		
+		props.put("dc:title", title);
+		if (batchTag!=null) {
+			props.put("dc:publisher", batchTag);
+		}
 		mapMetaData(props, docInfo);
 		
 		DocumentMessage.Builder builder = DocumentMessage.builder("Statement", parentPath, name).setProperties(props);

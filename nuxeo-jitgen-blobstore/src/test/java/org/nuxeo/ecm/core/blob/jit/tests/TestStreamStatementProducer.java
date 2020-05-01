@@ -2,6 +2,7 @@ package org.nuxeo.ecm.core.blob.jit.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
@@ -329,6 +330,9 @@ public class TestStreamStatementProducer {
 					String account = (String) docMessage.getProperties().get("statement:accountNumber");
 					Date date = (Date) docMessage.getProperties().get("statement:statementDate");
 
+					String tag = (String) docMessage.getProperties().get("dc:publisher");
+					assertNotNull(tag);
+					
 					if (lastDate != null) {
 						assertTrue(lastDate.equals(date));
 					}
@@ -348,6 +352,50 @@ public class TestStreamStatementProducer {
 			tailer.close();
 		}
 
+	}
+
+	
+	@Test
+	public void canCreateStatementsMessagesWithBatchTag() throws Exception {
+
+		try (OperationContext ctx = new OperationContext(session)) {
+			Map<String, Serializable> params = new HashMap<>();
+
+			long nbDocs = 100;
+
+			final String TAG = "yo";
+			params.put("nbDocuments", nbDocs);
+			params.put("nbMonths", 1);
+			params.put("batchTag", TAG);
+			params.put("logConfig", "chronicle");
+			params.put("nbThreads", 1);
+			
+			automationService.run(ctx, StatementProducers.ID, params);
+
+			LogManager manager = Framework.getService(StreamService.class).getLogManager("chronicle");
+
+			LogTailer<DocumentMessage> tailer = manager.createTailer("test", StreamImporters.DEFAULT_LOG_DOC_NAME);
+
+			int count = 0;
+			LogRecord<DocumentMessage> record = null;
+			do {
+				record = tailer.read(Duration.ofSeconds(1));
+				if (record != null) {
+					DocumentMessage docMessage = record.message();
+					assertEquals("Statement", docMessage.getType());
+					assertEquals("initialImport", docMessage.getProperties().get("dc:source"));
+
+					String tag = (String) docMessage.getProperties().get("dc:publisher");
+
+					assertEquals(TAG, tag);
+					count++;
+				}
+			} while (record != null);
+
+			assertEquals(nbDocs, count);
+			tailer.commit();
+			tailer.close();
+		}
 	}
 
 	protected Set<String> findDups(List<String> lst) {

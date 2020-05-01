@@ -18,6 +18,8 @@
  */
 package org.nuxeo.importer.stream.jit;
 
+import java.util.Random;
+
 import org.nuxeo.data.gen.meta.SequenceGenerator;
 import org.nuxeo.ecm.automation.core.annotations.Param;
 import org.nuxeo.importer.stream.message.DocumentMessage;
@@ -29,12 +31,13 @@ public class StatementDocumentMessageProducerFactory implements ProducerFactory<
 	protected final long nbDocuments;
 	protected final int nbMonth;
 	protected final int monthOffset;
-	protected SequenceGenerator sequenceGen;    
+	protected SequenceGenerator sequenceGen;   
+	protected final String batchTag;
 	
 	/**
 	 * Generates random documents messages that point to existing blobs.
 	 */
-	public StatementDocumentMessageProducerFactory(Long seed, long skip, long nbDocuments,int nbMonth, int monthOffset) {
+	public StatementDocumentMessageProducerFactory(Long seed, long skip, long nbDocuments,int nbMonth, int monthOffset, String batchTag) {
 		this.nbDocuments = nbDocuments;
 		this.nbMonth=nbMonth;
 		this.monthOffset=monthOffset;
@@ -43,11 +46,16 @@ public class StatementDocumentMessageProducerFactory implements ProducerFactory<
 		if (skip>0) {
 			sequenceGen.skip(skip);
 		}
+		if (batchTag!=null) {
+			this.batchTag=batchTag;	
+		} else {
+			this.batchTag="B" + new Random().nextInt();
+		}		
 	}
 
 	@Override
 	public ProducerIterator<DocumentMessage> createProducer(int producerId) {
-		return new StatementDocumentMessageProducer(sequenceGen, producerId, nbDocuments, nbMonth, monthOffset);
+		return new StatementDocumentMessageProducer(sequenceGen, producerId, nbDocuments, nbMonth, monthOffset, batchTag);
 	}
 
 	protected String getGroupName(int producerId) {

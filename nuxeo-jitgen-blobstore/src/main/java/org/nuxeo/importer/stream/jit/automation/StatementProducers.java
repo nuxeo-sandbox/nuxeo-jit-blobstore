@@ -77,6 +77,9 @@ public class StatementProducers {
     @Param(name = "skip", required = false)
     protected Long skip = 0L;
 
+    @Param(name = "batchTag", required = false)
+    protected String batchTag = null;
+
     protected void checkAccess() {
         NuxeoPrincipal principal = context.getPrincipal();
         if (principal == null || !principal.isAdministrator()) {
@@ -99,7 +102,7 @@ public class StatementProducers {
         	docPerThreads++;
         }
         
-        factory = new StatementDocumentMessageProducerFactory(seed, skip, docPerThreads, nbMonths, monthOffset);
+        factory = new StatementDocumentMessageProducerFactory(seed, skip, docPerThreads, nbMonths, monthOffset, batchTag);
 
         try (ProducerPool<DocumentMessage> producers = new ProducerPool<>(logName, manager, factory,
                 nbThreads.shortValue())) {
