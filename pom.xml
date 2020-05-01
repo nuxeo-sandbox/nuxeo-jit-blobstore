@@ -17,7 +17,7 @@
   <modules>
     <module>nuxeo-data-generator</module>
     <module>nuxeo-jitgen-blobstore</module>
-    <!--<module>nuxeo-datagen-cli</module>-->
+    <module>nuxeo-datagen-cli</module>
     <module>package</module>
   </modules>
 
