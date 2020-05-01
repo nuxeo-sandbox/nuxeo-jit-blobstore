@@ -47,10 +47,10 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 	
 	protected final SequenceGenerator sequenceGen;
 	
-	public StatementDocumentMessageProducer(SequenceGenerator sequenceGen, int producerId, long nbDocuments, int nbMonths) {
+	public StatementDocumentMessageProducer(SequenceGenerator sequenceGen, int producerId, long nbDocuments, int nbMonths, int monthOffset) {
 		super(producerId);
 		this.nbDocuments = nbDocuments;
-		hierarchy = getGen().getTimeHierarchy(nbMonths, true);
+		hierarchy = getGen().getTimeHierarchy(monthOffset+nbMonths, true);
 		this.sequenceGen=sequenceGen;
 		log.info("StatementDocumentMessageProducer created, nbDocuments: " + nbDocuments);
 	}

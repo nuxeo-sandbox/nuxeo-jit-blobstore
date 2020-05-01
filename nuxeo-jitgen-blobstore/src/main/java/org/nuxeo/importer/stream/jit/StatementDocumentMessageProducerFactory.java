@@ -28,6 +28,7 @@ public class StatementDocumentMessageProducerFactory implements ProducerFactory<
 
 	protected final long nbDocuments;
 	protected final int nbMonth;
+	protected final int monthOffset;
 	protected SequenceGenerator sequenceGen;    
 	
 	/**
@@ -36,6 +37,7 @@ public class StatementDocumentMessageProducerFactory implements ProducerFactory<
 	public StatementDocumentMessageProducerFactory(Long seed, long skip, long nbDocuments,int nbMonth, int monthOffset) {
 		this.nbDocuments = nbDocuments;
 		this.nbMonth=nbMonth;
+		this.monthOffset=monthOffset;
 		sequenceGen = new SequenceGenerator(seed, nbMonth);	
 		sequenceGen.setMonthOffset(monthOffset);
 		if (skip>0) {
@@ -45,7 +47,7 @@ public class StatementDocumentMessageProducerFactory implements ProducerFactory<
 
 	@Override
 	public ProducerIterator<DocumentMessage> createProducer(int producerId) {
-		return new StatementDocumentMessageProducer(sequenceGen, producerId, nbDocuments, nbMonth);
+		return new StatementDocumentMessageProducer(sequenceGen, producerId, nbDocuments, nbMonth, monthOffset);
 	}
 
 	protected String getGroupName(int producerId) {

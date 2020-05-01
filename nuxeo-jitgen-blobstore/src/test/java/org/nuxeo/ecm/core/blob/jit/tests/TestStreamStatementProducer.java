@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -47,9 +48,8 @@ import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
 
-
 @RunWith(FeaturesRunner.class)
-@Features({AutomationFeature.class, RepositoryElasticSearchFeature.class})
+@Features({ AutomationFeature.class, RepositoryElasticSearchFeature.class })
 @Deploy("org.nuxeo.runtime.stream")
 @Deploy("org.nuxeo.importer.stream")
 
@@ -60,275 +60,319 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
 @Deploy("org.nuxeo.ecm.core.blob.jit.test:OSGI-INF/test-stream-contrib.xml")
 public class TestStreamStatementProducer {
 
-    @Inject
-    protected CoreSession session;
+	@Inject
+	protected CoreSession session;
 
-    @Inject
-    protected AutomationService automationService;
+	@Inject
+	protected AutomationService automationService;
 
-    @Test
-    public void canCreateTimeHierarchyMessages() throws Exception{
+	@Test
+	public void canCreateTimeHierarchyMessages() throws Exception {
 
-    	try (OperationContext ctx = new OperationContext(session)) {
-            Map<String, Serializable> params = new HashMap<>();
+		try (OperationContext ctx = new OperationContext(session)) {
+			Map<String, Serializable> params = new HashMap<>();
 
-            params.put("nbMonths", 48);
-            params.put("logConfig", "chronicle");
+			params.put("nbMonths", 48);
+			params.put("logConfig", "chronicle");
 
-            automationService.run(ctx,StatementFolderProducers.ID, params);
-                                    
-    		LogManager manager = Framework.getService(StreamService.class).getLogManager("chronicle");
-    		
-            LogTailer<DocumentMessage> tailer = manager.createTailer("test", StreamImporters.DEFAULT_LOG_DOC_NAME);            
+			automationService.run(ctx, StatementFolderProducers.ID, params);
 
-            int count=0;
-            LogRecord<DocumentMessage> record=null;
-            do {
-            	record = tailer.read(Duration.ofSeconds(1));
-            	if (record!=null) {
-            		DocumentMessage docMessage = record.message();
-            		assertEquals("Folder",docMessage.getType());
-            		assertTrue(((String)docMessage.getProperties().get("dc:description")).startsWith(StatementFolderMessageProducer.FOLDER_DESC_PREFIX));            		
-            		count++;
-            	}            		
-            } while (record!=null);
-            
-            assertEquals(48+4, count);
-            tailer.commit();
-            tailer.close();
-        }
-    }
+			LogManager manager = Framework.getService(StreamService.class).getLogManager("chronicle");
 
-    
-    @Test
-    public void canCreateStatesHierarchyMessages() throws Exception{
+			LogTailer<DocumentMessage> tailer = manager.createTailer("test", StreamImporters.DEFAULT_LOG_DOC_NAME);
 
-    	try (OperationContext ctx = new OperationContext(session)) {
-            Map<String, Serializable> params = new HashMap<>();
+			int count = 0;
+			LogRecord<DocumentMessage> record = null;
+			do {
+				record = tailer.read(Duration.ofSeconds(1));
+				if (record != null) {
+					DocumentMessage docMessage = record.message();
+					assertEquals("Folder", docMessage.getType());
+					assertTrue(((String) docMessage.getProperties().get("dc:description"))
+							.startsWith(StatementFolderMessageProducer.FOLDER_DESC_PREFIX));
+					count++;
+				}
+			} while (record != null);
 
-            params.put("logConfig", "chronicle");
+			assertEquals(48 + 4, count);
+			tailer.commit();
+			tailer.close();
+		}
+	}
 
-            automationService.run(ctx,CustomerFolderProducers.ID, params);
-                                    
-    		LogManager manager = Framework.getService(StreamService.class).getLogManager("chronicle");
-    		
-            LogTailer<DocumentMessage> tailer = manager.createTailer("test", StreamImporters.DEFAULT_LOG_DOC_NAME);            
+	@Test
+	public void canCreateStatesHierarchyMessages() throws Exception {
 
-            int count=0;
-            
-            List<String> names = new ArrayList<String>();
-            
-            LogRecord<DocumentMessage> record=null;
-            do {
-            	record = tailer.read(Duration.ofSeconds(1));
-            	if (record!=null) {
-            		DocumentMessage docMessage = record.message();
-            		assertEquals("Folder",docMessage.getType());
-            		assertFalse(names.contains(docMessage.getName()));
-            		names.add(docMessage.getName());
-            		count++;
-            	}            		
-            } while (record!=null);
-            
-            assertEquals(USStateHelper.STATES.length, count);
-            tailer.commit();
-            tailer.close();
-        }
-    }
-    
-    @Test
-    public void canCreateCustomerMessages() throws Exception{
+		try (OperationContext ctx = new OperationContext(session)) {
+			Map<String, Serializable> params = new HashMap<>();
 
-    	try (OperationContext ctx = new OperationContext(session)) {
-            Map<String, Serializable> params = new HashMap<>();
+			params.put("logConfig", "chronicle");
 
-            params.put("logConfig", "chronicle");
-            params.put("bufferSize", "5");
+			automationService.run(ctx, CustomerFolderProducers.ID, params);
 
-			InputStream csv = StatementsBlobGenerator.class.getResourceAsStream("/sample-id.csv");		
+			LogManager manager = Framework.getService(StreamService.class).getLogManager("chronicle");
+
+			LogTailer<DocumentMessage> tailer = manager.createTailer("test", StreamImporters.DEFAULT_LOG_DOC_NAME);
+
+			int count = 0;
+
+			List<String> names = new ArrayList<String>();
+
+			LogRecord<DocumentMessage> record = null;
+			do {
+				record = tailer.read(Duration.ofSeconds(1));
+				if (record != null) {
+					DocumentMessage docMessage = record.message();
+					assertEquals("Folder", docMessage.getType());
+					assertFalse(names.contains(docMessage.getName()));
+					names.add(docMessage.getName());
+					count++;
+				}
+			} while (record != null);
+
+			assertEquals(USStateHelper.STATES.length, count);
+			tailer.commit();
+			tailer.close();
+		}
+	}
+
+	@Test
+	public void canCreateCustomerMessages() throws Exception {
+
+		try (OperationContext ctx = new OperationContext(session)) {
+			Map<String, Serializable> params = new HashMap<>();
+
+			params.put("logConfig", "chronicle");
+			params.put("bufferSize", "5");
+
+			InputStream csv = StatementsBlobGenerator.class.getResourceAsStream("/sample-id.csv");
 			Blob blob = new StringBlob(new String(IOUtils.toByteArray(csv)));
-								
+
 			ctx.setInput(blob);
 			automationService.run(ctx, CustomerProducers.ID, params);
-                                    
-    		LogManager manager = Framework.getService(StreamService.class).getLogManager("chronicle");
-    		
-            LogTailer<DocumentMessage> tailer = manager.createTailer("test", StreamImporters.DEFAULT_LOG_DOC_NAME);            
 
-            int count=0;
-            
-            
-            LogRecord<DocumentMessage> record=null;
-            do {
-            	record = tailer.read(Duration.ofSeconds(1));
-            	if (record!=null) {
-            		DocumentMessage docMessage = record.message();
-            		assertEquals("CustomerDocument",docMessage.getType());
-            		count++;
-            	}            		
-            } while (record!=null);
-            
-            assertEquals(11, count);
-            tailer.commit();
-            tailer.close();
-        }
-    }
-    
+			LogManager manager = Framework.getService(StreamService.class).getLogManager("chronicle");
 
-    protected static String[] expectedAccountID=new String[] {
-    		"0E570-08A8E-53AE1E6-01",
-    		"0D377-0F93A-3A16029-01",
-    		"0D377-0F93A-3A16029-02",
-    		"0D377-0F93A-3A16029-03",
-    		"07180-05BE9-44A4265-01",
-    		"07180-05BE9-44A4265-02",
-    		"13A20-0E86C-69A4770-01",
-    		"19E08-06256-59DD19E-01",
-    		"05F4E-0100B-044C4D7-01",
-    		"05F4E-0100B-044C4D7-02"  };
-        
-    @Test
-    public void canCreateStatementsMessages() throws Exception{
+			LogTailer<DocumentMessage> tailer = manager.createTailer("test", StreamImporters.DEFAULT_LOG_DOC_NAME);
 
-    	try (OperationContext ctx = new OperationContext(session)) {
-            Map<String, Serializable> params = new HashMap<>();
+			int count = 0;
 
-            long nbDocs = 48*10;
-            
-            params.put("nbDocuments", nbDocs);
-            params.put("nbMonths", 48);
-            params.put("logConfig", "chronicle");
-            params.put("nbThreads", 1);
-            params.put("seed", SequenceGenerator.DEFAULT_ACCOUNT_SEED);
+			LogRecord<DocumentMessage> record = null;
+			do {
+				record = tailer.read(Duration.ofSeconds(1));
+				if (record != null) {
+					DocumentMessage docMessage = record.message();
+					assertEquals("CustomerDocument", docMessage.getType());
+					count++;
+				}
+			} while (record != null);
 
-            automationService.run(ctx,StatementProducers.ID, params);
-                                    
-    		LogManager manager = Framework.getService(StreamService.class).getLogManager("chronicle");
-    		    		
-            LogTailer<DocumentMessage> tailer = manager.createTailer("test", StreamImporters.DEFAULT_LOG_DOC_NAME);            
+			assertEquals(11, count);
+			tailer.commit();
+			tailer.close();
+		}
+	}
 
-            int count=0;
-            int idx=0;
-            String lastAccounId=null;
-            LogRecord<DocumentMessage> record=null;
-            do {
-            	record = tailer.read(Duration.ofSeconds(1));
-            	if (record!=null) {
-            		DocumentMessage docMessage = record.message();
-            		assertEquals("Statement",docMessage.getType());
-            		assertEquals("initialImport", docMessage.getProperties().get("dc:source"));            		
-            		
-            		String account = (String) docMessage.getProperties().get("statement:accountNumber");
-            		String customer = (String) docMessage.getProperties().get("all:customerNumber");
-            		
-            		if (count%48==0) {
-            			lastAccounId = account;
-            			assertEquals(expectedAccountID[idx],lastAccounId);
-            			//System.out.println(lastAccounId);
-            			assertTrue(expectedAccountID[idx].contains(customer));
-            			idx++;
-            		} else {
-            			assertEquals(lastAccounId, account);
-            		}            		
-            		count++;
-            	}            		
-            } while (record!=null);
-            
-            assertEquals(nbDocs, count);
-            tailer.commit();
-            tailer.close();
-        }
-    	    	
-    	    	
-    }
+	protected static String[] expectedAccountID = new String[] { "0E570-08A8E-53AE1E6-01", "0D377-0F93A-3A16029-01",
+			"0D377-0F93A-3A16029-02", "0D377-0F93A-3A16029-03", "07180-05BE9-44A4265-01", "07180-05BE9-44A4265-02",
+			"13A20-0E86C-69A4770-01", "19E08-06256-59DD19E-01", "05F4E-0100B-044C4D7-01", "05F4E-0100B-044C4D7-02" };
 
-    
-    @Test
-    public void canCreateStatementsMessagesMT() throws Exception{
+	@Test
+	public void canCreateStatementsMessages() throws Exception {
 
-    	try (OperationContext ctx = new OperationContext(session)) {
-            Map<String, Serializable> params = new HashMap<>();
+		try (OperationContext ctx = new OperationContext(session)) {
+			Map<String, Serializable> params = new HashMap<>();
 
-            long nbThreads=8;
-            long nbMonths=1;
-            long nbDocs = nbMonths*10*nbThreads;
-            
-            params.put("nbDocuments", nbDocs);
-            params.put("nbMonths", nbMonths);
-            params.put("logConfig", "chronicle");
-            params.put("nbThreads", nbThreads);
-            params.put("seed", SequenceGenerator.DEFAULT_ACCOUNT_SEED);
+			long nbDocs = 48 * 10;
 
-            automationService.run(ctx,StatementProducers.ID, params);
-                                    
-    		LogManager manager = Framework.getService(StreamService.class).getLogManager("chronicle");
-    		    		
-            LogTailer<DocumentMessage> tailer = manager.createTailer("test", StreamImporters.DEFAULT_LOG_DOC_NAME);            
-            
-            List<String> generatedAccounts = new ArrayList<String>();
-            
-            LogRecord<DocumentMessage> record=null;
-            do {
-            	record = tailer.read(Duration.ofSeconds(10));
-            	if (record!=null) {
-            		DocumentMessage docMessage = record.message();
-            		String account = (String) docMessage.getProperties().get("statement:accountNumber");
-            		generatedAccounts.add(account);
-            	}            		
-            } while (record!=null);
-            
-            assertEquals(nbDocs, generatedAccounts.size());
-            tailer.commit();
-            tailer.close();            
-            
-            //System.out.println(generatedAccounts);
-            
-            Set<String> dups = findDups(generatedAccounts);
-            // XXX there is a Schrodinger cat hidden in here !
-            //System.out.println(dups);
-            assertEquals(0, dups.size());
-            
-            // verify that we generated all the expected accounts
-            List<String> thread1Accounts = new ArrayList<String>();
-            
-            for (String ac: expectedAccountID) {
-            	assertTrue("Unable to find entry " + ac, generatedAccounts.contains(ac));
-            	thread1Accounts.add(ac);
-            }
-              
-            int nbOtherAccounts = 0;
-            for (String ac: generatedAccounts) {
-            	if (!thread1Accounts.contains(ac)) {
-            		nbOtherAccounts++;
-            	}
-            }            
-            assertEquals(nbDocs, expectedAccountID.length + nbOtherAccounts);            
-        }
-    }
+			params.put("nbDocuments", nbDocs);
+			params.put("nbMonths", 48);
+			params.put("logConfig", "chronicle");
+			params.put("nbThreads", 1);
+			params.put("seed", SequenceGenerator.DEFAULT_ACCOUNT_SEED);
 
-    protected Set<String> findDups(List<String> lst) {
-    
-    	Set<String> dups = new HashSet<String>();
-    	Set<String> uniqueEntries = new HashSet<String>();
-    	
-    	for (String e : lst) {
-    		if (uniqueEntries.contains(e)) {
-    			dups.add(e);
-    		} else {
-    			uniqueEntries.add(e);
-    		}
-    	}
-    	
-    	return dups;    	
-    }
-    
-    @Test
-    public void canRegenerateTheSameAccounts() throws Exception {
-    	SequenceGenerator sGen = new SequenceGenerator(1);
-    	for (int i = 0; i < 10; i++) {
-    		String id = sGen.next().getAccountID();
-    		assertEquals(expectedAccountID[i], id);
-    	}
+			automationService.run(ctx, StatementProducers.ID, params);
 
-    }
+			LogManager manager = Framework.getService(StreamService.class).getLogManager("chronicle");
+
+			LogTailer<DocumentMessage> tailer = manager.createTailer("test", StreamImporters.DEFAULT_LOG_DOC_NAME);
+
+			int count = 0;
+			int idx = 0;
+			String lastAccounId = null;
+			LogRecord<DocumentMessage> record = null;
+			do {
+				record = tailer.read(Duration.ofSeconds(1));
+				if (record != null) {
+					DocumentMessage docMessage = record.message();
+					assertEquals("Statement", docMessage.getType());
+					assertEquals("initialImport", docMessage.getProperties().get("dc:source"));
+
+					String account = (String) docMessage.getProperties().get("statement:accountNumber");
+					String customer = (String) docMessage.getProperties().get("all:customerNumber");
+
+					if (count % 48 == 0) {
+						lastAccounId = account;
+						assertEquals(expectedAccountID[idx], lastAccounId);
+						// System.out.println(lastAccounId);
+						assertTrue(expectedAccountID[idx].contains(customer));
+						idx++;
+					} else {
+						assertEquals(lastAccounId, account);
+					}
+					count++;
+				}
+			} while (record != null);
+
+			assertEquals(nbDocs, count);
+			tailer.commit();
+			tailer.close();
+		}
+
+	}
+
+	@Test
+	public void canCreateStatementsMessagesMT() throws Exception {
+
+		try (OperationContext ctx = new OperationContext(session)) {
+			Map<String, Serializable> params = new HashMap<>();
+
+			long nbThreads = 8;
+			long nbMonths = 1;
+			long nbDocs = nbMonths * 10 * nbThreads;
+
+			params.put("nbDocuments", nbDocs);
+			params.put("nbMonths", nbMonths);
+			params.put("logConfig", "chronicle");
+			params.put("nbThreads", nbThreads);
+			params.put("seed", SequenceGenerator.DEFAULT_ACCOUNT_SEED);
+
+			automationService.run(ctx, StatementProducers.ID, params);
+
+			LogManager manager = Framework.getService(StreamService.class).getLogManager("chronicle");
+
+			LogTailer<DocumentMessage> tailer = manager.createTailer("test", StreamImporters.DEFAULT_LOG_DOC_NAME);
+
+			List<String> generatedAccounts = new ArrayList<String>();
+
+			LogRecord<DocumentMessage> record = null;
+			do {
+				record = tailer.read(Duration.ofSeconds(10));
+				if (record != null) {
+					DocumentMessage docMessage = record.message();
+					String account = (String) docMessage.getProperties().get("statement:accountNumber");
+					generatedAccounts.add(account);
+				}
+			} while (record != null);
+
+			assertEquals(nbDocs, generatedAccounts.size());
+			tailer.commit();
+			tailer.close();
+
+			// System.out.println(generatedAccounts);
+
+			Set<String> dups = findDups(generatedAccounts);
+			// XXX there is a Schrodinger cat hidden in here !
+			// System.out.println(dups);
+			assertEquals(0, dups.size());
+
+			// verify that we generated all the expected accounts
+			List<String> thread1Accounts = new ArrayList<String>();
+
+			for (String ac : expectedAccountID) {
+				assertTrue("Unable to find entry " + ac, generatedAccounts.contains(ac));
+				thread1Accounts.add(ac);
+			}
+
+			int nbOtherAccounts = 0;
+			for (String ac : generatedAccounts) {
+				if (!thread1Accounts.contains(ac)) {
+					nbOtherAccounts++;
+				}
+			}
+			assertEquals(nbDocs, expectedAccountID.length + nbOtherAccounts);
+		}
+	}
+
+	@Test
+	public void canCreateStatementsMessagesForOneMonth() throws Exception {
+
+		try (OperationContext ctx = new OperationContext(session)) {
+			Map<String, Serializable> params = new HashMap<>();
+
+			long nbDocs = 1000;
+
+			params.put("nbDocuments", nbDocs);
+			params.put("nbMonths", 1);
+			params.put("monthOffset", 48);
+			params.put("logConfig", "chronicle");
+			params.put("nbThreads", 1);
+			params.put("seed", SequenceGenerator.DEFAULT_ACCOUNT_SEED);
+
+			automationService.run(ctx, StatementProducers.ID, params);
+
+			LogManager manager = Framework.getService(StreamService.class).getLogManager("chronicle");
+
+			LogTailer<DocumentMessage> tailer = manager.createTailer("test", StreamImporters.DEFAULT_LOG_DOC_NAME);
+
+			int count = 0;
+			String lastAccountId = null;
+			Date lastDate = null;
+			LogRecord<DocumentMessage> record = null;
+			do {
+				record = tailer.read(Duration.ofSeconds(1));
+				if (record != null) {
+					DocumentMessage docMessage = record.message();
+					assertEquals("Statement", docMessage.getType());
+					assertEquals("initialImport", docMessage.getProperties().get("dc:source"));
+
+					String account = (String) docMessage.getProperties().get("statement:accountNumber");
+					Date date = (Date) docMessage.getProperties().get("statement:statementDate");
+
+					if (lastDate != null) {
+						assertTrue(lastDate.equals(date));
+					}
+					lastDate = date;
+
+					if (lastAccountId != null) {
+						assertFalse(lastAccountId.equals(account));
+					}
+					lastAccountId = account;
+
+					count++;
+				}
+			} while (record != null);
+
+			assertEquals(nbDocs, count);
+			tailer.commit();
+			tailer.close();
+		}
+
+	}
+
+	protected Set<String> findDups(List<String> lst) {
+
+		Set<String> dups = new HashSet<String>();
+		Set<String> uniqueEntries = new HashSet<String>();
+
+		for (String e : lst) {
+			if (uniqueEntries.contains(e)) {
+				dups.add(e);
+			} else {
+				uniqueEntries.add(e);
+			}
+		}
+
+		return dups;
+	}
+
+	@Test
+	public void canRegenerateTheSameAccounts() throws Exception {
+		SequenceGenerator sGen = new SequenceGenerator(1);
+		for (int i = 0; i < 10; i++) {
+			String id = sGen.next().getAccountID();
+			assertEquals(expectedAccountID[i], id);
+		}
+
+	}
 }
