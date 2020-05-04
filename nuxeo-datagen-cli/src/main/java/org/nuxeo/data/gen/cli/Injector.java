@@ -167,6 +167,8 @@ public class Injector {
 			collect("ID", null);
 		} else if (mode==MODE.METADATA) {
 			collect("ID", new String[]{"CustomerName","AddressStreet","AddressCity","AddressState","Date","AccountNumber","BlobKey"});
+		} else if (mode == MODE.PDF) {
+			collect("digest", new String[]{"filename","fileSize","CustomerName","AddressStreet","AddressCity","AddressState","Date","AccountNumber","BlobKey"});
 		}
 
 		log("----------------------------------------------------------");
@@ -301,9 +303,11 @@ public class Injector {
 		
 		log("#### Projected generation time:");
 		for (int i= 0 ; i < targets.length; i++) {
-			Duration d = Duration.ofSeconds(targets[i] / throughput);
-			log("     - for " + labels[i] + " files: " + d.toDaysPart() + " day(s) and " + d.toHoursPart()
-					+ " hour(s)]");			
+			if (throughput > 0) {
+				Duration d = Duration.ofSeconds(targets[i] / throughput);
+				log("     - for " + labels[i] + " files: " + d.toDaysPart() + " day(s) and " + d.toHoursPart()
+						+ " hour(s)]");
+			}
 		}
 	}
 }
