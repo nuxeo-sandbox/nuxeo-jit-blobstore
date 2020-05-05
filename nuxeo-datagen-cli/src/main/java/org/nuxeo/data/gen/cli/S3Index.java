@@ -5,8 +5,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Enumeration;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 import org.apache.logging.log4j.Level;
@@ -28,13 +29,12 @@ import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.regions.DefaultAwsRegionProviderChain;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.GetObjectMetadataRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.HeadBucketRequest;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
-
 
 public class S3Index {
 
@@ -128,32 +128,52 @@ public class S3Index {
             	c++;
             	lastKey = os.getKey();
             	if (lastKey.startsWith("arch-") || lastKey.startsWith("0arch-")) {
-            		listArchive(os);
+            		listArchive(os.getKey());
             	} else {
             		log(os.getKey(), null, os.getSize());
-            	}            	
+            	}
+            	if (c%10000==0) {
+            		cmdLogger.info("" + c );
+            	}
             }
             req.setMarker(lastKey);
         } while (result.isTruncated());		
         System.out.println("Scanned " + c + " entries");		
 	}
 	
-	protected void listArchive(S3ObjectSummary os) {
-		String key = os.getKey();
+	public void listMetadata(String key) {
 		GetObjectRequest req = new GetObjectRequest(bucket, key);		
+		GetObjectMetadataRequest mReq = new GetObjectMetadataRequest(bucket, key);
+		ObjectMetadata meta = s3Client.getObjectMetadata(mReq);
 		
+		for (String k : meta.getUserMetadata().keySet()) {
+			System.out.println(k + ":" + meta.getUserMetaDataOf(k));			
+		}
+		
+		Object extract= meta.getUserMetadata().get("snowball-auto-extract");
+		System.out.println("meta=" + extract);
+		System.out.println(extract.equals("true"));
+	}
+	
+	protected void listArchive(String key) {
+	
+		GetObjectRequest req = new GetObjectRequest(bucket, key);		
+		GetObjectMetadataRequest mReq = new GetObjectMetadataRequest(bucket, key);	
 		
 		File zip=null;
 		try {
 			Path tmp= Files.createTempFile("s3", ".zip");
-			zip = tmp.toFile();
+			zip = tmp.toFile();					
+			//ObjectMetadata meta = s3Client.getObjectMetadata(mReq);
 			ObjectMetadata meta = s3Client.getObject(req, zip);
 			Object extract= meta.getUserMetadata().get("snowball-auto-extract");
-			if (Boolean.TRUE.equals(extract)) {
+			if ("true".equals(extract)) {
 				cmdLogger.info("Archive OK");
+				cmdLogger.info("Downloading to " + zip.getAbsolutePath());
+				//s3Client.getObject(req, zip);
 				introspectZip(key, zip);
 			} else {
-				cmdLogger.error("Archive KO - no metadata " + meta.toString());
+				cmdLogger.error("Archive KO - no metadata found for key " + key);
 			}
 		} catch (Exception e) {
 			cmdLogger.error("Unable to get Archive", e);
@@ -164,13 +184,13 @@ public class S3Index {
 		}
 	}
 	
-	protected void introspectZip(String key, File zip) {
+	protected void introspectZipStream(String key, File zip) {
 		ZipInputStream zis = null;		
 		try {
 			zis = new ZipInputStream(new FileInputStream(zip));			
 			ZipEntry ze;
             while ((ze = zis.getNextEntry()) != null) {
-            	log(ze.getName(), key, ze.getSize());
+            	log(ze.getName(), key, ze.getCompressedSize());
             }			
 		} catch (Exception e) {
 			cmdLogger.error("Unable to read Archive", e);		
@@ -184,7 +204,32 @@ public class S3Index {
 			}
 		}		
 	}
-	
+
+	protected void introspectZip(String key, File zip) {
+		
+		ZipFile zFile =null;
+		try {
+			zFile = new ZipFile(zip);		
+			Enumeration<? extends ZipEntry> entries = zFile.entries();
+			
+			while (entries.hasMoreElements()) {				
+				ZipEntry ze = entries.nextElement();
+            	log(ze.getName(), key, ze.getSize());
+            }
+			
+		} catch (Exception e) {
+			cmdLogger.error("Unable to read Archive", e);		
+		} finally {
+			if (zFile!=null) {
+				try {
+					zFile.close();
+				} catch (IOException e) {
+					cmdLogger.error("Unable to close Archive", e);		
+				}
+			}
+		}		
+	}
+
 	protected void log(String digest, String archive, long size) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(digest);
