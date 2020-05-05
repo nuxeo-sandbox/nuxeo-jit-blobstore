@@ -6,53 +6,10 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
-import com.amazonaws.regions.DefaultAwsRegionProviderChain;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.ListObjectsRequest;
-import com.amazonaws.services.s3.model.ListObjectsV2Request;
-import com.amazonaws.services.s3.model.ListObjectsV2Result;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-
 public class S3LS {
-	
-	protected static AmazonS3 initClient(AWSCredentialsProvider credProvider, String awsEndpoint) {
-
-		ClientConfiguration clientConfiguration = new ClientConfiguration();
-		clientConfiguration.setMaxConnections(500);
-		clientConfiguration.setUseGzip(false);
-		clientConfiguration.setUseTcpKeepAlive(true);
 		
-		AmazonS3ClientBuilder s3Builder = AmazonS3ClientBuilder.standard().withCredentials(credProvider)
-				.withClientConfiguration(clientConfiguration);
-		
-		if (awsEndpoint!=null) {
-			EndpointConfiguration epc = new EndpointConfiguration(awsEndpoint, "us-east-1");
-			s3Builder = s3Builder.withEndpointConfiguration(epc);
-			// see https://docs.aws.amazon.com/snowball/latest/developer-guide/using-adapter.html
-			s3Builder = s3Builder.disableChunkedEncoding();
-			s3Builder.setPathStyleAccessEnabled(true);
-			//s3Builder = s3Builder.enableAccelerateMode();			
-		} else {
-			String region = new DefaultAwsRegionProviderChain().getRegion();
-			s3Builder = s3Builder.withRegion(region);
-		}
-		return  s3Builder.build();
-	}
-
-	
-	protected static AmazonS3 initS3(String awsEndpoint) {
-		AWSCredentialsProvider credProvider = new DefaultAWSCredentialsProviderChain();
-		return  initClient(credProvider, awsEndpoint);
-	}
-	
 	public static void main(String[] args) {
-	
+		
 		Options options = new Options();
 		options.addOption("aws_session", true, "AWS_SESSION_TOKEN");
 		options.addOption("aws_endpoint", true, "AWS_ENDPOINT");
@@ -71,65 +28,7 @@ public class S3LS {
 		String bucket = cmd.getOptionValue("bucket", "10b-benchmark-blobstore");
 		String aws_endpoint = cmd.getOptionValue("aws_endpoint", null);
 
-		AmazonS3 s3Client = initS3(aws_endpoint);
-		
-		listV1(s3Client, bucket);
-		//listV2(s3Client, bucket);
-	}
-	
-	protected static void listV2(AmazonS3 s3Client, String bucket) {
-
-		ListObjectsV2Request req = new ListObjectsV2Request().withBucketName(bucket).withMaxKeys(1000);
-        ListObjectsV2Result result;
-                
-        long c=0;
-        String lastKey=null;
-        do {
-            result = s3Client.listObjectsV2(req);
-            for (S3ObjectSummary objectSummary : result.getObjectSummaries()) {
-            	c++;
-            	if (c%1000==0) {
-            		System.out.println( c + " - "  + objectSummary.getKey());
-            	}
-            	lastKey = objectSummary.getKey();
-            	if (lastKey.startsWith("arch-")) {
-            		System.out.printf(" - %s (size: %d)\n", objectSummary.getKey(), objectSummary.getSize());
-            	}           
-            	
-            }
-            String token = result.getNextContinuationToken();
-            //System.out.println("Next Continuation Token: " + token);
-            req.setContinuationToken(token);
-            req.setStartAfter(lastKey);
-        } while (result.isTruncated());		
-        System.out.println("Scanned " + c + " entries");		
-	}
-	
-	protected static void listV1(AmazonS3 s3Client, String bucket) {
-
-        ListObjectsRequest req = new ListObjectsRequest().withBucketName(bucket);
-        long c=0;
-        String lastKey=null;
-        ObjectListing result;
-		do {
-            result = s3Client.listObjects(req);
-            
-            for (S3ObjectSummary objectSummary : result.getObjectSummaries()) {
-            	c++;
-            	if (c%10000==0) {
-            		System.out.println( c + " - "  + objectSummary.getKey());
-            	}
-            	lastKey = objectSummary.getKey();
-            	if (lastKey.startsWith("arch-")) {
-            		System.out.printf(" - %s (size: %d)\n", objectSummary.getKey(), objectSummary.getSize());
-            	}           
-            	
-            }
-            //System.out.println("last Key = " + lastKey);
-            req.setMarker(lastKey);
-        } while (result.isTruncated());		
-        System.out.println("Scanned " + c + " entries");
-		
-	}
-
+		S3Index idx = new S3Index(aws_endpoint, bucket);
+		idx.listV1();
+	}	
 }
