@@ -37,6 +37,7 @@ import org.nuxeo.importer.stream.jit.StatementDocumentMessageProducerFactory;
 import org.nuxeo.importer.stream.message.DocumentMessage;
 import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.log.LogManager;
+import org.nuxeo.lib.stream.pattern.Message;
 import org.nuxeo.lib.stream.pattern.producer.ProducerPool;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.stream.StreamService;
@@ -80,6 +81,9 @@ public class StatementProducers {
     @Param(name = "batchTag", required = false)
     protected String batchTag = null;
 
+    @Param(name = "useRecords", required = false)
+    protected boolean useRecords = false;
+    
     protected void checkAccess() {
         NuxeoPrincipal principal = context.getPrincipal();
         if (principal == null || !principal.isAdministrator()) {
@@ -102,9 +106,9 @@ public class StatementProducers {
         	docPerThreads++;
         }
         
-        factory = new StatementDocumentMessageProducerFactory(seed, skip, docPerThreads, nbMonths, monthOffset, batchTag);
+        factory = new StatementDocumentMessageProducerFactory(seed, skip, docPerThreads, nbMonths, monthOffset, batchTag, useRecords);
 
-        try (ProducerPool<DocumentMessage> producers = new ProducerPool<>(logName, manager, factory,
+        try (ProducerPool<Message> producers = new ProducerPool<>(logName, manager, factory,
                 nbThreads.shortValue())) {
             producers.start().get();
         } catch (InterruptedException e) {

@@ -33,10 +33,11 @@ import org.nuxeo.ecm.core.blob.jit.gen.DocInfo;
 import org.nuxeo.ecm.core.blob.jit.gen.InMemoryBlobGenerator;
 import org.nuxeo.ecm.core.blob.jit.gen.NodeInfo;
 import org.nuxeo.importer.stream.message.DocumentMessage;
+import org.nuxeo.lib.stream.pattern.Message;
 import org.nuxeo.lib.stream.pattern.producer.AbstractProducer;
 import org.nuxeo.runtime.api.Framework;
 
-public class StatementDocumentMessageProducer extends AbstractProducer<DocumentMessage> {
+public class StatementDocumentMessageProducer extends AbstractProducer<Message> {
 	private static final Log log = LogFactory.getLog(StatementDocumentMessageProducer.class);
 
 	protected final long nbDocuments;
@@ -49,12 +50,15 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 
 	protected final String batchTag;
 	
-	public StatementDocumentMessageProducer(SequenceGenerator sequenceGen, int producerId, long nbDocuments, int nbMonths, int monthOffset, String batchTag) {
+	protected final boolean useRecords;
+
+	public StatementDocumentMessageProducer(SequenceGenerator sequenceGen, int producerId, long nbDocuments, int nbMonths, int monthOffset, String batchTag, boolean useRecords) {
 		super(producerId);
 		this.nbDocuments = nbDocuments;
 		hierarchy = getGen().getTimeHierarchy(monthOffset+nbMonths, true);
 		this.sequenceGen=sequenceGen;
 		this.batchTag=batchTag;
+		this.useRecords=useRecords;
 		log.info("StatementDocumentMessageProducer created, nbDocuments: " + nbDocuments);
 	}
 
@@ -63,7 +67,7 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 	}
 
 	@Override
-	public int getPartition(DocumentMessage message, int partitions) {
+	public int getPartition(Message message, int partitions) {
 		return getProducerId() % partitions;
 	}
 
@@ -73,12 +77,15 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 	}
 
 	@Override
-	public DocumentMessage next() {
+	public Message next() {
 		DocumentMessage ret;
 
 		SequenceGenerator.Entry entry = sequenceGen.next();
 		ret = createDocument(hierarchy.get(entry.getMonth()).getPath(), entry);
 		
+		if (useRecords) {
+			return new RecordDocumentMessage(ret);
+		}
 		return ret;
 	}
 

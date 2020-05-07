@@ -63,14 +63,27 @@ public class DocumentMessageConsumerComputation extends AbstractBatchComputation
 	
 	@Override
 	protected void batchProcess(ComputationContext ctx, String inputStreamName, List<Record> records) {
-
-		Codec<DocumentMessage> codec = new SerializableCodec<DocumentMessage>();		
-		for (Record record: records) {			
-			DocumentMessage msg = codec.decode(record.getData());			
-			DocumentModel doc = consumer.importDoc(msg);
-			documentIds.add(doc.getId());
+		consumer.begin();
+		try {
+			Codec<DocumentMessage> codec = new SerializableCodec<DocumentMessage>();		
+			for (Record record: records) {			
+				DocumentMessage msg = codec.decode(record.getData());			
+				DocumentModel doc = consumer.importDoc(msg);
+				documentIds.add(doc.getId());
+			}		
+			produceBucket(ctx, "a", "c", documentIds.size(), 1);
+			consumer.commit();
+			
+		} catch (Exception e) {
+			consumer.rollback();
+		} 
+		finally {
+			try {
+				//consumer.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}	
 		}		
-		produceBucket(ctx, "a", "c", documentIds.size(), 1);				
 	}
 
     protected void produceBucket(ComputationContext context, String action, String commandId, int bucketSize,

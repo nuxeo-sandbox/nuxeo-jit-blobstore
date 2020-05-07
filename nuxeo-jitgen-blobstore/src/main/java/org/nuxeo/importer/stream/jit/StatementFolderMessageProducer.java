@@ -43,13 +43,13 @@ public class StatementFolderMessageProducer extends AbstractProducer<DocumentMes
 	public static final String FOLDER_DESC_PREFIX = "Folder Containing Statements";
 
 	protected final List<NodeInfo> nodes;
-
+	
 	public StatementFolderMessageProducer(int producerId, int nbMonths) {
 		super(producerId);
 		this.nbMonths = nbMonths;
 		InMemoryBlobGenerator gen = Framework.getService(InMemoryBlobGenerator.class);
 		nodes = gen.getTimeHierarchy(nbMonths, false);
-		log.info("StatementFolderMessageProducer created, nbMonths: " + nbMonths);
+		log.info("StatementFolderMessageProducer created, nbMonths: " + nbMonths);		
 	}
 
 	@Override
