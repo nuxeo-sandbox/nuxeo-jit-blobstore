@@ -58,6 +58,8 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
 @Deploy("org.nuxeo.ecm.core.blob.jit:OSGI-INF/operations-contrib.xml")
 @Deploy("org.nuxeo.ecm.core.blob.jit.test:OSGI-INF/test-blobdispatcher-contrib.xml")
 @Deploy("org.nuxeo.ecm.core.blob.jit.test:OSGI-INF/test-stream-contrib.xml")
+@Deploy("org.nuxeo.ecm.core.blob.jit:OSGI-INF/schemamanager-contrib.xml")
+@Deploy("org.nuxeo.ecm.core.blob.jit:OSGI-INF/versioning-contrib.xml")
 @PartialDeploy(bundle = "studio.extensions.nuxeo-benchmark-10b-2020", extensions = { TargetExtensions.ContentModel.class })
 public class TestStreamStatementImporter {
 

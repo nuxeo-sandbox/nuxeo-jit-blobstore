@@ -8,7 +8,7 @@ public class NoCheckPropertyCharacteristicHandler extends DefaultComponent imple
 	@Override
 	public boolean isSecured(String schema, String path) {
 		// that was an easy check!
-		return true;
+		return false;
 	}
-
+	
 }
