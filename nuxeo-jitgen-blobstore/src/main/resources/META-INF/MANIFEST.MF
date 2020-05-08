@@ -11,5 +11,7 @@ Nuxeo-Component: OSGI-INF/JITBlobGen-service.xml,
  OSGI-INF/web-ui-properties-override.xml,
  OSGI-INF/bulk-config.xml,
  OSGI-INF/retention-disable-contrib.xml,
- OSGI-INF/import-speedup-contrib.xml
+ OSGI-INF/import-speedup-contrib.xml,
+ OSGI-INF/versioning-contrib.xml,
+ OSGI-INF/schemamanager-contrib.xml
 
