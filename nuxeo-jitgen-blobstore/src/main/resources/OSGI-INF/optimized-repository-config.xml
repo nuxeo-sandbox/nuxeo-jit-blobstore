@@ -10,6 +10,9 @@
       <idType>sequenceHexRandomized</idType>
       <nativeId>true</nativeId>
       
+      <!-- Increase Block size -->
+      <sequenceBlockSize>200000</sequenceBlockSize>
+      
       <!-- Disable Full text at the Repository level -->
       <fulltext disabled="true" searchDisabled="true">
       </fulltext>
