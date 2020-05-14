@@ -1,0 +1,18 @@
+## Edit this file to customize your configuration ##
+large-repository.target=.
+
+# Set list of templates to include, comma separated values.
+nuxeo.template.includes=common,perf
+
+# default perf template set to 10min = 600000
+# => bump to 10h :10* 3600 * 1000 
+kafka.max.poll.interval.ms=36000000
+
+# 10h
+nuxeo.db.transactiontimeout=36000
+
+# DBS Settings
+nuxeo.dbs.cache.maxSize=30000
+nuxeo.dbs.cache.ttl=60
+org.nuxeo.core.delta.disabled=true
+

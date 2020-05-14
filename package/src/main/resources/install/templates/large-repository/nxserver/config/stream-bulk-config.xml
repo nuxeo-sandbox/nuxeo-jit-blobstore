@@ -17,6 +17,8 @@
       <computation name="indexCompletion" concurrency="1" />
       <!-- flush elasticsearch bulk request interval -->
       <option name="flushIntervalSeconds">10</option>
+
+      <policy name="default" maxRetries="0" delay="1s" maxDelay="10s" continueOnFailure="false" />      
     </streamProcessor>
 
   </extension>
