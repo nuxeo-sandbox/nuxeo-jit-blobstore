@@ -10,5 +10,9 @@ elasticsearch.indexNumberOfReplicas=1
 ## Number of shards: 35 shard so that we can reach 1B
 elasticsearch.indexNumberOfShards=35
 
+## Override what comes from the Perf template
+## merge the default + perf template
+elasticsearch.override.pageproviders=default_search,default_document_suggestion,DEFAULT_DOCUMENT_SUGGESTION,advanced_document_content,tree_children,domain_documents,expired_search,default_trash_search,DEFAULT_DOCUMENT_SUGGESTION,REST_API_SEARCH_ADAPTER,all_collections,simple_search,advanced_search,nxql_search
+
 org.nuxeo.ecm.instance.description=Nuxeo ECM customized with 10B Benchmark Package
 
