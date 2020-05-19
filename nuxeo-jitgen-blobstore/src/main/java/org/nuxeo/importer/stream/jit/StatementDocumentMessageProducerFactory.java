@@ -35,13 +35,15 @@ public class StatementDocumentMessageProducerFactory implements ProducerFactory<
 	protected SequenceGenerator sequenceGen;   
 	protected final String batchTag;
 	protected boolean useRecords;
+	protected boolean withStates;
 	/**
 	 * Generates random documents messages that point to existing blobs.
 	 */
-	public StatementDocumentMessageProducerFactory(Long seed, long skip, long nbDocuments,int nbMonth, int monthOffset, String batchTag, boolean useRecords) {
+	public StatementDocumentMessageProducerFactory(Long seed, long skip, long nbDocuments,int nbMonth, int monthOffset, String batchTag, boolean useRecords, boolean withStates) {
 		this.nbDocuments = nbDocuments;
 		this.nbMonth=nbMonth;
 		this.monthOffset=monthOffset;
+		this.withStates=withStates;
 		sequenceGen = new SequenceGenerator(seed, nbMonth);	
 		sequenceGen.setMonthOffset(monthOffset);
 		if (skip>0) {
@@ -57,7 +59,7 @@ public class StatementDocumentMessageProducerFactory implements ProducerFactory<
 
 	@Override
 	public ProducerIterator<Message> createProducer(int producerId) {
-		return new StatementDocumentMessageProducer(sequenceGen, producerId, nbDocuments, nbMonth, monthOffset, batchTag, useRecords);
+		return new StatementDocumentMessageProducer(sequenceGen, producerId, nbDocuments, nbMonth, monthOffset, batchTag, useRecords, withStates);
 	}
 
 	protected String getGroupName(int producerId) {

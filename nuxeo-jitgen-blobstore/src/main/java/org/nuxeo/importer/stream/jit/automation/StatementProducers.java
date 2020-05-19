@@ -83,7 +83,10 @@ public class StatementProducers {
 
     @Param(name = "useRecords", required = false)
     protected boolean useRecords = false;
-    
+        
+	@Param(name = "withStates", required = false)
+	protected boolean withStates = false;
+
     protected void checkAccess() {
         NuxeoPrincipal principal = context.getPrincipal();
         if (principal == null || !principal.isAdministrator()) {
@@ -106,7 +109,7 @@ public class StatementProducers {
         	docPerThreads++;
         }
         
-        factory = new StatementDocumentMessageProducerFactory(seed, skip, docPerThreads, nbMonths, monthOffset, batchTag, useRecords);
+        factory = new StatementDocumentMessageProducerFactory(seed, skip, docPerThreads, nbMonths, monthOffset, batchTag, useRecords, withStates);
 
         try (ProducerPool<Message> producers = new ProducerPool<>(logName, manager, factory,
                 nbThreads.shortValue())) {

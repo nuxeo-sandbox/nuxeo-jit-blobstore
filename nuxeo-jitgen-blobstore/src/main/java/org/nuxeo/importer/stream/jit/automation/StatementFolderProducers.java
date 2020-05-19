@@ -33,7 +33,6 @@ import org.nuxeo.ecm.automation.core.annotations.Param;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.importer.stream.jit.StatementFolderMessageProducerFactory;
 import org.nuxeo.importer.stream.message.DocumentMessage;
-import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.log.LogManager;
 import org.nuxeo.lib.stream.pattern.producer.ProducerPool;
 import org.nuxeo.runtime.api.Framework;
@@ -60,6 +59,9 @@ public class StatementFolderProducers {
 	@Param(name = "logConfig", required = false)
 	protected String logConfig = StreamImporters.DEFAULT_LOG_CONFIG;
 
+	@Param(name = "withStates", required = false)
+	protected boolean withStates = false;
+
 	protected void checkAccess() {
 		NuxeoPrincipal principal = context.getPrincipal();
 		if (principal == null || !principal.isAdministrator()) {
@@ -75,7 +77,7 @@ public class StatementFolderProducers {
 		LogManager manager = Framework.getService(StreamService.class).getLogManager(logConfig);
 		manager.createIfNotExists(logName, getLogSize());
 
-		StatementFolderMessageProducerFactory factory = new StatementFolderMessageProducerFactory(nbMonths);
+		StatementFolderMessageProducerFactory factory = new StatementFolderMessageProducerFactory(nbMonths, withStates);
 
 
 		try (ProducerPool<DocumentMessage> producers = new ProducerPool<>(logName, manager, factory,

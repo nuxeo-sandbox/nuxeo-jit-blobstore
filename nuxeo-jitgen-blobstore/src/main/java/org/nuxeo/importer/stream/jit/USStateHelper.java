@@ -6,6 +6,16 @@ public class USStateHelper {
 		return stateName.trim().toLowerCase().replace(" ", "-");		
 	}
 
+	public static int getOffset(String state) {
+		state=state.trim();
+		for (int i =0; i < STATES.length; i++) {
+			if (STATES[i].equalsIgnoreCase(state)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
 	// list of states as referenced in the CSV data file
 	public static final String[] STATES = new String[] {
 			"Alabama",

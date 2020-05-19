@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+
+<component name="org.nuxeo.ecm.bench.document.pageproviders">
+
+  <extension target="org.nuxeo.ecm.platform.query.api.PageProviderService" point="providers">
+
+    <genericPageProvider name="advanced_document_content_noagg"
+      class="org.nuxeo.elasticsearch.provider.ElasticSearchNxqlPageProvider">
+      <trackUsage>true</trackUsage>
+      <property name="maxResults">DEFAULT_NAVIGATION_RESULTS</property>
+      <whereClause docType="AdvancedContent">
+        <fixedPart>
+          ecm:isVersion = 0 AND
+          ecm:mixinType !=
+          'HiddenInNavigation'
+        </fixedPart>
+        <predicate parameter="dc:title" operator="FULLTEXT">
+          <field schema="advanced_content" name="title" />
+        </predicate>
+        <predicate parameter="ecm:parentId" operator="=">
+          <field schema="advanced_content" name="ecm_parentId" />
+        </predicate>
+        <predicate parameter="ecm:isTrashed" operator="=">
+          <field schema="advanced_content" name="ecm_trashed" />
+        </predicate>
+      </whereClause>
+      <aggregates>
+      </aggregates>
+      <sort column="dc:modified" ascending="false" />
+      <pageSize>20</pageSize>
+      </genericPageProvider>
+
+  </extension>
+
+</component>

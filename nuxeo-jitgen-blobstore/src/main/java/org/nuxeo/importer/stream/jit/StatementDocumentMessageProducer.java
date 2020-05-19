@@ -52,10 +52,20 @@ public class StatementDocumentMessageProducer extends AbstractProducer<Message> 
 	
 	protected final boolean useRecords;
 
-	public StatementDocumentMessageProducer(SequenceGenerator sequenceGen, int producerId, long nbDocuments, int nbMonths, int monthOffset, String batchTag, boolean useRecords) {
+	protected final boolean withStates;
+	
+	protected final int nbMonths;
+	
+	public StatementDocumentMessageProducer(SequenceGenerator sequenceGen, int producerId, long nbDocuments, int nbMonths, int monthOffset, String batchTag, boolean useRecords, boolean withStates) {
 		super(producerId);
 		this.nbDocuments = nbDocuments;
-		hierarchy = getGen().getTimeHierarchy(monthOffset+nbMonths, true);
+		this.nbMonths=nbMonths;
+		this.withStates=withStates;
+		if (withStates) {
+			hierarchy = HierarchyHelper.generateStateYearMonthHierarchy(nbMonths);
+		} else {
+			hierarchy = HierarchyHelper.generateYearMonthHierarchy(nbMonths);
+		}
 		this.sequenceGen=sequenceGen;
 		this.batchTag=batchTag;
 		this.useRecords=useRecords;
@@ -76,12 +86,13 @@ public class StatementDocumentMessageProducer extends AbstractProducer<Message> 
 		return documentCount < nbDocuments;
 	}
 
+	
 	@Override
 	public Message next() {
 		DocumentMessage ret;
 
 		SequenceGenerator.Entry entry = sequenceGen.next();
-		ret = createDocument(hierarchy.get(entry.getMonth()).getPath(), entry);
+		ret = createDocument(entry);
 		
 		if (useRecords) {
 			return new RecordDocumentMessage(ret);
@@ -89,14 +100,26 @@ public class StatementDocumentMessageProducer extends AbstractProducer<Message> 
 		return ret;
 	}
 
-	protected DocumentMessage createDocument(String parentPath, SequenceGenerator.Entry entry) {
+	protected DocumentMessage createDocument(SequenceGenerator.Entry entry) {
 
+		String parentPath;
 		long currentAccountSeed = entry.getAccountKeyLong();
 		long currentDataSeed = entry.getDataKey();
 		int month = entry.getMonth();
 		
 		DocInfo docInfo = getGen().computeDocInfo("jit", currentAccountSeed, currentDataSeed, month);
 
+		if (withStates) {			
+			String state = docInfo.getMeta("STATE");
+			int stateOffset = USStateHelper.getOffset(state);
+			int nbYears = nbMonths/12;			
+			int idx = stateOffset*(nbYears+nbMonths+1) + nbYears + entry.getMonth() +1 ;
+			parentPath = hierarchy.get(idx).getPath();
+		} else {
+			// XX this is wrong since we skip the Year folder
+			parentPath = hierarchy.get(entry.getMonth()).getPath();
+		}
+		
 		String title = getTitle(docInfo);
 		String name = getName(title);
 
