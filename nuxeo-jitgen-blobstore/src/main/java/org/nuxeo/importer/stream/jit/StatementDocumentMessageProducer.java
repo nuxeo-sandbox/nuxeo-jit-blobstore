@@ -112,6 +112,10 @@ public class StatementDocumentMessageProducer extends AbstractProducer<Message> 
 		if (withStates) {			
 			String state = docInfo.getMeta("STATE");
 			int stateOffset = USStateHelper.getOffset(state);
+			if (stateOffset==-1) {
+				log.error("Unable find mapping for state " + state + " using Alabama");
+				stateOffset=0;
+			}
 			int nbYears = nbMonths/12;			
 			int idx = stateOffset*(nbYears+nbMonths+1) + nbYears + entry.getMonth() +1 ;
 			parentPath = hierarchy.get(idx).getPath();
@@ -147,6 +151,9 @@ public class StatementDocumentMessageProducer extends AbstractProducer<Message> 
 		try {
 			Date stmDate = RandomDataGenerator.df.get().parse(docInfo.getMeta("DATE").trim());
 			props.put("statement:statementDate", stmDate);
+			props.put("dc:created", stmDate);
+			props.put("dc:modified", stmDate);
+			props.put("dc:creator", "nco-admin");						
 		} catch (Exception e) {
 			log.error("Unable to parse date", e);
 		}		
@@ -157,7 +164,9 @@ public class StatementDocumentMessageProducer extends AbstractProducer<Message> 
 		
 		Map<String, String> address = new HashMap<String, String>();
 		address.put("city", docInfo.getMeta("CITY").trim());
-		address.put("street", docInfo.getMeta("STREET").trim());		
+		address.put("street", docInfo.getMeta("STREET").trim());
+		address.put("country", "US");
+		address.put("state", USStateHelper.getStateCode(docInfo.getMeta("STATE").trim()));
 		props.put("all:customerAddress", (Serializable) address);		
 
 		props.put("all:customerNumber", docInfo.getMeta("ACCOUNTID").trim().substring(0,19));
