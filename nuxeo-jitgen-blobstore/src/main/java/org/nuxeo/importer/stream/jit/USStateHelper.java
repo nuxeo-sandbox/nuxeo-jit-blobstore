@@ -149,7 +149,8 @@ public class USStateHelper {
 		s2c.put("West Virginia","WV");
 		s2c.put("Wisconsin","WI");
 		s2c.put("Wyoming","WY");
-		s2c.put("District of Columbia","DC");		
+		s2c.put("District of Columbia","DC");	
+		s2c.put("Puerto Rico","PR");	
 		return s2c;
 	}
 	

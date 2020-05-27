@@ -2,7 +2,13 @@
 <component name="org.nuxeo.bench.bulk.contrib" version="1.0.0">
 
   <require>org.nuxeo.elasticsearch.core.bulk.contrib</require>
-
+  <require>perf-bulk-config</require>
+  
+  <!-- Configure Scroll to avoid timeout while Scrolling on large repositories -->
+  <extension target="org.nuxeo.runtime.ConfigurationService" point="configuration">
+    <property name="nuxeo.core.bulk.scroller.scroll.keepAliveSeconds">1000</property>
+  </extension>
+  
   <extension target="org.nuxeo.ecm.core.bulk" point="actions">
     <action name="index" bucketSize="1000" batchSize="50" enabled="true" />
   </extension>
