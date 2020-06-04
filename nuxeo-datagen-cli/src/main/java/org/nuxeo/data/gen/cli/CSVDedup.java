@@ -104,6 +104,10 @@ public class CSVDedup {
 				processedLines++;
 				fProcessed++;
 				
+				if (fProcessed%10000==0) {
+					System.out.printf(" file %s line %,d \r", source, fProcessed);
+				}
+				
 				String[] parts = line.split(",");
 				
 				if (parts.length>col) {
@@ -117,14 +121,16 @@ public class CSVDedup {
 						fSkipped++;
 					}
 				} else {
-					System.out.println("Unable to parse line " + fProcessed);
+					System.out.println("\nUnable to parse line " + fProcessed);
 					System.out.println("==>" + line);
 				}
 			}
+			
 			scanner.close();
-			System.out.println(" skiped " + skippedLines + "/" +fProcessed);
-		}
-		pw.close();	
+			System.out.printf("\n\n skiped %,d / %,d on file %s ",  fSkipped, fProcessed, source  );
+		}		
+		pw.close();			
+		System.out.printf("Finished procesing skiped %,d / %,d on %d files",  skippedLines, processedLines, sources.length  );
 	}
 
 }

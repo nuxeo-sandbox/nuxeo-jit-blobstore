@@ -13,8 +13,8 @@ import org.junit.Test;
 
 public class BenchPDF2Text {
 
-	protected static final int NB_CALLS = 1000;
-	protected static final int NB_THREADS = 10;
+	protected static final int NB_CALLS = 1;
+	protected static final int NB_THREADS = 1;
 
 	@Test
 	public void testPDF2TextSpeed() throws Exception {
@@ -38,6 +38,7 @@ public class BenchPDF2Text {
 						PDDocument doc = PDDocument.load(new ByteArrayInputStream(pdf));
 						String txt = stripper.getText(doc);
 						doc.close();
+						System.out.println(txt);
 						counter.incrementAndGet();
 					}
 				} catch (Exception e) {
