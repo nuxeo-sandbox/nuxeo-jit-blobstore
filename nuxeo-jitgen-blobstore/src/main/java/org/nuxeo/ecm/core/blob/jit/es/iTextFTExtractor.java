@@ -16,33 +16,23 @@
  * Contributors:
  *     Tiry
  */
+package org.nuxeo.ecm.core.blob.jit.es;
 
-package org.nuxeo.data.gen.meta;
+import java.io.InputStream;
 
-import java.util.Date;
-import java.util.GregorianCalendar;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfReader;
+import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
 
-import org.apache.commons.lang3.StringUtils;
+public class iTextFTExtractor implements PDFFulltextExtractor {
 
-public class FormatUtils {
-
-	public static final int START_YEAR = 2020;
-
-	public static String pad(String v, int size, boolean left) {
-		if (v.length() > size) {
-			v = v.substring(0, size - 1);
-		}
-		if (left) {
-			return v + StringUtils.repeat(" ", size - v.length());
-		} else {
-			return StringUtils.repeat(" ", size - v.length()) + v;
+	public String getText(InputStream is) throws Exception {
+		PdfReader reader = new PdfReader(is);
+		PdfDocument pdf = new PdfDocument(reader);
+		try {
+			return PdfTextExtractor.getTextFromPage(pdf.getFirstPage());
+		} finally {
+			pdf.close();
 		}
 	}
-
-	public static Date getDateWithOffset(int dm) {
-		int dy = dm / 12;
-		int m = dm - dy * 12;
-		return new GregorianCalendar(START_YEAR - dy, m, 01).getTime();
-	}
-
 }

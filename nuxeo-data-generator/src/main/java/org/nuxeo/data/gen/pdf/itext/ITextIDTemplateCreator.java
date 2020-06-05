@@ -23,6 +23,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.data.gen.pdf.PDFTemplateGenerator;
 
 import com.itextpdf.io.image.ImageData;
@@ -43,7 +45,7 @@ public class ITextIDTemplateCreator implements PDFTemplateGenerator {
 
 	public static String mkTag(String value, int size) {
 		String tag = "#" + value;
-		return tag + "-".repeat(size - 1 - tag.length()) + "#";
+		return tag + StringUtils.repeat("-", size - 1 - tag.length()) + "#";
 	}
 
 	public static final String[] _keys = new String[] {
@@ -75,7 +77,7 @@ public class ITextIDTemplateCreator implements PDFTemplateGenerator {
 	public void init(InputStream in) throws Exception {
 
 		if (in != null) {
-			img = ImageDataFactory.create(in.readAllBytes());
+			img = ImageDataFactory.create(IOUtils.toByteArray(in));
 		}
 		
 		for (String k : _keys) {

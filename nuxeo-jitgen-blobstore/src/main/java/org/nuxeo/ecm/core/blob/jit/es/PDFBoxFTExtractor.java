@@ -16,33 +16,27 @@
  * Contributors:
  *     Tiry
  */
+package org.nuxeo.ecm.core.blob.jit.es;
 
-package org.nuxeo.data.gen.meta;
+import java.io.InputStream;
 
-import java.util.Date;
-import java.util.GregorianCalendar;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 
-import org.apache.commons.lang3.StringUtils;
+public class PDFBoxFTExtractor implements PDFFulltextExtractor {
 
-public class FormatUtils {
-
-	public static final int START_YEAR = 2020;
-
-	public static String pad(String v, int size, boolean left) {
-		if (v.length() > size) {
-			v = v.substring(0, size - 1);
-		}
-		if (left) {
-			return v + StringUtils.repeat(" ", size - v.length());
-		} else {
-			return StringUtils.repeat(" ", size - v.length()) + v;
-		}
+	public String getText(InputStream is) throws Exception {
+		return getText(new PDFTextStripper(), is);
 	}
 
-	public static Date getDateWithOffset(int dm) {
-		int dy = dm / 12;
-		int m = dm - dy * 12;
-		return new GregorianCalendar(START_YEAR - dy, m, 01).getTime();
+	public static String getText(PDFTextStripper stripper, InputStream is) throws Exception {
+
+		PDDocument doc = PDDocument.load(is);
+		try {
+			return stripper.getText(doc);
+		} finally {
+			doc.close();
+		}
 	}
 
 }

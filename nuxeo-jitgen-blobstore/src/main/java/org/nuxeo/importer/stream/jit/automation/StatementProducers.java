@@ -19,9 +19,6 @@
 
 package org.nuxeo.importer.stream.jit.automation;
 
-import static org.nuxeo.importer.stream.StreamImporters.DEFAULT_LOG_CONFIG;
-import static org.nuxeo.importer.stream.StreamImporters.DEFAULT_LOG_DOC_NAME;
-
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.logging.Log;
@@ -66,19 +63,22 @@ public class StatementProducers {
     protected Integer nbThreads = 8;
 
     @Param(name = "logName", required = false)
-    protected String logName = DEFAULT_LOG_DOC_NAME;
+    protected String logName = StreamImporters.DEFAULT_LOG_DOC_NAME;
 
     @Param(name = "logSize", required = false)
     protected Integer logSize;
 
     @Param(name = "logConfig", required = false)
-    protected String logConfig = DEFAULT_LOG_CONFIG;
+    protected String logConfig = StreamImporters.DEFAULT_LOG_CONFIG;
 
     @Param(name = "seed", required = false)
     protected Long seed = SequenceGenerator.DEFAULT_ACCOUNT_SEED;
 
     @Param(name = "skip", required = false)
     protected Long skip = 0L;
+
+    @Param(name = "batchTag", required = false)
+    protected String batchTag = null;
 
     protected void checkAccess() {
         NuxeoPrincipal principal = context.getPrincipal();
@@ -102,9 +102,9 @@ public class StatementProducers {
         	docPerThreads++;
         }
         
-        factory = new StatementDocumentMessageProducerFactory(seed, skip, docPerThreads, nbMonths, monthOffset);
-
+        factory = new StatementDocumentMessageProducerFactory(seed, skip, docPerThreads, nbMonths, monthOffset, batchTag);
         Codec<DocumentMessage> codec = StreamImporters.getDocCodec();
+
         try (ProducerPool<DocumentMessage> producers = new ProducerPool<>(logName, manager, codec, factory,
                 nbThreads.shortValue())) {
             producers.start().get();

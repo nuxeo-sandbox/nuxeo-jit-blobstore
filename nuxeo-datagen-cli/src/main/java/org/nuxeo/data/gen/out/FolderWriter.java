@@ -20,6 +20,7 @@
 package org.nuxeo.data.gen.out;
 
 import java.io.File;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -36,7 +37,7 @@ public class FolderWriter extends AbstractBlobWriter implements BlobWriter {
 
 	@Override
 	public void write(byte[] data, String fileName) throws Exception {
-		Path path = Path.of(folder.getAbsolutePath(), fileName);
+		Path path = FileSystems.getDefault().getPath(folder.getAbsolutePath(), fileName);
 		Files.copy(wrap(data), path, StandardCopyOption.REPLACE_EXISTING);
 	}
 

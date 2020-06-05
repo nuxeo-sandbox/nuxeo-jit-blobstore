@@ -16,33 +16,12 @@
  * Contributors:
  *     Tiry
  */
+package org.nuxeo.ecm.core.blob.jit.es;
 
-package org.nuxeo.data.gen.meta;
+import java.io.InputStream;
 
-import java.util.Date;
-import java.util.GregorianCalendar;
-
-import org.apache.commons.lang3.StringUtils;
-
-public class FormatUtils {
-
-	public static final int START_YEAR = 2020;
-
-	public static String pad(String v, int size, boolean left) {
-		if (v.length() > size) {
-			v = v.substring(0, size - 1);
-		}
-		if (left) {
-			return v + StringUtils.repeat(" ", size - v.length());
-		} else {
-			return StringUtils.repeat(" ", size - v.length()) + v;
-		}
-	}
-
-	public static Date getDateWithOffset(int dm) {
-		int dy = dm / 12;
-		int m = dm - dy * 12;
-		return new GregorianCalendar(START_YEAR - dy, m, 01).getTime();
-	}
-
+public interface PDFFulltextExtractor {
+	
+	public String getText(InputStream pdf) throws Exception ;
+	
 }

@@ -8,8 +8,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -25,7 +23,6 @@ import org.nuxeo.data.gen.pdf.itext.ITextNXBankTemplateCreator;
 import org.nuxeo.data.gen.pdf.itext.ITextNXBankTemplateCreator2;
 import org.nuxeo.data.gen.pdf.itext.filter.JpegFilter;
 import org.nuxeo.data.gen.pdf.itext.filter.PDFOutputFilter;
-import org.nuxeo.data.gen.pdf.itext.filter.TiffFilter;
 
 public class TestPDFGeneration {
 	
@@ -180,14 +177,15 @@ public class TestPDFGeneration {
 		dumpFile(jpgOut.toByteArray(), filter.getFileExtension());
 		
 		// Tiff Gen
-		ByteArrayOutputStream tifOut = new ByteArrayOutputStream();
+		// Tiff gen not possible in java 8
+		/*ByteArrayOutputStream tifOut = new ByteArrayOutputStream();
 		filter = new TiffFilter();
 		filter.setDPI(300);
 		gen.setFilter(filter);
 		meta = gen.generate(tifOut, data);
 		assertTrue(meta.getFileName().endsWith("tif"));
 		assertTrue(meta.getDigest().equalsIgnoreCase(DigestUtils.md5Hex(tifOut.toByteArray())));
-
+		*/
 		//dumpFile(tifOut.toByteArray(), filter.getFileExtension());
 		
 	}

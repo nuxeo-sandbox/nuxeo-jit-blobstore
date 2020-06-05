@@ -1,10 +1,12 @@
 package org.nuxeo.data.gen;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class BaseBankTemplate {
 
 	public static String mkTag(String value, int size) {
 		String tag = "#" + value;
-		return tag + "-".repeat(size - 1 - tag.length()) + "#";
+		return tag + StringUtils.repeat("-", size - 1 - tag.length()) + "#";
 	}
 
 	public static final String[] _keys = new String[] {

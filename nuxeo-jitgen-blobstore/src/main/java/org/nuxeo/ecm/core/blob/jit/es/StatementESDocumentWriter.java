@@ -32,8 +32,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
@@ -50,7 +48,7 @@ import org.nuxeo.runtime.api.Framework;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 public class StatementESDocumentWriter extends JsonESDocumentWriter {
-
+	
 	protected void writeSystemProperties(JsonGenerator jg, DocumentModel doc) throws IOException {
 		String docId = doc.getId();
 		CoreSession session = doc.getCoreSession();
@@ -145,24 +143,13 @@ public class StatementESDocumentWriter extends JsonESDocumentWriter {
 		}
 	}
 
-	protected Map<String, String> getFullText(DocumentModel doc) throws IOException {
+	public Map<String, String> getFullText(DocumentModel doc) throws IOException {
 		if (doc.getType().equalsIgnoreCase("Statement")) {
 			Blob smt = (Blob) doc.getPropertyValue("file:content");
-			String txtContent = getTextFromPDF(smt);
+			String txtContent = BlobTextExtractor.instance().getTextFromBlob(smt);
 			return Collections.singletonMap("binarytext", txtContent);
 		} else {
 			return doc.getBinaryFulltext();
 		}
 	}
-
-	protected String getTextFromPDF(Blob blob) throws IOException {
-		PDFTextStripper stripper = new PDFTextStripper();
-		PDDocument doc = PDDocument.load(blob.getStream());
-		try {
-			return stripper.getText(doc);
-		} finally {
-			doc.close();
-		}		
-	}
-
 }
