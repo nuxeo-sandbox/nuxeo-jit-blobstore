@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
@@ -40,6 +42,7 @@ import org.nuxeo.ecm.core.api.security.ACE;
 import org.nuxeo.ecm.core.api.security.ACL;
 import org.nuxeo.ecm.core.api.security.ACP;
 import org.nuxeo.ecm.core.api.security.impl.ACPImpl;
+import org.nuxeo.ecm.core.blob.jit.thumbnail.StatementThumbnailFactory;
 import org.nuxeo.ecm.core.security.SecurityService;
 import org.nuxeo.ecm.platform.tag.TagService;
 import org.nuxeo.elasticsearch.io.JsonESDocumentWriter;
@@ -49,6 +52,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 public class StatementESDocumentWriter extends JsonESDocumentWriter {
 	
+    private static final Log log = LogFactory.getLog(StatementESDocumentWriter.class);
+
 	protected void writeSystemProperties(JsonGenerator jg, DocumentModel doc) throws IOException {
 		String docId = doc.getId();
 		CoreSession session = doc.getCoreSession();
@@ -146,7 +151,12 @@ public class StatementESDocumentWriter extends JsonESDocumentWriter {
 	public Map<String, String> getFullText(DocumentModel doc) throws IOException {
 		if (doc.getType().equalsIgnoreCase("Statement")) {
 			Blob smt = (Blob) doc.getPropertyValue("file:content");
-			String txtContent = BlobTextExtractor.instance().getTextFromBlob(smt);
+			String txtContent="";
+			try {
+				txtContent = BlobTextExtractor.instance().getTextFromBlob(smt);
+			} catch (Exception e) {
+				log.error("Unable to extract text for Statement with UID" + doc.getId(), e);
+			}
 			return Collections.singletonMap("binarytext", txtContent);
 		} else {
 			return doc.getBinaryFulltext();
