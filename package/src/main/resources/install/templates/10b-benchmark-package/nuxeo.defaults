@@ -4,11 +4,18 @@
 # Set list of templates to include, comma separated values.
 nuxeo.template.includes=common,perf,large-repository,importer-node
 
-## Number of replicas: keep to 1
-elasticsearch.indexNumberOfReplicas=1
 
-## Number of shards: 35 shard so that we can reach 1B
-elasticsearch.indexNumberOfShards=35
+## The recommendation is to keep shard < 50GB
+## with 1.5B documents we have 35 shards for a total of 3.2TB
+## => this make the shard about 90GB
+## Number of shards: 100 shards so that we can reach 2B+
+##
+elasticsearch.indexNumberOfShards=100
+
+## Number of replicas: keep to 1
+#elasticsearch.indexNumberOfReplicas=1
+# start with 0 to see if this can help speeding up indexing
+elasticsearch.indexNumberOfReplicas=0
 
 ## Override what comes from the Perf template
 ## merge the default + perf template
