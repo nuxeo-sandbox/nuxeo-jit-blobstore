@@ -19,6 +19,8 @@
 package org.nuxeo.ecm.core.blob.jit.es;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,11 +62,22 @@ public class BlobTextExtractor {
 		return new PDFBoxFTExtractor();
 	}
 
+	protected List<String> cleanTxt(String[] data) {		
+		List<String> result = new ArrayList<String>();
+		for (String s : data) {
+			s = s.trim();
+			if (s.charAt(0)=='$') {
+				continue;
+			}
+			result.add(s);			
+		}
+		return result;
+	}
 	protected String getTextFromBlobProvider(String providerId, String key) {
 		try {
 			InMemoryBlobGenerator imbg = Framework.getService(InMemoryBlobGenerator.class);
 			String[] meta = ((StatementsBlobGenerator) imbg).getMetaDataForBlobKey(key);
-			return STMT_TEMPLATE_TXT + String.join(" ", meta);
+			return STMT_TEMPLATE_TXT + String.join(" ", cleanTxt(meta));
 		} catch (Exception e) {
 			log.error("Unable to extract Full Text for BlobKey " + key, e);
 			return STMT_TEMPLATE_TXT;
