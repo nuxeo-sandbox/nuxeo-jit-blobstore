@@ -7,7 +7,7 @@
   "number_of_shards": "1",
   "number_of_replicas": "0",
 </#if>
-  "refresh_interval": 120,
+  "refresh_interval": "120s",
   "codec": "best_compression",
   "analysis": {
     "filter": {
@@ -38,6 +38,11 @@
       "path_tokenizer": {
         "delimiter": "/",
         "type": "path_hierarchy"
+      },
+      "ngram_tokenizer": {
+        "type": "nGram",
+        "min_gram": 3,
+        "max_gram": 4
       }
     },
     "analyzer": {
