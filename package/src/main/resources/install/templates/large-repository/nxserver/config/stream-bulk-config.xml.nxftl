@@ -24,7 +24,7 @@
 
   <extension target="org.nuxeo.runtime.stream.service" point="streamProcessor">
     <streamProcessor name="reindex" class="org.nuxeo.elasticsearch.bulk.IndexAction" logConfig="bulk"
-      defaultConcurrency="6" defaultPartitions="12" enabled="${startProcessor}">
+      defaultConcurrency="6" defaultPartitions="24" start="${startProcessor}">
       <!-- concurrency to build indexing requests -->
       <computation name="index" concurrency="6" />
       <!-- concurrency to execute indexing requests -->
@@ -37,25 +37,25 @@
     </streamProcessor>
 
 	<streamProcessor name="setProperties" class="org.nuxeo.ecm.core.bulk.action.SetPropertiesAction" logConfig="bulk"
-      defaultConcurrency="4" defaultPartitions="8" enabled="${startProcessor}">
+      defaultConcurrency="4" defaultPartitions="8" start="${startProcessor}">
       <policy name="default" maxRetries="3" delay="1s" maxDelay="10s" continueOnFailure="false" />
     </streamProcessor>
 
     <!-- SetSystemProperty processor -->
     <streamProcessor name="setSystemProperties" class="org.nuxeo.ecm.core.bulk.action.SetSystemPropertiesAction"
-      logConfig="bulk" defaultConcurrency="4" defaultPartitions="4" enabled="${startProcessor}">
+      logConfig="bulk" defaultConcurrency="4" defaultPartitions="4" start="${startProcessor}">
       <policy name="default" maxRetries="3" delay="500ms" maxDelay="10s" continueOnFailure="false" />
     </streamProcessor>
 
     <!-- RemoveProxy processor -->
     <streamProcessor name="removeProxy" class="org.nuxeo.ecm.core.bulk.action.RemoveProxyAction" logConfig="bulk"
-      defaultConcurrency="4" defaultPartitions="4" enabled="${startProcessor}">
+      defaultConcurrency="4" defaultPartitions="4" start="${startProcessor}">
       <policy name="default" maxRetries="3" delay="500ms" maxDelay="10s" continueOnFailure="false" />
     </streamProcessor>
 
     <!-- Trash processor -->
     <streamProcessor name="trash" class="org.nuxeo.ecm.core.bulk.action.TrashAction" logConfig="bulk"
-      defaultConcurrency="1" defaultPartitions="1" enabled="${startProcessor}">
+      defaultConcurrency="1" defaultPartitions="1" start="${startProcessor}">
       <policy name="default" maxRetries="3" delay="500ms" maxDelay="10s" continueOnFailure="false" />
     </streamProcessor>
 
@@ -63,7 +63,7 @@
     <streamProcessor name="auditLogWriter"
                      defaultConcurrency="1" defaultPartitions="1" logConfig="audit"
                      class="org.nuxeo.ecm.platform.audit.impl.StreamAuditWriter"
-                     enabled="${startProcessor}">
+                     start="${startProcessor}">
       <policy name="AuditLogWriter" batchCapacity="${nuxeo.stream.audit.batch.size}"
               batchThreshold="${nuxeo.stream.audit.batch.threshold.ms}ms"
               maxRetries="20" delay="1s" maxDelay="60s" continueOnFailure="false" />
@@ -71,7 +71,7 @@
 
   	<!--  CSV Export -->        
     <streamProcessor name="csvExport" class="org.nuxeo.ecm.platform.csv.export.action.CSVExportAction" logConfig="bulk"
-      defaultConcurrency="4" defaultPartitions="8" enabled="${startProcessor}">
+      defaultConcurrency="4" defaultPartitions="8" start="${startProcessor}">
       <policy name="default" maxRetries="3" delay="500ms" maxDelay="10s" continueOnFailure="false" />
       <option name="produceImmediate">true</option>
     </streamProcessor>
