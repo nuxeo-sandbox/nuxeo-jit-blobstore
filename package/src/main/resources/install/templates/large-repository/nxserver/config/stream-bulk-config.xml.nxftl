@@ -9,7 +9,7 @@
   
   <!-- Configure Scroll to avoid timeout while Scrolling on large repositories -->
   <extension target="org.nuxeo.runtime.ConfigurationService" point="configuration">
-    <property name="nuxeo.core.bulk.scroller.scroll.keepAliveSeconds">1000</property>
+    <property name="nuxeo.core.bulk.scroller.scroll.keepAliveSeconds">3600</property>
   </extension>
   
   <extension target="org.nuxeo.ecm.core.bulk" point="actions">
@@ -28,7 +28,7 @@
       <!-- concurrency to build indexing requests -->
       <computation name="index" concurrency="6" />
       <!-- concurrency to execute indexing requests -->
-      <computation name="bulkIndex" concurrency="2" />
+      <computation name="bulkIndex" concurrency="4" />
       <computation name="indexCompletion" concurrency="1" />
       <!-- flush elasticsearch bulk request interval -->
       <option name="flushIntervalSeconds">10</option>
