@@ -136,7 +136,7 @@
          "ignore_above":64
       },
       "dc:title":{
-         "type":"text",
+         "type":"keyword",
          "fields":{
             "fulltext":{
                "type":"text",
@@ -147,7 +147,7 @@
          "copy_to":[
             "all_field"
          ],
-         "fielddata":true
+         "ignore_above":256        
       },
       "docri:availabilityFilter":{
          "type":"keyword",

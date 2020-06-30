@@ -17,5 +17,5 @@ nuxeo.dbs.cache.ttl=60
 org.nuxeo.core.delta.disabled=true
 
 # ES Timeout settings
-elasticsearch.restClient.socketTimeoutMs=60000
+elasticsearch.restClient.socketTimeoutMs=300000
 elasticsearch.restClient.connectionTimeoutMs=10000

@@ -14,7 +14,7 @@ elasticsearch.indexNumberOfShards=100
 
 ## Number of replicas: keep to 1
 #elasticsearch.indexNumberOfReplicas=1
-# start with 0 to see if this can help speeding up indexing
+# start with 0 to speeding up full re-indexing
 elasticsearch.indexNumberOfReplicas=0
 
 ## Override what comes from the Perf template
