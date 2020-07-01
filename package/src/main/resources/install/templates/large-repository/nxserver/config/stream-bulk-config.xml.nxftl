@@ -26,7 +26,7 @@
     <streamProcessor name="reindex" class="org.nuxeo.elasticsearch.bulk.IndexAction" logConfig="bulk"
       defaultConcurrency="6" defaultPartitions="24" start="${startProcessor}">
       <!-- concurrency to build indexing requests -->
-      <computation name="index" concurrency="6" />
+      <computation name="index" concurrency="4" partitions="36"/>
       <!-- concurrency to execute indexing requests -->
       <computation name="bulkIndex" concurrency="4" />
       <computation name="indexCompletion" concurrency="1" />
