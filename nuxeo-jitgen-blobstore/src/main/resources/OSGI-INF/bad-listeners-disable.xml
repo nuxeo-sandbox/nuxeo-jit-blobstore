@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.blob.jit.badlistener.contrib" version="1.0.0">
+
+  <require>org.nuxeo.ecm.platform.routing.comments.listener</require>
+  <extension target="org.nuxeo.ecm.core.event.EventServiceComponent"
+    point="listener">
+     <listener name="removeTasksForDeletedDocumentRoute" enabled="false"></listener>
+  </extension>
+  
+</component>

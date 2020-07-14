@@ -11,5 +11,6 @@ Nuxeo-Component: OSGI-INF/JITBlobGen-service.xml,
  OSGI-INF/web-ui-properties-override.xml,
  OSGI-INF/retention-disable-contrib.xml,
  OSGI-INF/enrichers-tracing-contrib.xml,
- OSGI-INF/principal-marshallers-override.xml
+ OSGI-INF/principal-marshallers-override.xml,
+ OSGI-INF/bad-listeners-disable.xml
 

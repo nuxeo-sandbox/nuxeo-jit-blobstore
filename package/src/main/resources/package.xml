@@ -22,7 +22,7 @@
   </platforms>
   <!-- Dependencies on other packages -->
   <dependencies>
-    <package>nuxeo-10.10-HF25</package>
+    <package>nuxeo-10.10-HF29</package>
     <package>nuxeo-web-ui</package> 
   </dependencies>
   <!-- Conflicts with other packages -->

@@ -37,7 +37,7 @@
     </streamProcessor>
 
 	<streamProcessor name="setProperties" class="org.nuxeo.ecm.core.bulk.action.SetPropertiesAction" logConfig="bulk"
-      defaultConcurrency="4" defaultPartitions="8" start="${startProcessor}">
+      defaultConcurrency="4" defaultPartitions="24" start="${startProcessor}">
       <policy name="default" maxRetries="3" delay="1s" maxDelay="10s" continueOnFailure="false" />
     </streamProcessor>
 
