@@ -20,10 +20,6 @@
   </platforms>
   <!-- Dependencies on other packages -->
   <dependencies>
-<<<<<<< HEAD
-=======
-    <package>nuxeo-10.10-HF29</package>
->>>>>>> 10.10-NXP-28966
     <package>nuxeo-web-ui</package> 
   </dependencies>
   <!-- Conflicts with other packages -->
