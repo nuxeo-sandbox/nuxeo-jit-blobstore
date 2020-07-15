@@ -1,0 +1,21 @@
+## Edit this file to customize your configuration ##
+large-repository.target=.
+
+# Set list of templates to include, comma separated values.
+nuxeo.template.includes=common,perf
+
+# default perf template set to 10min = 600000
+# => bump to 24h :24* 3600 * 1000 
+kafka.max.poll.interval.ms=86400000
+
+# 24h
+nuxeo.db.transactiontimeout=86400
+
+# DBS Settings
+nuxeo.dbs.cache.maxSize=30000
+nuxeo.dbs.cache.ttl=60
+org.nuxeo.core.delta.disabled=true
+
+# ES Timeout settings
+elasticsearch.restClient.socketTimeoutMs=300000
+elasticsearch.restClient.connectionTimeoutMs=10000

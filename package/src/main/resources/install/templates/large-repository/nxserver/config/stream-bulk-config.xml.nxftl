@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.bench.bulk.contrib" version="1.0.0">
+
+  <require>org.nuxeo.elasticsearch.core.bulk.contrib</require>
+  <require>org.nuxeo.ecm.core.bulk.config</require>
+  <require>org.nuxeo.ecm.platform.audit.service.NXAuditEventsService</require>
+  <require>org.nuxeo.ecm.platform.csv.export.config</require>
+  <require>perf-bulk-config</require>
+  
+  <!-- Configure Scroll to avoid timeout while Scrolling on large repositories -->
+  <extension target="org.nuxeo.runtime.ConfigurationService" point="configuration">
+    <property name="nuxeo.core.bulk.scroller.scroll.keepAliveSeconds">3600</property>
+  </extension>
+  
+  <extension target="org.nuxeo.ecm.core.bulk" point="actions">
+    <action name="index" bucketSize="1000" batchSize="50" enabled="true" />
+  </extension>
+
+<#if "${nuxeo.instance.type}" == "worker">
+  <#assign startProcessor = "true">
+<#else>
+  <#assign startProcessor = "false">
+</#if>
+
+  <extension target="org.nuxeo.runtime.stream.service" point="streamProcessor">
+    <streamProcessor name="reindex" class="org.nuxeo.elasticsearch.bulk.IndexAction" logConfig="bulk"
+      defaultConcurrency="6" defaultPartitions="36" start="${startProcessor}">
+      <!-- concurrency to build indexing requests -->
+      <computation name="index" concurrency="4"/>
+      <!-- concurrency to execute indexing requests -->
+      <computation name="bulkIndex" concurrency="4" />
+      <computation name="indexCompletion" concurrency="1" />
+      <!-- flush elasticsearch bulk request interval -->
+      <option name="flushIntervalSeconds">10</option>
+
+      <policy name="default" maxRetries="0" delay="1s" maxDelay="10s" continueOnFailure="false" />      
+    </streamProcessor>
+
+	<streamProcessor name="setProperties" class="org.nuxeo.ecm.core.bulk.action.SetPropertiesAction" logConfig="bulk"
+      defaultConcurrency="4" defaultPartitions="24" start="${startProcessor}">
+      <policy name="default" maxRetries="3" delay="1s" maxDelay="10s" continueOnFailure="false" />
+    </streamProcessor>
+
+    <!-- SetSystemProperty processor -->
+    <streamProcessor name="setSystemProperties" class="org.nuxeo.ecm.core.bulk.action.SetSystemPropertiesAction"
+      logConfig="bulk" defaultConcurrency="4" defaultPartitions="4" start="${startProcessor}">
+      <policy name="default" maxRetries="3" delay="500ms" maxDelay="10s" continueOnFailure="false" />
+    </streamProcessor>
+
+    <!-- RemoveProxy processor -->
+    <streamProcessor name="removeProxy" class="org.nuxeo.ecm.core.bulk.action.RemoveProxyAction" logConfig="bulk"
+      defaultConcurrency="4" defaultPartitions="4" start="${startProcessor}">
+      <policy name="default" maxRetries="3" delay="500ms" maxDelay="10s" continueOnFailure="false" />
+    </streamProcessor>
+
+    <!-- Trash processor -->
+    <streamProcessor name="trash" class="org.nuxeo.ecm.core.bulk.action.TrashAction" logConfig="bulk"
+      defaultConcurrency="1" defaultPartitions="1" start="${startProcessor}">
+      <policy name="default" maxRetries="3" delay="500ms" maxDelay="10s" continueOnFailure="false" />
+    </streamProcessor>
+
+    <!-- Audit processor -->
+    <streamProcessor name="auditLogWriter"
+                     defaultConcurrency="1" defaultPartitions="1" logConfig="audit"
+                     class="org.nuxeo.ecm.platform.audit.impl.StreamAuditWriter"
+                     start="${startProcessor}">
+      <policy name="AuditLogWriter" batchCapacity="${nuxeo.stream.audit.batch.size}"
+              batchThreshold="${nuxeo.stream.audit.batch.threshold.ms}ms"
+              maxRetries="20" delay="1s" maxDelay="60s" continueOnFailure="false" />
+    </streamProcessor>
+
+  	<!--  CSV Export -->        
+    <streamProcessor name="csvExport" class="org.nuxeo.ecm.platform.csv.export.action.CSVExportAction" logConfig="bulk"
+      defaultConcurrency="4" defaultPartitions="8" start="${startProcessor}">
+      <policy name="default" maxRetries="3" delay="500ms" maxDelay="10s" continueOnFailure="false" />
+      <option name="produceImmediate">true</option>
+    </streamProcessor>
+  
+  </extension>
+
+</component>

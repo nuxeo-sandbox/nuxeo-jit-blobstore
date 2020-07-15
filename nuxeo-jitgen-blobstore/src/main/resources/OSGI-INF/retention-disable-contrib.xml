@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.blob.jit.retention.contrib" version="1.0.0">
+
+  <require>org.nuxeo.ecm.core.retention.contrib</require>
+
+  <extension target="org.nuxeo.runtime.stream.service" point="streamProcessor">
+    <streamProcessor name="retentionExpired"
+      enabled="false"/>
+  </extension>
+
+</component>

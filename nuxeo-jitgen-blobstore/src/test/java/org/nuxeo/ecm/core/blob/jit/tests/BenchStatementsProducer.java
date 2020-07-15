@@ -43,7 +43,7 @@ public class BenchStatementsProducer {
 			@Override
 			public void run() {
 				
-				StatementDocumentMessageProducer producer = new StatementDocumentMessageProducer(sequenceGen, ids.incrementAndGet(), NB_CALLS, 60, 0, "b0"); 				
+				StatementDocumentMessageProducer producer = new StatementDocumentMessageProducer(sequenceGen, ids.incrementAndGet(), NB_CALLS, 60, 0, "b0", false, false); 				
 				try {
 					
 					while (producer.hasNext()) {

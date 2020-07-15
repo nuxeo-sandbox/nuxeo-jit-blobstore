@@ -423,4 +423,52 @@ public class TestStreamStatementProducer {
 		}
 
 	}
+	
+
+	
+	@Test
+	public void canCreateStatementsMessagesWithStatesMT() throws Exception {
+
+		try (OperationContext ctx = new OperationContext(session)) {
+			Map<String, Serializable> params = new HashMap<>();
+
+			long nbDocs = 1000000;
+
+			params.put("nbDocuments", nbDocs);
+			params.put("nbMonths", 60);
+			params.put("withStates", true);
+			params.put("logConfig", "chronicle");
+			params.put("nbThreads", 16);
+			
+			long t0 = System.currentTimeMillis();
+			automationService.run(ctx, StatementProducers.ID, params);
+			long t1 = System.currentTimeMillis();
+			
+			LogManager manager = Framework.getService(StreamService.class).getLogManager("chronicle");
+
+			LogTailer<DocumentMessage> tailer = manager.createTailer("test", StreamImporters.DEFAULT_LOG_DOC_NAME);
+
+			int count = 0;
+			LogRecord<DocumentMessage> record = null;
+			do {
+				record = tailer.read(Duration.ofSeconds(1));
+				if (record != null) {
+					DocumentMessage docMessage = record.message();
+					assertEquals("Statement", docMessage.getType());
+					assertEquals("initialImport", docMessage.getProperties().get("dc:source"));
+
+					String tag = (String) docMessage.getProperties().get("dc:publisher");
+
+					count++;
+				}
+			} while (record != null);
+
+			double throughput = (1000.0*count) / (t1-t0);
+			System.out.println("Doc Message Throughput = " + throughput);
+			assertEquals(nbDocs, count);
+			tailer.commit();
+			tailer.close();
+		}
+	}
+
 }

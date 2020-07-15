@@ -1,11 +1,26 @@
 package org.nuxeo.importer.stream.jit;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class USStateHelper {
 
 	public static String toPath(String stateName) {
 		return stateName.trim().toLowerCase().replace(" ", "-");		
 	}
 
+	public static int getOffset(String state) {
+		state=state.trim().toLowerCase();		
+		Integer idx = StateName2Idx.get(state);
+		if (idx !=null) {
+			return idx;
+		}
+		if ("fl".equals(state)) {
+			return 9;
+		}
+		return -1;
+	}
+	
 	// list of states as referenced in the CSV data file
 	public static final String[] STATES = new String[] {
 			"Alabama",
@@ -61,5 +76,82 @@ public class USStateHelper {
 			"Wisconsin",
 			"Wyoming"
 	};
+	
+	protected static Map<String, String> StateName2StateCode = initStateCode();
+	
+	protected static Map<String, Integer> StateName2Idx = initStateIdx();
+
+	protected static Map<String, Integer> initStateIdx() {
+		Map<String, Integer> s2i = new HashMap<String, Integer>();
+		for (int i =0; i < STATES.length; i++) {
+			s2i.put(STATES[i].trim().toLowerCase(), i);
+		}
+		return s2i;
+	}
+	
+	public static String getStateCode(String stateName) {
+		String code =  StateName2StateCode.get(stateName.trim());		
+		if (code!=null) {
+			return code;
+		}
+		return stateName;
+	}	
+	
+	protected static Map<String, String> initStateCode() {
+		Map<String, String> s2c = new HashMap<String, String>();
+		s2c.put("Alabama","AL");
+		s2c.put("Alaska","AK");
+		s2c.put("Arizona","AZ");
+		s2c.put("Arkansas","AR");
+		s2c.put("California","CA");
+		s2c.put("Colorado","CO");
+		s2c.put("Connecticut","CT");
+		s2c.put("Delaware","DE");
+		s2c.put("Florida","FL");
+		s2c.put("Georgia","GA");
+		s2c.put("Hawaii","HI");
+		s2c.put("Idaho","ID");
+		s2c.put("Illinois","IL");
+		s2c.put("Indiana","IN");
+		s2c.put("Iowa","IA");
+		s2c.put("Kansas","KS");
+		s2c.put("Kentucky","KY");
+		s2c.put("Louisiana","LA");
+		s2c.put("Maine","ME");
+		s2c.put("Maryland","MD");
+		s2c.put("Massachusetts","MA");
+		s2c.put("Michigan","MI");
+		s2c.put("Minnesota","MN");
+		s2c.put("Mississippi","MS");
+		s2c.put("Missouri","MO");
+		s2c.put("Montana","MT");
+		s2c.put("Nebraska","NE");
+		s2c.put("Nevada","NV");
+		s2c.put("New Hampshire","NH");
+		s2c.put("New Jersey","NJ");
+		s2c.put("New Mexico","NM");
+		s2c.put("New York","NY");
+		s2c.put("North Carolina","NC");
+		s2c.put("North Dakota","ND");
+		s2c.put("Ohio","OH");
+		s2c.put("Oklahoma","OK");
+		s2c.put("Oregon","OR");
+		s2c.put("Pennsylvania","PA");
+		s2c.put("Rhode Island","RI");
+		s2c.put("South Carolina","SC");
+		s2c.put("South Dakota","SD");
+		s2c.put("Tennessee","TN");
+		s2c.put("Texas","TX");
+		s2c.put("Utah","UT");
+		s2c.put("Vermont","VT");
+		s2c.put("Virginia","VA");
+		s2c.put("Washington","WA");
+		s2c.put("West Virginia","WV");
+		s2c.put("Wisconsin","WI");
+		s2c.put("Wyoming","WY");
+		s2c.put("District of Columbia","DC");	
+		s2c.put("Puerto Rico","PR");	
+		return s2c;
+	}
 	
 }

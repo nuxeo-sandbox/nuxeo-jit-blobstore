@@ -35,8 +35,11 @@ import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.importer.stream.StreamImporters;
 import org.nuxeo.importer.stream.jit.StatementDocumentMessageProducerFactory;
 import org.nuxeo.importer.stream.message.DocumentMessage;
+import org.nuxeo.lib.stream.codec.AvroBinaryCodec;
 import org.nuxeo.lib.stream.codec.Codec;
+import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.log.LogManager;
+import org.nuxeo.lib.stream.pattern.Message;
 import org.nuxeo.lib.stream.pattern.producer.ProducerPool;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.stream.StreamService;
@@ -80,6 +83,12 @@ public class StatementProducers {
     @Param(name = "batchTag", required = false)
     protected String batchTag = null;
 
+    @Param(name = "useRecords", required = false)
+    protected boolean useRecords = false;
+        
+	@Param(name = "withStates", required = false)
+	protected boolean withStates = false;
+
     protected void checkAccess() {
         NuxeoPrincipal principal = context.getPrincipal();
         if (principal == null || !principal.isAdministrator()) {
@@ -101,12 +110,18 @@ public class StatementProducers {
         if (nbDocuments%nbThreads!=0) {
         	docPerThreads++;
         }
-        
-        factory = new StatementDocumentMessageProducerFactory(seed, skip, docPerThreads, nbMonths, monthOffset, batchTag);
-        Codec<DocumentMessage> codec = StreamImporters.getDocCodec();
 
-        try (ProducerPool<DocumentMessage> producers = new ProducerPool<>(logName, manager, codec, factory,
-                nbThreads.shortValue())) {
+        factory = new StatementDocumentMessageProducerFactory(seed, skip, docPerThreads, nbMonths, monthOffset, batchTag, useRecords, withStates);
+
+        ProducerPool producers=null;
+        try {        	
+            if (!useRecords){
+                Codec<DocumentMessage> codec = StreamImporters.getDocCodec();
+            	producers = new ProducerPool<DocumentMessage>(logName, manager, codec, factory, nbThreads.shortValue());
+            } else {
+            	Codec<Message> codec = new AvroBinaryCodec<>(Message.class);
+            	producers = new ProducerPool<Message>(logName, manager, codec, factory, nbThreads.shortValue());
+            }        		
             producers.start().get();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -115,7 +130,9 @@ public class StatementProducers {
         } catch (ExecutionException e) {
             log.error("Operation fails", e);
             throw new OperationException(e);
-        }
+        } finally {
+        	producers.close();
+		}
     }
 
     protected int getLogSize() {

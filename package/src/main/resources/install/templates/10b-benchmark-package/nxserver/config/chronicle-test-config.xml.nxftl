@@ -1,0 +1,10 @@
+<#escape x as x?xml>
+<?xml version="1.0"?>
+<component name="org.nuxeo.jit.chronicle.memConfig">
+  <extension target="org.nuxeo.runtime.stream.service" point="logConfig">
+    <logConfig name="mem" type="chronicle">
+        <option name="retention">${nuxeo.stream.chronicle.retention.duration}</option>    
+    </logConfig>
+  </extension>
+</component>
+</#escape>

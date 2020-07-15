@@ -61,6 +61,9 @@ public class StatementFolderProducers {
 	@Param(name = "logConfig", required = false)
 	protected String logConfig = StreamImporters.DEFAULT_LOG_CONFIG;
 
+	@Param(name = "withStates", required = false)
+	protected boolean withStates = false;
+
 	protected void checkAccess() {
 		NuxeoPrincipal principal = context.getPrincipal();
 		if (principal == null || !principal.isAdministrator()) {
@@ -76,7 +79,7 @@ public class StatementFolderProducers {
 		LogManager manager = Framework.getService(StreamService.class).getLogManager(logConfig);
 		manager.createIfNotExists(logName, getLogSize());
 
-		StatementFolderMessageProducerFactory factory = new StatementFolderMessageProducerFactory(nbMonths);
+		StatementFolderMessageProducerFactory factory = new StatementFolderMessageProducerFactory(nbMonths, withStates);
 
 		Codec<DocumentMessage> codec = StreamImporters.getDocCodec();
 		try (ProducerPool<DocumentMessage> producers = new ProducerPool<>(logName, manager, codec, factory,

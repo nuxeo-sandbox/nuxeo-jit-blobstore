@@ -25,13 +25,11 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.nuxeo.ecm.core.blob.jit.gen.InMemoryBlobGenerator;
 import org.nuxeo.ecm.core.blob.jit.gen.NodeInfo;
-import org.nuxeo.importer.stream.message.DocumentMessage;
+import org.nuxeo.importer.stream.message.DocumentMessage;import org.nuxeo.lib.stream.pattern.Message;
 import org.nuxeo.lib.stream.pattern.producer.AbstractProducer;
-import org.nuxeo.runtime.api.Framework;
 
-public class StatementFolderMessageProducer extends AbstractProducer<DocumentMessage> {
+public class StatementFolderMessageProducer<M extends Message> extends AbstractProducer<DocumentMessage> {
 	private static final Log log = LogFactory.getLog(StatementFolderMessageProducer.class);
 
 	protected final long nbMonths;
@@ -44,11 +42,19 @@ public class StatementFolderMessageProducer extends AbstractProducer<DocumentMes
 
 	protected final List<NodeInfo> nodes;
 
-	public StatementFolderMessageProducer(int producerId, int nbMonths) {
+	public StatementFolderMessageProducer(int producerId, int nbMonths, boolean withStates) {
 		super(producerId);
 		this.nbMonths = nbMonths;
-		InMemoryBlobGenerator gen = Framework.getService(InMemoryBlobGenerator.class);
-		nodes = gen.getTimeHierarchy(nbMonths, false);
+
+		if (withStates) {
+			nodes = HierarchyHelper.generateStateYearMonthHierarchy(nbMonths);
+		} else {
+			nodes = HierarchyHelper.generateYearMonthHierarchy(nbMonths);
+			// InMemoryBlobGenerator gen =
+			// Framework.getService(InMemoryBlobGenerator.class);
+			// nodes = gen.getTimeHierarchy(nbMonths, false);
+		}
+
 		log.info("StatementFolderMessageProducer created, nbMonths: " + nbMonths);
 	}
 
@@ -67,9 +73,7 @@ public class StatementFolderMessageProducer extends AbstractProducer<DocumentMes
 		DocumentMessage ret;
 
 		NodeInfo node = nodes.remove(0);
-
 		ret = createFolder(node);
-
 		return ret;
 	}
 

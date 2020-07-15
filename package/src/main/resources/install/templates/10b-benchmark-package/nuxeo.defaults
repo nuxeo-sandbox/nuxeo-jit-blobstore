@@ -2,20 +2,27 @@
 10b-benchmark-package.target=.
 
 # Set list of templates to include, comma separated values.
-nuxeo.template.includes=common,perf
+nuxeo.template.includes=common,perf,large-repository,importer-node
+
+
+## The recommendation is to keep shard < 50GB
+## with 1.5B documents we have 35 shards for a total of 3.2TB
+## => this make the shard about 90GB
+## Number of shards: 100 shards so that we can reach 2B+
+##
+elasticsearch.indexNumberOfShards=100
 
 ## Number of replicas: keep to 1
-elasticsearch.indexNumberOfReplicas=1
+#elasticsearch.indexNumberOfReplicas=1
+# start with 0 to speeding up full re-indexing
+elasticsearch.indexNumberOfReplicas=0
 
-## Number of shards: 35 shard so that we can reach 1B
-elasticsearch.indexNumberOfShards=35
+## Override what comes from the Perf template
+## merge the default + perf template
+elasticsearch.override.pageproviders=default_search,default_document_suggestion,DEFAULT_DOCUMENT_SUGGESTION,advanced_document_content,tree_children,domain_documents,expired_search,default_trash_search,DEFAULT_DOCUMENT_SUGGESTION,REST_API_SEARCH_ADAPTER,all_collections,simple_search,advanced_search,nxql_search,benchmark-search
 
-# default perf template set to 10min = 600000
-# => bump to 2h : 2* 3600 * 1000 
-kafka.max.poll.interval.ms=7200000
-
-# 10h
-nuxeo.db.transactiontimeout=36000
+## Increase cache size
+nuxeo.cache.maxsize=10000
 
 org.nuxeo.ecm.instance.description=Nuxeo ECM customized with 10B Benchmark Package
 

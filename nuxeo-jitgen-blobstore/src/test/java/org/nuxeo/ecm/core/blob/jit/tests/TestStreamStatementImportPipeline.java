@@ -42,6 +42,7 @@ import org.nuxeo.importer.stream.jit.automation.CustomerProducers;
 import org.nuxeo.importer.stream.jit.automation.StatementFolderProducers;
 import org.nuxeo.importer.stream.jit.automation.StatementProducers;
 import org.nuxeo.lib.stream.computation.StreamManager;
+import org.nuxeo.lib.stream.log.LogManager;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
@@ -83,6 +84,12 @@ public class TestStreamStatementImportPipeline {
 
     @Inject
     ElasticSearchAdmin esa;
+    
+//    @Inject
+//    LogManager logManager;
+    
+//    @Inject 
+//    StreamManager streamManager;
     
 	@Test
 	public void canImportStatements() throws Exception {
@@ -128,14 +135,22 @@ public class TestStreamStatementImportPipeline {
 			params.put("nbMonths", 48);
 			params.put("logConfig", "chronicle");
 			params.put("logName", "import-stmt");
+			params.put("useRecords", true);
 			automationService.run(ctx, StatementProducers.ID, params);
 
 
-					
+			
+			//streamManager.
+			
 			//StreamManager streamManager = streamManager.getStreamManager("default");
 
 			
 			docs = session.query("select * from Statement order by ecm:path");
+			int retry=100;
+			while (docs.size()==0 && retry >0) {
+				Thread.sleep(500);
+				retry--;
+			}
 			dump(docs);
 			assertEquals(nbDocs, docs.size());
 			

@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.blob.jit.import.speedup">
+
+  <require>org.nuxeo.ecm.core.api.DocumentValidationService.activations</require>
+  <!--  No need for validation during import -->
+  <extension target="org.nuxeo.ecm.core.api.DocumentValidationService" point="activations">
+    <validation context="createDocument" activated="false" />
+  </extension>
+
+  <require>org.nuxeo.ecm.core.document.characterFiltering.contrib</require>
+  <!--  No need for sanitizing during import --> 
+  <extension target="org.nuxeo.ecm.core.filter.CharacterFilteringService" point="filtering">
+    <filtering enabled="false">
+    </filtering>
+  </extension>
+
+  <!-- remove versioning rules that are useless during import -->
+  <extension target="org.nuxeo.ecm.core.api.versioning.VersioningService" point="versioningService">
+	<service class="org.nuxeo.importer.version.ImportVersioningService"/>	
+  </extension>
+    
+  <!-- remove checks not needed during import-->
+  <require>org.nuxeo.ecm.core.schema.TypeService</require>
+  <service>
+    <provide interface="org.nuxeo.ecm.core.schema.PropertyCharacteristicHandler" />
+  </service>
+  <implementation class="org.nuxeo.importer.schemamanager.NoCheckPropertyCharacteristicHandler" />
+
+</component>

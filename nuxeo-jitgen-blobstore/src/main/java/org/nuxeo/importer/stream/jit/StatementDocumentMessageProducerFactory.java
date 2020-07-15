@@ -22,24 +22,27 @@ import java.util.Random;
 
 import org.nuxeo.data.gen.meta.SequenceGenerator;
 import org.nuxeo.importer.stream.message.DocumentMessage;
+import org.nuxeo.lib.stream.pattern.Message;
 import org.nuxeo.lib.stream.pattern.producer.ProducerFactory;
 import org.nuxeo.lib.stream.pattern.producer.ProducerIterator;
 
-public class StatementDocumentMessageProducerFactory implements ProducerFactory<DocumentMessage> {
+public class StatementDocumentMessageProducerFactory<M extends Message> implements ProducerFactory<M> {
 
 	protected final long nbDocuments;
 	protected final int nbMonth;
 	protected final int monthOffset;
 	protected SequenceGenerator sequenceGen;   
 	protected final String batchTag;
-	
+	protected boolean useRecords;
+	protected boolean withStates;
 	/**
 	 * Generates random documents messages that point to existing blobs.
 	 */
-	public StatementDocumentMessageProducerFactory(Long seed, long skip, long nbDocuments,int nbMonth, int monthOffset, String batchTag) {
+	public StatementDocumentMessageProducerFactory(Long seed, long skip, long nbDocuments,int nbMonth, int monthOffset, String batchTag, boolean useRecords, boolean withStates) {
 		this.nbDocuments = nbDocuments;
 		this.nbMonth=nbMonth;
 		this.monthOffset=monthOffset;
+		this.withStates=withStates;
 		sequenceGen = new SequenceGenerator(seed, nbMonth);	
 		sequenceGen.setMonthOffset(monthOffset);
 		if (skip>0) {
@@ -49,12 +52,13 @@ public class StatementDocumentMessageProducerFactory implements ProducerFactory<
 			this.batchTag=batchTag;	
 		} else {
 			this.batchTag="B" + new Random().nextInt();
-		}		
+		}
+		this.useRecords=useRecords;
 	}
 
 	@Override
-	public ProducerIterator<DocumentMessage> createProducer(int producerId) {
-		return new StatementDocumentMessageProducer(sequenceGen, producerId, nbDocuments, nbMonth, monthOffset, batchTag);
+	public ProducerIterator<M> createProducer(int producerId) {
+		return new StatementDocumentMessageProducer<M>(sequenceGen, producerId, nbDocuments, nbMonth, monthOffset, batchTag, useRecords, withStates);
 	}
 
 	protected String getGroupName(int producerId) {

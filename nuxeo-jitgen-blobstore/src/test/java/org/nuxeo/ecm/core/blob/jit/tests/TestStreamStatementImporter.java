@@ -20,6 +20,7 @@ import org.nuxeo.ecm.automation.AutomationService;
 import org.nuxeo.ecm.automation.OperationContext;
 import org.nuxeo.ecm.automation.test.AutomationFeature;
 import org.nuxeo.ecm.core.api.Blob;
+import org.nuxeo.ecm.core.api.CoreInstance;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
@@ -58,6 +59,7 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
 @Deploy("org.nuxeo.ecm.core.blob.jit:OSGI-INF/operations-contrib.xml")
 @Deploy("org.nuxeo.ecm.core.blob.jit.test:OSGI-INF/test-blobdispatcher-contrib.xml")
 @Deploy("org.nuxeo.ecm.core.blob.jit.test:OSGI-INF/test-stream-contrib.xml")
+@Deploy("org.nuxeo.ecm.core.blob.jit.test:OSGI-INF/import-node-config.xml")
 @PartialDeploy(bundle = "studio.extensions.nuxeo-benchmark-10b-2020", extensions = { TargetExtensions.ContentModel.class })
 public class TestStreamStatementImporter {
 
@@ -110,11 +112,11 @@ public class TestStreamStatementImporter {
 
 			DocumentModelList docs = session
 					.query("select * from Folder where ecm:path STARTSWITH '/root' order by ecm:path");
-			// dump(docs);
+			dump(docs);
 			assertEquals(48 + 4, docs.size());
 
 			// *************************
-			// create File messages
+			// create Stmt messages
 			long nbDocs = 8 * 15;
 			params = new HashMap<>();
 			params.put("nbDocuments", nbDocs);
@@ -123,15 +125,15 @@ public class TestStreamStatementImporter {
 			automationService.run(ctx, StatementProducers.ID, params);
 
 			// *************************
-			// consume Folder messages
+			// consume Stmt messages
 			params = new HashMap<>();
 			params.put("nbThreads", 1);
 			params.put("rootFolder", root.getPathAsString());
 			params.put("logConfig", "chronicle");
 			automationService.run(ctx, DocumentConsumers.ID, params);
-
+						
 			docs = session.query("select * from Statement order by ecm:path");
-			dump(docs);
+			//dump(docs);
 			assertEquals(nbDocs, docs.size());
 			
 			esi.indexNonRecursive(new IndexingCommand(docs.get(0), IndexingCommand.Type.INSERT, true, false));
@@ -227,7 +229,65 @@ public class TestStreamStatementImporter {
 			assertEquals(blobTextContent, importedBlob.getString());				
 		}
 	}
+	
+	
+	@Test
+	public void canImportStatementsWithStates() throws Exception {
 
+		try (OperationContext ctx = new OperationContext(session)) {
+			Map<String, Serializable> params = new HashMap<>();
+
+			DocumentModel root = session.createDocumentModel("/", "root", "Folder");
+			root = session.createDocument(root);
+			TransactionHelper.commitOrRollbackTransaction();
+			TransactionHelper.startTransaction();
+
+			// *************************
+			// create Folder messages
+			params.put("nbMonths", 48);
+			params.put("logConfig", "chronicle");
+			params.put("withStates", true);
+
+			automationService.run(ctx, StatementFolderProducers.ID, params);
+
+			// *************************
+			// consume Folder messages
+			params = new HashMap<>();
+			params.put("nbThreads", 1);
+			params.put("rootFolder", root.getPathAsString());
+			params.put("logConfig", "chronicle");
+			automationService.run(ctx, DocumentConsumers.ID, params);
+
+			DocumentModelList docs = session
+					.query("select * from Folder where ecm:path STARTSWITH '/root' order by ecm:path");
+			//dump(docs);
+			assertEquals((48+4+1)*USStateHelper.STATES.length, docs.size());
+
+			// *************************
+			// create File messages
+			long nbDocs = 8 * 52 * 15;
+			params = new HashMap<>();
+			params.put("nbDocuments", nbDocs);
+			params.put("nbMonths", 48);
+			params.put("withStates", true);
+			params.put("logConfig", "chronicle");
+			automationService.run(ctx, StatementProducers.ID, params);
+
+			// *************************
+			// consume Folder messages
+			params = new HashMap<>();
+			params.put("nbThreads", 1);
+			params.put("rootFolder", root.getPathAsString());
+			params.put("logConfig", "chronicle");
+			automationService.run(ctx, DocumentConsumers.ID, params);
+
+			docs = session.query("select * from Statement order by ecm:path");
+			//dump(docs);
+			assertEquals(nbDocs, docs.size());
+			
+		}
+	}
+	
 	protected void dump(DocumentModelList docs) {
 		for (DocumentModel doc : docs) {
 			System.out.println(doc.getType() + ": " + doc.getPathAsString() + " -- " + doc.getTitle());

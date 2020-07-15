@@ -155,6 +155,9 @@ public class TestRepositoryWithJITBlob {
 		for (String keyword: txt.split("[\\n\\t ]")) {
 			keyword = keyword.trim();
 			if (!ft.contains(keyword.trim())) {
+				keyword = keyword.replace(",", "");
+				keyword = keyword.replace(".", "");
+				keyword = keyword.replace("$", "");
 				assertTrue(keyword.matches("^[0-9]+"));
 			}
 		}

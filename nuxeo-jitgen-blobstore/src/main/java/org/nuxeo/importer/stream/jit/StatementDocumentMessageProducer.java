@@ -33,10 +33,11 @@ import org.nuxeo.ecm.core.blob.jit.gen.DocInfo;
 import org.nuxeo.ecm.core.blob.jit.gen.InMemoryBlobGenerator;
 import org.nuxeo.ecm.core.blob.jit.gen.NodeInfo;
 import org.nuxeo.importer.stream.message.DocumentMessage;
+import org.nuxeo.lib.stream.pattern.Message;
 import org.nuxeo.lib.stream.pattern.producer.AbstractProducer;
 import org.nuxeo.runtime.api.Framework;
 
-public class StatementDocumentMessageProducer extends AbstractProducer<DocumentMessage> {
+public class StatementDocumentMessageProducer<M extends Message> extends AbstractProducer<M> {
 	private static final Log log = LogFactory.getLog(StatementDocumentMessageProducer.class);
 
 	protected final long nbDocuments;
@@ -49,12 +50,25 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 
 	protected final String batchTag;
 	
-	public StatementDocumentMessageProducer(SequenceGenerator sequenceGen, int producerId, long nbDocuments, int nbMonths, int monthOffset, String batchTag) {
+	protected final boolean useRecords;
+
+	protected final boolean withStates;
+	
+	protected final int nbMonths;
+	
+	public StatementDocumentMessageProducer(SequenceGenerator sequenceGen, int producerId, long nbDocuments, int nbMonths, int monthOffset, String batchTag, boolean useRecords, boolean withStates) {
 		super(producerId);
 		this.nbDocuments = nbDocuments;
-		hierarchy = getGen().getTimeHierarchy(monthOffset+nbMonths, true);
+		this.nbMonths=nbMonths;
+		this.withStates=withStates;
+		if (withStates) {
+			hierarchy = HierarchyHelper.generateStateYearMonthHierarchy(nbMonths+monthOffset);
+		} else {
+			hierarchy = HierarchyHelper.generateYearMonthHierarchy(nbMonths+monthOffset);
+		}
 		this.sequenceGen=sequenceGen;
 		this.batchTag=batchTag;
+		this.useRecords=useRecords;
 		log.info("StatementDocumentMessageProducer created, nbDocuments: " + nbDocuments);
 	}
 
@@ -63,7 +77,7 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 	}
 
 	@Override
-	public int getPartition(DocumentMessage message, int partitions) {
+	public int getPartition(Message message, int partitions) {
 		return getProducerId() % partitions;
 	}
 
@@ -72,24 +86,48 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 		return documentCount < nbDocuments;
 	}
 
+	
 	@Override
-	public DocumentMessage next() {
+	public M next() {
 		DocumentMessage ret;
 
-		SequenceGenerator.Entry entry = sequenceGen.next();
-		ret = createDocument(hierarchy.get(entry.getMonth()).getPath(), entry);
-		
-		return ret;
+		try {
+			SequenceGenerator.Entry entry = sequenceGen.next();
+			ret = createDocument(entry);			
+			if (useRecords) {
+				return (M)new RecordDocumentMessage(ret);
+			}
+			return (M)ret;
+		} catch (Exception e) {
+			log.error("Unable to generate message", e);
+			throw e;
+		}
 	}
 
-	protected DocumentMessage createDocument(String parentPath, SequenceGenerator.Entry entry) {
+	protected DocumentMessage createDocument(SequenceGenerator.Entry entry) {
 
+		String parentPath;
 		long currentAccountSeed = entry.getAccountKeyLong();
 		long currentDataSeed = entry.getDataKey();
 		int month = entry.getMonth();
 		
 		DocInfo docInfo = getGen().computeDocInfo("jit", currentAccountSeed, currentDataSeed, month);
 
+		if (withStates) {			
+			String state = docInfo.getMeta("STATE");
+			int stateOffset = USStateHelper.getOffset(state);
+			if (stateOffset==-1) {
+				log.error("Unable find mapping for state " + state + " using Alabama");
+				stateOffset=0;
+			}
+			int nbYears = nbMonths/12;			
+			int idx = stateOffset*(nbYears+nbMonths+1) + nbYears + entry.getMonth() +1 ;
+			parentPath = hierarchy.get(idx).getPath();
+		} else {
+			int nbYears = nbMonths/12;
+			parentPath = hierarchy.get(nbYears+entry.getMonth()).getPath();
+		}
+		
 		String title = getTitle(docInfo);
 		String name = getName(title);
 
@@ -117,6 +155,9 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 		try {
 			Date stmDate = RandomDataGenerator.df.get().parse(docInfo.getMeta("DATE").trim());
 			props.put("statement:statementDate", stmDate);
+			props.put("dc:created", stmDate);
+			props.put("dc:modified", stmDate);
+			props.put("dc:creator", "nco-admin");						
 		} catch (Exception e) {
 			log.error("Unable to parse date", e);
 		}		
@@ -127,7 +168,9 @@ public class StatementDocumentMessageProducer extends AbstractProducer<DocumentM
 		
 		Map<String, String> address = new HashMap<String, String>();
 		address.put("city", docInfo.getMeta("CITY").trim());
-		address.put("street", docInfo.getMeta("STREET").trim());		
+		address.put("street", docInfo.getMeta("STREET").trim());
+		address.put("country", "US");
+		address.put("state", USStateHelper.getStateCode(docInfo.getMeta("STATE").trim()));
 		props.put("all:customerAddress", (Serializable) address);		
 
 		props.put("all:customerNumber", docInfo.getMeta("ACCOUNTID").trim().substring(0,19));

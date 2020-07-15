@@ -25,14 +25,16 @@ import org.nuxeo.lib.stream.pattern.producer.ProducerIterator;
 public class StatementFolderMessageProducerFactory implements ProducerFactory<DocumentMessage> {
 
 	protected final int nbMonths;
+	protected final boolean withStates;
 
-	public StatementFolderMessageProducerFactory(int nbMonths) {
+	public StatementFolderMessageProducerFactory(int nbMonths, boolean withStates) {
 		this.nbMonths = nbMonths;
+		this.withStates=withStates;
 	}
 
 	@Override
 	public ProducerIterator<DocumentMessage> createProducer(int producerId) {
-		return new StatementFolderMessageProducer(producerId, nbMonths);
+		return new StatementFolderMessageProducer(producerId, nbMonths, withStates);
 	}
 
 	protected String getGroupName(int producerId) {
