@@ -20,8 +20,11 @@
 package org.nuxeo.importer.stream.jit;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,10 +42,13 @@ public class CustomerMessageProducer extends AbstractProducer<DocumentMessage> {
 	
 	protected String[] csv;
 	
+	protected Stack<DocumentMessage> batch;
+	
 	public CustomerMessageProducer(int producerId, String blobStore, String[] csv) {
 		super(producerId);
 		this.csv = csv;
 		this.blobStore = blobStore;
+		batch = new Stack<>();
 		log.info("CustomerMessageProducer created");
 	}
 
@@ -53,6 +59,9 @@ public class CustomerMessageProducer extends AbstractProducer<DocumentMessage> {
 
 	@Override
 	public boolean hasNext() {
+		if (batch.size()>0) {
+			return true;
+		}
 		if (idx < csv.length) {
 			return csv[idx]!=null;
 		}
@@ -61,12 +70,16 @@ public class CustomerMessageProducer extends AbstractProducer<DocumentMessage> {
 
 	@Override
 	public DocumentMessage next() {
-		DocumentMessage ret = createCustomer(csv[idx]);
-		idx++;
-		return ret;
+		
+		if (batch.size()==0) {
+			batch.push(createCustomer(csv[idx], false));
+			batch.push(createCustomer(csv[idx], true));	
+			idx++;				
+		}
+		return batch.pop();
 	}
 
-	protected DocumentMessage createCustomer(String line) {
+	protected DocumentMessage createCustomer(String line, boolean folder) {
 
 		String[] meta = line.split(",");
 		
@@ -89,19 +102,30 @@ public class CustomerMessageProducer extends AbstractProducer<DocumentMessage> {
 		String name = meta[8].trim().substring(0,19);
 		String stateName = USStateHelper.toPath(meta[6].trim());
 		
-		DocumentMessage.Builder builder = DocumentMessage.builder("CustomerDocument", "/" +stateName, name).setProperties(props);
-
-		BlobInfo bi = new BlobInfo();
-		bi.key = blobStore + ":" + meta[0].trim();
-		bi.digest=meta[0].trim();
-		bi.filename=meta[1].trim();
-		bi.mimeType="image/jpeg";
-		bi.length=Long.parseLong(meta[2].trim());		
 		
-		builder.setBlobInfo(bi);		
+		String type = "CustomerDocument";
+		String path = "/" + stateName;
+		if (folder) {
+			type="CustomerFolder";
+		} else {
+			path = path + "/" + name;
+			name = "IDCard";		
+		}
+		DocumentMessage.Builder builder = DocumentMessage.builder(type, path, name).setProperties(props);
+
+		if (!folder) {
+			BlobInfo bi = new BlobInfo();
+			bi.key = blobStore + ":" + meta[0].trim();
+			bi.digest=meta[0].trim();
+			bi.filename=meta[1].trim();
+			bi.mimeType="image/jpeg";
+			bi.length=Long.parseLong(meta[2].trim());		
+			
+			builder.setBlobInfo(bi);		
+		}
 		
 		DocumentMessage msg = builder.build();
 		return msg;
 	}
 
-}
+ }

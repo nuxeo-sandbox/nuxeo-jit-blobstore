@@ -198,9 +198,10 @@ public class TestStreamStatementImporter {
 			// *************************
 			// create Customers messages
 			params.put("logConfig", "chronicle");
-			params.put("bufferSize", 5);			
+			params.put("bufferSize", 5);
+			params.put("nbThreads", 1);	
 			
-			InputStream csv = StatementsBlobGenerator.class.getResourceAsStream("/sample-id.csv");
+			InputStream csv = StatementsBlobGenerator.class.getResourceAsStream("/id-cards.csv");
 			String csvContent = new String(IOUtils.toByteArray(csv));			
 			csvContent = csvContent.replace("<DIGEST>", blobDigest);			
 			Blob blob = new StringBlob(csvContent);
@@ -213,13 +214,18 @@ public class TestStreamStatementImporter {
 			params = new HashMap<>();
 			params.put("rootFolder", root.getPathAsString());
 			params.put("logConfig", "chronicle");
+			params.put("nbThreads", 1);	
 			automationService.run(ctx, DocumentConsumers.ID, params);
 
 			docs = session
-					.query("select * from CustomerDocument order by ecm:path");
+					.query("select * from Document where ecm:primaryType IN ('CustomerDocument', 'CustomerFolder') order by ecm:path");
+
 			//dump(docs);
-			assertEquals(11, docs.size());
+			assertEquals(200, docs.size());
 			
+			docs = session
+					.query("select * from CustomerDocument order by ecm:path");
+
 			Blob importedBlob = (Blob) docs.get(0).getPropertyValue("file:content");
 			assertNotNull(importedBlob);
 			assertEquals("image/jpeg", importedBlob.getMimeType());
