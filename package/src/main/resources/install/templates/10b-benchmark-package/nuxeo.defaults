@@ -10,7 +10,7 @@ nuxeo.template.includes=common,perf,large-repository,importer-node
 ## => this make the shard about 90GB
 ## Number of shards: 100 shards so that we can reach 2B+
 ##
-elasticsearch.indexNumberOfShards=100
+elasticsearch.indexNumberOfShards=35
 
 ## Number of replicas: keep to 1
 #elasticsearch.indexNumberOfReplicas=1

@@ -4,16 +4,40 @@
   <require>default-repository-config</require>
 
   <extension target="org.nuxeo.ecm.core.blob.BlobManager" point="configuration">
+  
     <blobprovider name="jit">
       <class>org.nuxeo.ecm.core.blob.jit.JITBlobProvider</class>
       <property name="jit-caching">true</property>
     </blobprovider>
+    
+    <blobprovider name="snowball">
+      <class>${nuxeo.core.binarymanager}</class>
+      <property name="awsid">${nuxeo.s3storage.awsid}</property>
+      <property name="awssecret">${nuxeo.s3storage.awssecret}</property>
+      <property name="awstoken">${nuxeo.s3storage.awstoken}</property>
+      <property name="bucket">10b-benchmark-blobstore</property>
+      <property name="region">${nuxeo.s3storage.region}</property>
+      <property name="endpoint">${nuxeo.s3storage.endpoint}</property>
+      <property name="pathstyleaccess">${nuxeo.s3storage.pathstyleaccess}</property>
+      <property name="accelerateMode">${nuxeo.s3storage.accelerateMode}</property>
+      <property name="bucket_prefix"></property>
+      <property name="cacheminage">${nuxeo.s3storage.cacheminage}</property>
+      <property name="cachesize">${nuxeo.s3storage.cachesize}</property>
+      <property name="cachecount">${nuxeo.s3storage.cachecount}</property>
+      <property name="connection.max">${nuxeo.s3storage.connection.max}</property>
+      <property name="connection.retry">${nuxeo.s3storage.connection.retry}</property>
+      <property name="connection.timeout">${nuxeo.s3storage.connection.timeout}</property>
+      <property name="socket.timeout">${nuxeo.s3storage.socket.timeout}</property>
+    </blobprovider>
+    
   </extension>
   
   <extension target="org.nuxeo.ecm.core.blob.DocumentBlobManager" point="configuration">
     <blobdispatcher>
       <class>org.nuxeo.ecm.core.blob.DefaultBlobDispatcher</class>      
 	      <property name="dc:source=initialImport">jit</property>
+	      <property name="ecm:repositoryName=us-east">snowball</property>
+	      <property name="ecm:repositoryName=us-west">snowball</property>
 	      <property name="default">default</property>
     </blobdispatcher>
   </extension>
