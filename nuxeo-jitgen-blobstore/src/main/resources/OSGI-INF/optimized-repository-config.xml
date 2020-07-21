@@ -60,7 +60,11 @@
     
     
   </extension>
-  
+    
+  <!-- configure dedicated connection for repositories
+  <extension target="org.nuxeo.runtime.mongodb.MongoDBComponent" point="connection">
+    <connection id="repository/us-east">
+  -->
   
   <extension point="elasticSearchIndex" target="org.nuxeo.elasticsearch.ElasticSearchComponent">
 
