@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class USStateHelper {
 
-	public static final String EST = "us-est";
+	public static final String EAST = "us-east";
 	public static final String WEST = "us-west";	
 	
 	public static String toPath(String stateName) {
@@ -84,7 +84,7 @@ public class USStateHelper {
 	};
 	
 	// list of states as to be put on the "Est side"
-	public static final List<String> EST_STATES_CODE =  new ArrayList<String>( Arrays.asList (
+	public static final List<String> EAST_STATES_CODE =  new ArrayList<String>( Arrays.asList (
 				"ME",
 				"VT",
 				"NH",
@@ -131,8 +131,8 @@ public class USStateHelper {
 		return stateName;
 	}	
 	
-	public static boolean isEstern(String stateCode) {
-		return EST_STATES_CODE.contains(stateCode);
+	public static boolean isEastern(String stateCode) {
+		return EAST_STATES_CODE.contains(stateCode);
 	}
 	
 	protected static Map<String, String> initStateCode() {

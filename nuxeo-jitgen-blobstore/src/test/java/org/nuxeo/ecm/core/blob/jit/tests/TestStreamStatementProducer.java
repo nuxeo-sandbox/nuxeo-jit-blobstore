@@ -197,7 +197,7 @@ public class TestStreamStatementProducer {
 
 			LogManager manager = Framework.getService(StreamService.class).getLogManager("chronicle");
 
-			LogTailer<DocumentMessage> tailer1 = manager.createTailer("test", logName + "-" + USStateHelper.EST);
+			LogTailer<DocumentMessage> tailer1 = manager.createTailer("test", logName + "-" + USStateHelper.EAST);
 			LogTailer<DocumentMessage> tailer2 = manager.createTailer("test", logName + "-" + USStateHelper.WEST);
 			int count = 0;
 
@@ -206,7 +206,8 @@ public class TestStreamStatementProducer {
 				record = tailer1.read(Duration.ofSeconds(1));
 				if (record != null) {
 					DocumentMessage docMessage = record.message();
-					assertTrue(USStateHelper.isEstern(getState(docMessage)));
+					System.out.println("EAST: " + docMessage.getParentPath() + '/' + docMessage.getName());
+					assertTrue(USStateHelper.isEastern(getState(docMessage)));
 					count++;
 				}
 			} while (record != null);
@@ -217,7 +218,8 @@ public class TestStreamStatementProducer {
 				record = tailer2.read(Duration.ofSeconds(1));
 				if (record != null) {
 					DocumentMessage docMessage = record.message();
-					assertFalse(USStateHelper.isEstern(getState(docMessage)));
+					System.out.println("EAST: " + docMessage.getParentPath() + '/' + docMessage.getName());
+					assertFalse(USStateHelper.isEastern(getState(docMessage)));
 					count++;
 				}
 			} while (record != null);

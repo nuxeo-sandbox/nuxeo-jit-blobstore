@@ -29,17 +29,23 @@ public class MultiRepositoriesProducer<M extends DocumentMessage> extends Produc
 				setThreadName(message);
 				counter++;
 			}
-			String path = message.getParentPath();
-			LogAppender<M> appender = getAppender(path);
+			LogAppender<M> appender = getAppender(message);
 			appender.append(producer.getPartition(message, appender.size()), message);
 		}
 	}
 
-	protected LogAppender<M> getAppender(String path) {
-		String state = path.split("/")[1];
-		state = USStateHelper.getStateCode(state);
-		if (USStateHelper.isEstern(state)) {
-			return appenders.get(USStateHelper.EST);
+	protected LogAppender<M> getAppender(M message) {
+		String state = null;
+		if ("CustomerDocument".equals(message.getType()) ||"CustomerFolder".equals(message.getType())) {
+			state = message.getParentPath().split("/")[1];
+			state = USStateHelper.getStateCode(state);						
+		} else if ("Folder".equals(message.getType()) ) {
+			state = message.getName();
+			state = USStateHelper.getStateCode(state);
+		} 
+		
+		if (USStateHelper.isEastern(state)) {
+			return appenders.get(USStateHelper.EAST);
 		} else {
 			return appenders.get(USStateHelper.WEST);
 		}

@@ -2,7 +2,7 @@
 <component name="org.nuxeo.ecm.core.blob.jit.test.repositories">
  
   <extension target="org.nuxeo.ecm.core.api.repository.RepositoryManager" point="repositories">
-    <repository name="us-est" label="US Est" />
+    <repository name="us-east" label="US East" />
     <repository name="us-west" label="US West" />
   </extension>
 
@@ -17,7 +17,7 @@
  
   <extension target="org.nuxeo.ecm.core.storage.mem.MemRepositoryService" point="repository">
     
-    <repository name="us-est" label="US Est">
+    <repository name="us-east" label="US Est">
       <changeTokenEnabled>${nuxeo.test.changetoken.enabled}</changeTokenEnabled>
       <fulltext disabled="${nuxeo.test.fulltext.disabled}" searchDisabled="${nuxeo.test.fulltext.search.disabled}">
         <index> <!-- name="default" implied -->
@@ -42,4 +42,16 @@
     </repository>    
     
   </extension>
+  
+  <extension point="elasticSearchIndex" target="org.nuxeo.elasticsearch.ElasticSearchComponent">
+
+    <elasticSearchIndex name="us-east" repository="us-east"  create="true" type="doc">
+    </elasticSearchIndex>
+
+
+    <elasticSearchIndex name="us-west" repository="us-west"  create="true" type="doc">
+    </elasticSearchIndex>
+
+  </extension>
+  
 </component>

@@ -63,9 +63,6 @@ public class CustomerProducers {
     @Param(name = "logSize", required = false)
     protected Integer logSize;
 
-    @Param(name = "logConfig", required = false)
-    protected String logConfig = StreamImporters.DEFAULT_LOG_CONFIG;
-
     @Param(name = "bufferSize", required = false)
     protected Integer bufferSize = BUFFER_SIZE;
 
@@ -86,11 +83,9 @@ public class CustomerProducers {
         
     	checkAccess();
     	    	
-    	//LogManager manager = Framework.getService(StreamService.class).getLogManager();
-        LogManager manager = Framework.getService(StreamService.class).getLogManager(logConfig);
-        
+    	LogManager manager = Framework.getService(StreamService.class).getLogManager();        
         if (splitOutput) {
-        	manager.createIfNotExists(MultiRepositoriesProducerPool.getLogName(logName, USStateHelper.EST), getLogSize());
+        	manager.createIfNotExists(MultiRepositoriesProducerPool.getLogName(logName, USStateHelper.EAST), getLogSize());
         	manager.createIfNotExists(MultiRepositoriesProducerPool.getLogName(logName, USStateHelper.WEST), getLogSize());      	
         } else {
         	manager.createIfNotExists(Name.ofUrn(logName), getLogSize());            	

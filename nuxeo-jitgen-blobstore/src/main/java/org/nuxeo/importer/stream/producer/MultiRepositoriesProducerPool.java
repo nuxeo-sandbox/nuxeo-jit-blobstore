@@ -33,7 +33,7 @@ public class MultiRepositoriesProducerPool<M extends DocumentMessage> extends Pr
 		
 		if (split) {
 			Map<String, LogAppender<M>> appenders = new HashMap<>();		
-			appenders.put(USStateHelper.EST, manager.getAppender(getLogName(logName,USStateHelper.EST), codec));
+			appenders.put(USStateHelper.EAST, manager.getAppender(getLogName(logName,USStateHelper.EAST), codec));
 			appenders.put(USStateHelper.WEST, manager.getAppender(getLogName(logName,USStateHelper.WEST), codec));				
 			return new MultiRepositoriesProducer<>(factory,appenders , i);		
 		} else {

@@ -33,9 +33,12 @@ import org.nuxeo.ecm.automation.core.annotations.Param;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.importer.stream.StreamImporters;
 import org.nuxeo.importer.stream.jit.CustomerFolderMessageProducerFactory;
+import org.nuxeo.importer.stream.jit.USStateHelper;
 import org.nuxeo.importer.stream.message.DocumentMessage;
+import org.nuxeo.importer.stream.producer.MultiRepositoriesProducerPool;
 import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.log.LogManager;
+import org.nuxeo.lib.stream.log.Name;
 import org.nuxeo.lib.stream.pattern.producer.ProducerPool;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.stream.StreamService;
@@ -58,6 +61,9 @@ public class CustomerFolderProducers {
 	@Param(name = "logConfig", required = false)
 	protected String logConfig = StreamImporters.DEFAULT_LOG_CONFIG;
 
+    @Param(name = "split", required = false)
+    protected Boolean splitOutput = false;
+
 	protected void checkAccess() {
 		NuxeoPrincipal principal = context.getPrincipal();
 		if (principal == null || !principal.isAdministrator()) {
@@ -69,15 +75,20 @@ public class CustomerFolderProducers {
 	public void run() throws OperationException {
 
 		checkAccess();
-
-		LogManager manager = Framework.getService(StreamService.class).getLogManager(logConfig);
-		manager.createIfNotExists(logName, getLogSize());
+    	
+		LogManager manager = Framework.getService(StreamService.class).getLogManager();        
+		if (splitOutput) {
+			manager.createIfNotExists(MultiRepositoriesProducerPool.getLogName(logName, USStateHelper.EAST), getLogSize());
+			manager.createIfNotExists(MultiRepositoriesProducerPool.getLogName(logName, USStateHelper.WEST), getLogSize());      	
+		} else {
+			manager.createIfNotExists(Name.ofUrn(logName), getLogSize());            	
+		}
 
 		CustomerFolderMessageProducerFactory factory = new CustomerFolderMessageProducerFactory();
 		Codec<DocumentMessage> codec = StreamImporters.getDocCodec();
 
-		try (ProducerPool<DocumentMessage> producers = new ProducerPool<>(logName, manager, codec, factory,
-				(short) 1)) {
+		try (ProducerPool<DocumentMessage> producers = new MultiRepositoriesProducerPool<>(logName, manager, codec, factory,
+        		(short) 1, (boolean) splitOutput)) {
 			producers.start().get();
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
