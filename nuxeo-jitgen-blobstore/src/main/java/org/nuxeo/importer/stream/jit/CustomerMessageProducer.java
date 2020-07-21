@@ -95,6 +95,9 @@ public class CustomerMessageProducer extends AbstractProducer<DocumentMessage> {
 		Map<String, String> address = new HashMap<String, String>();
 		address.put("city", meta[5].trim());
 		address.put("street", meta[4].trim());		
+		address.put("country", "US");
+		address.put("state", USStateHelper.getStateCode(meta[6].trim()));
+
 		props.put("all:customerAddress", (Serializable) address);		
 						
 		props.put("all:customerNumber",meta[8].trim().substring(0,19));
@@ -123,7 +126,7 @@ public class CustomerMessageProducer extends AbstractProducer<DocumentMessage> {
 			
 			builder.setBlobInfo(bi);		
 		}
-		
+			
 		DocumentMessage msg = builder.build();
 		return msg;
 	}

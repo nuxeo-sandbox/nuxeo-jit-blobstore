@@ -175,6 +175,67 @@ public class TestStreamStatementProducer {
 		}
 	}
 
+	
+	@Test
+	public void canCreateCustomerMessagesMultiRepo() throws Exception {
+
+		try (OperationContext ctx = new OperationContext(session)) {
+			Map<String, Serializable> params = new HashMap<>();
+
+			String logName = "import/consumers";
+			
+			params.put("logConfig", "chronicle");
+			params.put("bufferSize", "5");
+			params.put("split", true);
+			params.put("logName", logName);
+			
+			InputStream csv = StatementsBlobGenerator.class.getResourceAsStream("/id-cards.csv");
+			Blob blob = new StringBlob(new String(IOUtils.toByteArray(csv)));
+
+			ctx.setInput(blob);
+			automationService.run(ctx, CustomerProducers.ID, params);
+
+			LogManager manager = Framework.getService(StreamService.class).getLogManager("chronicle");
+
+			LogTailer<DocumentMessage> tailer1 = manager.createTailer("test", logName + "-" + USStateHelper.EST);
+			LogTailer<DocumentMessage> tailer2 = manager.createTailer("test", logName + "-" + USStateHelper.WEST);
+			int count = 0;
+
+			LogRecord<DocumentMessage> record = null;
+			do {
+				record = tailer1.read(Duration.ofSeconds(1));
+				if (record != null) {
+					DocumentMessage docMessage = record.message();
+					assertTrue(USStateHelper.isEstern(getState(docMessage)));
+					count++;
+				}
+			} while (record != null);
+
+			assertTrue(count>0);
+
+			do {
+				record = tailer2.read(Duration.ofSeconds(1));
+				if (record != null) {
+					DocumentMessage docMessage = record.message();
+					assertFalse(USStateHelper.isEstern(getState(docMessage)));
+					count++;
+				}
+			} while (record != null);
+
+			
+			assertEquals(200, count);
+			tailer1.commit();
+			tailer1.close();
+			tailer2.commit();
+			tailer2.close();
+
+		}
+	}
+
+	protected static String getState(DocumentMessage docMessage) {
+		Map<String, String> address = (Map<String, String>) docMessage.getProperties().get("all:customerAddress");
+		return address.get("state");
+	}
 	protected static String[] expectedAccountID = new String[] { "0E570-08A8E-53AE1E6-01", "0D377-0F93A-3A16029-01",
 			"0D377-0F93A-3A16029-02", "0D377-0F93A-3A16029-03", "07180-05BE9-44A4265-01", "07180-05BE9-44A4265-02",
 			"13A20-0E86C-69A4770-01", "19E08-06256-59DD19E-01", "05F4E-0100B-044C4D7-01", "05F4E-0100B-044C4D7-02" };

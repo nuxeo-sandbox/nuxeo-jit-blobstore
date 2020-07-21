@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.ecm.core.blob.jit.test.repositories">
+ 
+  <extension target="org.nuxeo.ecm.core.api.repository.RepositoryManager" point="repositories">
+    <repository name="us-est" label="US Est" />
+    <repository name="us-west" label="US West" />
+  </extension>
+
+  <extension target="org.nuxeo.ecm.core.blob.BlobManager" point="configuration">
+    <blobprovider name="us-est">
+      <class>org.nuxeo.ecm.core.blob.binary.DefaultBinaryManager</class>
+    </blobprovider>
+    <blobprovider name="us-west">
+      <class>org.nuxeo.ecm.core.blob.binary.DefaultBinaryManager</class>
+    </blobprovider>
+  </extension>
+ 
+  <extension target="org.nuxeo.ecm.core.storage.mem.MemRepositoryService" point="repository">
+    
+    <repository name="us-est" label="US Est">
+      <changeTokenEnabled>${nuxeo.test.changetoken.enabled}</changeTokenEnabled>
+      <fulltext disabled="${nuxeo.test.fulltext.disabled}" searchDisabled="${nuxeo.test.fulltext.search.disabled}">
+        <index> <!-- name="default" implied -->
+          <!-- all props implied -->
+        </index>
+        <index name="title">
+          <field>dc:title</field>
+        </index>
+      </fulltext>
+    </repository>
+ 
+    <repository name="us-west" label="US West">
+      <changeTokenEnabled>${nuxeo.test.changetoken.enabled}</changeTokenEnabled>
+      <fulltext disabled="${nuxeo.test.fulltext.disabled}" searchDisabled="${nuxeo.test.fulltext.search.disabled}">
+        <index> <!-- name="default" implied -->
+          <!-- all props implied -->
+        </index>
+        <index name="title">
+          <field>dc:title</field>
+        </index>
+      </fulltext>
+    </repository>    
+    
+  </extension>
+</component>

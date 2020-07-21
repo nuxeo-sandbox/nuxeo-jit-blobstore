@@ -1,10 +1,16 @@
 package org.nuxeo.importer.stream.jit;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class USStateHelper {
 
+	public static final String EST = "us-est";
+	public static final String WEST = "us-west";	
+	
 	public static String toPath(String stateName) {
 		return stateName.trim().toLowerCase().replace(" ", "-");		
 	}
@@ -77,6 +83,34 @@ public class USStateHelper {
 			"Wyoming"
 	};
 	
+	// list of states as to be put on the "Est side"
+	public static final List<String> EST_STATES_CODE =  new ArrayList<String>( Arrays.asList (
+				"ME",
+				"VT",
+				"NH",
+				"MA",
+				"CT",
+				"NJ",
+				"NY",
+				"RI",
+				"PA",
+				"VA",
+				"NC",
+				"SC",
+				"GA",
+				"FL",
+				"AL",
+				"MS",
+				"TN",
+				"KY",
+				"WV",
+				"OH",
+				"IN",
+				"MI",
+				"IN",
+				"VA",
+				"MD"));
+	
 	protected static Map<String, String> StateName2StateCode = initStateCode();
 	
 	protected static Map<String, Integer> StateName2Idx = initStateIdx();
@@ -96,6 +130,10 @@ public class USStateHelper {
 		}
 		return stateName;
 	}	
+	
+	public static boolean isEstern(String stateCode) {
+		return EST_STATES_CODE.contains(stateCode);
+	}
 	
 	protected static Map<String, String> initStateCode() {
 		Map<String, String> s2c = new HashMap<String, String>();
@@ -151,7 +189,19 @@ public class USStateHelper {
 		s2c.put("Wyoming","WY");
 		s2c.put("District of Columbia","DC");	
 		s2c.put("Puerto Rico","PR");	
+		
+		Map<String, String> alias = new HashMap<>();
+		
+		for (String name : s2c.keySet()) {
+			alias.put(name.toLowerCase(), s2c.get(name));
+			alias.put(toPath(name), s2c.get(name));
+		}
+	
+		s2c.putAll(alias);
+		
 		return s2c;
 	}
+	
+	
 	
 }

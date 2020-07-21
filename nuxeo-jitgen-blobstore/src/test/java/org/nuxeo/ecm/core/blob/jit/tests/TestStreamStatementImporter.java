@@ -199,7 +199,7 @@ public class TestStreamStatementImporter {
 			// create Customers messages
 			params.put("logConfig", "chronicle");
 			params.put("bufferSize", 5);
-			params.put("nbThreads", 1);	
+			//params.put("nbThreads", 1);	
 			
 			InputStream csv = StatementsBlobGenerator.class.getResourceAsStream("/id-cards.csv");
 			String csvContent = new String(IOUtils.toByteArray(csv));			
@@ -214,7 +214,7 @@ public class TestStreamStatementImporter {
 			params = new HashMap<>();
 			params.put("rootFolder", root.getPathAsString());
 			params.put("logConfig", "chronicle");
-			params.put("nbThreads", 1);	
+			//params.put("nbThreads", 1);	
 			automationService.run(ctx, DocumentConsumers.ID, params);
 
 			docs = session
