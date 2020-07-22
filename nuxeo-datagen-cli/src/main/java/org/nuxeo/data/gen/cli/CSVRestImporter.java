@@ -36,7 +36,9 @@ public class CSVRestImporter {
 		options.addOption("t", "threads", true, "Number of threads");
 		options.addOption("h", "help", false, "Help");
 		options.addOption("f", "file", true, "location of CSV file to import");
-
+		options.addOption("l", "logName", true, "name (or prefix) of the stream to use");
+		options.addOption("m", "multiRepo", false, "Define if multi-repositories is used");
+		
 		CommandLineParser parser = new DefaultParser();
 
 		CommandLine cmd = null;
@@ -64,7 +66,7 @@ public class CSVRestImporter {
 			return;
 		}
 
-		NuxeoClient nuxeoClient = createClient(nuxeoConfig);
+		NuxeoClient nuxeoClient = NuxeoClientHelper.createClient(nuxeoConfig);
 
 		if (nuxeoClient!=null) {
 			NuxeoVersion version = nuxeoClient.getServerVersion();
@@ -82,6 +84,12 @@ public class CSVRestImporter {
 			return;
 		}
 
+		String logName = cmd.getOptionValue('l', "import/Customers");
+		boolean split=false;
+		if (cmd.hasOption("m")) {
+			split=true;
+		}
+		
 		long t0 = System.currentTimeMillis();
 
 		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(nbThreads);
@@ -103,7 +111,7 @@ public class CSVRestImporter {
 				nbLines++;
 				page.append(line).append("\n");
 				if (nbLines % PAGE_SIZE == 0) {
-					executor.submit(mkTask(page.toString(), nuxeoClient));
+					executor.submit(mkTask(page.toString(), nuxeoClient, split, logName));
 					batches++;
 					System.out.println("Send batch " + batches);
 					page = new StringBuffer();
@@ -156,15 +164,15 @@ public class CSVRestImporter {
 		}
 	}
 
-	protected static Runnable mkTask(String csv, NuxeoClient client) {
+	protected static Runnable mkTask(String csv, NuxeoClient client, boolean split, String logName) {
 		return new Runnable() {
 
 			@Override
 			public void run() {
 				Map<String, Object> params = new HashMap<String, Object>();
 				params.put("nbThreads", 1);
-				params.put("logName", "import/Customers");
-				params.put("split", true);
+				params.put("logName", logName);
+				params.put("split", split);
 
 				if (client == null) {
 					try {
@@ -183,24 +191,6 @@ public class CSVRestImporter {
 		};
 	}
 
-	protected static NuxeoClient createClient(Properties config) {
-
-		String url = config.getProperty("url");
-		String login = config.getProperty("login");
-		String pwd = config.getProperty("password");
-
-		System.out.println("url=" + url);
-		System.out.println("login=" + login);
-		System.out.println("pwd=" + pwd);
-
-		if (url == null) {
-			return null;
-		}
-
-		NuxeoClient nuxeoClient = new NuxeoClient.Builder().url(url).authentication(login, pwd).readTimeout(24 * 3600)
-				.connectTimeout(60).transactionTimeout(24 * 3600).connect();
-
-		return nuxeoClient;
-	}
+	
 
 }

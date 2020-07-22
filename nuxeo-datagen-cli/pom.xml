@@ -92,7 +92,7 @@
     <dependency>
      <groupId>org.nuxeo.client</groupId>
      <artifactId>nuxeo-java-client</artifactId>
-     <version>3.5.0</version>
+     <version>3.6.0</version>
      <scope>compile</scope>
     </dependency>
 

@@ -1,12 +1,13 @@
 
 ### Context
 
-In the context of the 10B benchmark, we need to generate a very large number of files (for now PDFs).
+In the context of the 10B benchmark, we need to generate a very large number of files (PDFS, docx and png).
 
 This project packaged the `nuxeo-data-generator` as a CommandLine utility so that it can be used:
 
  - to generate data to feed Gatling tests
- - to gnerate files to fill a snowball
+ - to generate files to fill an AWS snowball
+ - to inject dans directly inside Nuxeo
 
 ### Build
 
@@ -38,7 +39,6 @@ Current command line options
     -t,--threads <arg>   Number of threads
     -x,--model <arg>      define the pdf model: statement (default), id or letter
 
-
 Mode options are:
 
  - `id`: only AccountIDs are generated 
@@ -63,7 +63,7 @@ Output options are:
 
 NB: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_SESSION_TOKEN` can also be set as environment variables.
 
-### Templates
+### Templates and documents generation
 
 There currently 3 supported templates:
 
@@ -75,6 +75,8 @@ There currently 3 supported templates:
     - docx based
 
 ### How the data is generated
+
+#### Principles
 
 Each `accountID` is in the format: `03110-00CFE-5BF31E3-01`
 
@@ -89,7 +91,7 @@ When using multi-threads ( `-t` or `--threads`), each thread is actually initial
 For each `customerID`, there can be 1 to 6 `accountID`.
 Then for each `accoundID` there will be 1 statement per month depending on the parameter `-d` or `--months`. 
 
-### Meta-data collections and logs
+#### Meta-data collections and logs
 
 By *"MetaData collection"* we mean: persisting the data that were used to generate each PDF file
 
@@ -100,7 +102,7 @@ The file `metadata.csv` is used to store these informations.
 
 The file `injector.log` contains the log of the steps of the import.
 
-### Example execution
+#### Example execution
 
 **Generating 10,000 AccountID**
 
@@ -142,4 +144,66 @@ NB: Generation of Tiff is much much slower than PDF.
 **Generating Account Opening Letter**
 
     java -jar target/nuxeo-datagen-cli-1.0-SNAPSHOT.jar -t 1 -m pdf -d 1 -n 100   -x letter -o fileDigest:myoutputfolder
+
+### Injecting Data inside Nuxeo
+
+#### Principles
+
+We need to address different types of content:
+
+ - hierarchy (i.e. Folders)
+   - generated at import time using Stream/Importer DocumentProducers triggered via Automation
+ 		- see `StreamImporter.runConsumerFolderProducers`
+ - Statements (i.e. Nuxeo StatementDocument + attached PDF)
+   - generated at import time using Stream/Importer DocumentProducers triggered via Automation
+     	- see `StreamImporter.runStatementProducers`
+ - Customers, ID Cards and letters
+   - pre-generated using this CLI as csv files and a collection of PNG files on the AWS Snowball
+   - imported via CSV using `StreamImporter.runConsumerProducers`
+   
+#### Generating the base hierarchy   
+
+Generate the messages for consumers tree in the stream `import/hierarchy` in single repository mode:
+
+    scripts/import.sh -o consumertree -l import/hierarchy 
+
+    
+Generate the messages for consumers tree in the stream `import/hierarchy` in multi-repository repository mode:
+
+    scripts/import.sh -o consumertree -l import/hierarchy -m 
+    
+This will generate messages in 2 different streams `import/hierarchy-us-east` and `import/hierarchy-us-west`, one for each target repository.
+
+#### Import the hierarchy
+
+Trigger import on repository `us-east` using "/customers" as base::
+
+    scripts/import.sh -o import -l import/hierarchy-us-east -r us-east -b customers
+     
+
+Trigger import in async mode on repository `us-west` using "/customers" as base::
+
+    scripts/import.sh -o import -l import/hierarchy-us-west -r us-west -a -b customers
+      
+#### Generate ID Cards document messages
+
+Using from pre-generated CSV using 8 threads for parallel chunks upload, with multi-repositories:
+
+    scripts/csvimport.sh -t 8 -f metadata-xxx.csv -m -l import/Customers
+
+This will generate messages in 2 different streams `import/Customers-us-east` and `import/Customers-us-west`, one for each target repository.
+
+
+#### Import ID Cards 
+
+
+Trigger import on repository `us-east` using "/customers" as base::
+
+    scripts/import.sh -o import -l import/Customer-us-east -r us-east -b customers
+     
+
+Trigger import in async mode on repository `us-west` using "/customers" as base::
+
+    scripts/import.sh -o import -l import/Customer-us-west -r us-west -a -b customers
+ 
 

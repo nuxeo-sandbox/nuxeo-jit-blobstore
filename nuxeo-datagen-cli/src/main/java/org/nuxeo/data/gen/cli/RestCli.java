@@ -15,6 +15,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.nuxeo.client.NuxeoClient;
+import org.nuxeo.client.NuxeoClient.Builder;
 import org.nuxeo.client.NuxeoVersion;
 import org.nuxeo.client.objects.Operation;
 import org.nuxeo.client.objects.blob.Blob;
@@ -23,13 +24,20 @@ import org.nuxeo.data.gen.meta.SequenceGenerator;
 
 public class RestCli {
 
+	public static final String CONSUMERTREE = "consumertree";	
+	public static final String IMPORT = "import";	
+	
 	private static final Map<String, String> opMap = new HashMap<String, String>();
     static {
         opMap.put("statementtree", "StreamImporter.runStatementFolderProducers");
         opMap.put("statements", "StreamImporter.runStatementProducers");
-        opMap.put("consumertree", "StreamImporter.runConsumerFolderProducers");
-        opMap.put("consumers", "StreamImporter.runConsumerProducers");
-        opMap.put("import", "StreamImporter.runDocumentConsumers");        
+        opMap.put(CONSUMERTREE, "StreamImporter.runConsumerFolderProducers");
+        opMap.put(IMPORT, "StreamImporter.runDocumentConsumers");        
+    }
+
+    protected static void help(Options options) {
+    	HelpFormatter formatter = new HelpFormatter();
+		formatter.printHelp("RestCLI", options);
     }
     
 	public static void main(String[] args) {
@@ -43,9 +51,13 @@ public class RestCli {
 		options.addOption("monthOffset", true, "Months offset");
 		options.addOption("h", "help", false, "Help");
 		options.addOption("s", "seed", true, "Seed");
-		options.addOption("f", "file", true, "location of CSV file to import");
-		options.addOption("r", "root", true, "define the root where to import documents");
-
+		
+		options.addOption("r", "repo", true, "define the target repository");
+		options.addOption("b", "root", true, "define the root/basepath where to import documents");
+		options.addOption("l", "logName", true, "name (or prefix) of the stream to use");
+		options.addOption("m", "multiRepo", false, "Define if multi-repositories is used");
+		options.addOption("a", "async", false, "Call Automation using the @async adapter");
+		
 		CommandLineParser parser = new DefaultParser();
 
 		CommandLine cmd = null;
@@ -55,22 +67,27 @@ public class RestCli {
 			System.err.println("Parsing failed.  Reason: " + exp.getMessage());
 			return;
 		}
-
-		String root = cmd.getOptionValue('r',null);
+		
+		if (cmd.hasOption('h')) {
+			help(options);
+			return;
+		}
 		
 		String operation = cmd.getOptionValue('o',null);
 		if (operation==null) {
 			System.err.println("No Operation defined");
+			help(options);
+			return;
 		} else {
 			operation = operation.trim().toLowerCase();
 		}
-
-		if (cmd.hasOption('h') || operation==null) {
-			HelpFormatter formatter = new HelpFormatter();
-			formatter.printHelp("RestCLI", options);
+	
+		if (!opMap.containsKey(operation)) {
+			System.err.println("unknown operation " + operation);		
 			return;
 		}
 
+	
 		Properties nuxeoConfig = new Properties();
 		String config = cmd.getOptionValue('c', "nuxeo.properties");
 		try {			
@@ -81,82 +98,86 @@ public class RestCli {
 			System.err.println("Unable to read configuration file " + e.getMessage());
 			return;
 		}
-		
-		NuxeoClient nuxeoClient = createClient(nuxeoConfig);
-
-		NuxeoVersion version =  nuxeoClient.getServerVersion();
-		System.out.println("Connected to Nuxeo Server " + version.toString());
 				
 		int nbThreads = Integer.parseInt(cmd.getOptionValue('t', "10"));
 		int nbDocs = Integer.parseInt(cmd.getOptionValue('n', "100000"));
 		int nbMonths = Integer.parseInt(cmd.getOptionValue('d', "48"));
 		int monthOffset = Integer.parseInt(cmd.getOptionValue("monthOffset", "0"));
-		
+		String root = cmd.getOptionValue('b',null);
+		String repo = cmd.getOptionValue('r',null);
 		long seed = Long.parseLong(cmd.getOptionValue('s', SequenceGenerator.DEFAULT_ACCOUNT_SEED + ""));
 
-		if (!opMap.containsKey(operation)) {
-			System.err.println("unknown operation " + operation);
-			return;
+		String logName = cmd.getOptionValue('l', null);
+		boolean split=false;
+		if (cmd.hasOption("m")) {
+			split=true;
 		}
 		
 		String opId = opMap.get(operation);
-		
-		System.out.println("  Operation:" + opId);		
-		System.out.println("  Threads:" + nbThreads);
-		System.out.println("  nbDocs:" + nbDocs);
-		System.out.println("  nbMonths:" + nbMonths);
-		System.out.println("  seed:" + seed);
+		boolean async = false;
+		if (cmd.hasOption("a")) {
+			async=true;
+		}		
 		
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("nbThreads", nbThreads);
-		params.put("nbDocuments", nbDocs);
-		params.put("nbMonths", nbMonths);
-		params.put("monthOffset", monthOffset);
-		params.put("nbThreads", nbThreads);		
-		params.put("seed", seed);
-		if (root!=null) {
-			if (!root.startsWith("/")) {
-				// avoid losing time debuging documents not being imported 
-				root = "/" + root;
+
+		if (CONSUMERTREE.equalsIgnoreCase(operation)) {
+			// force single thread
+			nbThreads = 1;
+			if (logName==null) {
+				logName = "import/hierarchy";
 			}
-			params.put("rootFolder", root);
+			
+			params.put("logName", logName);
+			params.put("split", split);
+			params.put("nbThreads", nbThreads);
+		} else if (IMPORT.equalsIgnoreCase(operation)) {
+
+			if (logName==null) {
+				System.err.println("You should provide a logName (-l)");
+				return;
+			}
+
+			params.put("nbThreads", nbThreads);
+			params.put("nbDocuments", nbDocs);
+			params.put("nbMonths", nbMonths);
+			params.put("monthOffset", monthOffset);
+			params.put("nbThreads", nbThreads);		
+			params.put("seed", seed);			
+			if (root!=null) {
+				if (!root.startsWith("/")) {
+					// avoid losing time debuging documents not being imported 
+					root = "/" + root;
+				}
+				params.put("rootFolder", root);
+			}		
 		}
 		
-		String csvFileName = cmd.getOptionValue('f',null);
-		File csvFile=null;
-		if (csvFileName!=null) {
-			csvFile = new File(csvFileName);
-		}
+
+		NuxeoClient nuxeoClient = NuxeoClientHelper.createClient(nuxeoConfig, async);
+		NuxeoVersion version =  nuxeoClient.getServerVersion();
+		System.out.println("Connected to Nuxeo Server " + version.toString());
 		
+		
+		System.out.println("Running Operation:" + opId);		
+		dumpParams(params);		
+					
 		Operation op = nuxeoClient.operation(opId).parameters(params);
-		if (csvFile!=null) {
-			Blob csvBlob = new FileBlob(csvFile);
-			op.input(csvBlob);
+		if (repo!=null) {
+		  op = op.header("X-NXRepository", repo); 
 		}
 		op.voidOperation(true).execute();
 		
 		nuxeoClient.disconnect();
 	}
 	
-	protected static NuxeoClient createClient(Properties config) {
+	
+	protected static void dumpParams(Map<String, Object> params) {
 		
-		String url = config.getProperty("url");
-		String login = config.getProperty("login");
-		String pwd = config.getProperty("password");
-		
-		System.out.println("url=" + url);
-		System.out.println("login=" + login);
-		System.out.println("pwd=" + pwd);
-
-		
-		NuxeoClient nuxeoClient = new NuxeoClient.Builder()
-                .url(url)
-                .authentication(login, pwd)
-                .readTimeout(24*3600)
-                .connectTimeout(60)
-                .transactionTimeout(24*3600)
-                .connect();
-
-		return nuxeoClient;
+		for (String p: params.keySet()) {
+			System.out.printf("   %s: %s \n", p, params.get(p).toString());
+		}		
 	}
+	
+	
 }
