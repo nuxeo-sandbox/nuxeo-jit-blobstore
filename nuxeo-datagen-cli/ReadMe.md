@@ -15,7 +15,9 @@ This project packaged the `nuxeo-data-generator` as a CommandLine utility so tha
 
 The Maven build uses the `shade-plugin` in order to produce a "uber-jar" that includes all the dependencies.
 
-### Execution
+### Main entry point
+
+The main entry point is about generating data.
 
 Run the exectable jar:
 
@@ -23,21 +25,27 @@ Run the exectable jar:
 
 Current command line options 
 
-    -aws_key <arg>       AWS_ACCESS_KEY_ID
-    -aws_secret <arg>    AWS_SECRET_ACCESS_KEY
-    -aws_session <arg>   AWS_SESSION_TOKEN
-    -d,--months <arg>    Number of months of statements to generate
-    -h,--help            Help
-    -p,--pictures <arg>   path to read the pictures from
-    -s,--seed <arg>      Seed used to initialize the Random sequence 
-    -f,--filter <arg>    Apply fliter to convert generated PDF: jpeg or tiff
-    -m,--mode <arg>      define generation mode: id (default), metadata, pdf
-    -n,--nbDoc <arg>     Number of Documents to generate
-    -o,--output <arg>    generate and output PDF : mem (default), tmp,
-                         file:<path>, fileDigest:<path>, s3:<bucketName>, s3tm:<bucketName>,
-                         s3tma:<bucketName>
-    -t,--threads <arg>   Number of threads
-    -x,--model <arg>      define the pdf model: statement (default), id or letter
+	usage: DataGenCLI	
+	 -aws_endpoint <arg>   AWS_ENDPOINT
+	 -aws_key <arg>        AWS_ACCESS_KEY_ID
+	 -aws_secret <arg>     AWS_SECRET_ACCESS_KEY
+	 -aws_session <arg>    AWS_SESSION_TOKEN
+	 -d,--months <arg>     Number of months of statements to generate
+	 -f,--filter <arg>     rendition to be applied to the pdf: tiff, jpeg
+	 -h,--help             Help
+	 -j,--jump <arg>       Jump to later in the sequence
+	 -m,--mode <arg>       define generation mode: id (default), metadata, pdf
+	 -monthOffset <arg>    Months offset
+	 -n,--nbDoc <arg>      Number of Documents to generate
+	 -o,--output <arg>     generate and output PDF : mem (default), tmp,
+	                       file:<path>, fileDigest:<path>, s3:<bucketName>,
+	                       s3tm:<bucketName>, s3tma:<bucketName>,
+	                       s3a:<bucketName>
+	 -p,--pictures <arg>   path to read the pictures from
+	 -s,--seed <arg>       Seed
+	 -t,--threads <arg>    Number of threads
+	 -x,--model <arg>      define the pdf model: statement (default), id or
+	                       letter
 
 Mode options are:
 
@@ -206,4 +214,3 @@ Trigger import in async mode on repository `us-west` using "/customers" as base:
 
     scripts/import.sh -o import -l import/Customer-us-west -r us-west -a -b customers
  
-

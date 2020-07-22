@@ -10,6 +10,10 @@ This project is a simple Java library that provides the basic tools to generate 
 
 The focus of this lib is to generate "fake" bank statements.
 
+### Overview
+
+<img src="doc/overview.png" width="800px"/>
+
 ### Build
 
    mvn clean package
@@ -97,13 +101,13 @@ The `SequenceGenerator` provide a "high-level" API to generate simple sequence o
 
 Currently, only the account meta-data are exposed by the `SequenceGenerator`.
 
-### PDF Generation
+### Renditions
 
-#### Principles
+#### PDF
 
 After doing tests with several libraries it seems that iText is the fastest option.
 
-Because we want to geenarte 10B of PDF, the main requirement of this generation is:
+Because we want to generate 10B of PDF, the main requirement of this generation is:
 
  - be super fast
  - generate small files
@@ -115,4 +119,18 @@ The selected approach is:
  - replace the tags by actual meta-data to generate the PDF files
 
 This is a very basic system, but this seems good enough and this was by far the fastest option.
+
+#### DocX
+
+Brute-force approach:
+
+ - have a docX template done by hand using `#--token--#`
+ - unzip docx and replace token on the fly + rezip
+
+#### Images
+
+
+Images are generated using PDF (same principle as the one explained above) and then use ImageIO.ImageWriter to render the PDF as JPEG.
+
+Some tests were done successfully with TIFF but the generation time is definitely too slow.
 
