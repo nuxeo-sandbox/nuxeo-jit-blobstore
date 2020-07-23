@@ -89,8 +89,8 @@ public class CustomerMessageProducer extends AbstractProducer<DocumentMessage> {
 		
 		String fullname = meta[3].trim();
 		int idx = fullname.indexOf(" ");		
-		props.put("all:customerFirstname", fullname.substring(0, idx).trim());
-		props.put("all:customerLastname", fullname.substring(idx).trim());
+		props.put("customer:firstname", fullname.substring(0, idx).trim());
+		props.put("customer:lastname", fullname.substring(idx).trim());
 		
 		Map<String, String> address = new HashMap<String, String>();
 		address.put("city", meta[5].trim());
@@ -98,15 +98,15 @@ public class CustomerMessageProducer extends AbstractProducer<DocumentMessage> {
 		address.put("country", "US");
 		address.put("state", USStateHelper.getStateCode(meta[6].trim()));
 
-		props.put("all:customerAddress", (Serializable) address);		
+		props.put("customer:address", (Serializable) address);
 						
-		props.put("all:customerNumber",meta[8].trim().substring(0,19));
+		props.put("customer:number",meta[8].trim().substring(0,19));
 						
 		String name = meta[8].trim().substring(0,19);
 		String stateName = USStateHelper.toPath(meta[6].trim());
 		
 		
-		String type = "CustomerDocument";
+		String type = "Customer";
 		String path = "/" + stateName;
 		if (folder) {
 			type="CustomerFolder";

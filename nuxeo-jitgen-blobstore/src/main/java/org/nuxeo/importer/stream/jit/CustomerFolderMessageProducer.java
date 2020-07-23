@@ -61,7 +61,7 @@ public class CustomerFolderMessageProducer extends AbstractProducer<DocumentMess
 		props.put("dc:title", state);
 
 		String name = USStateHelper.toPath(state);
-		DocumentMessage.Builder builder = DocumentMessage.builder("Folder", "/", name).setProperties(props);
+		DocumentMessage.Builder builder = DocumentMessage.builder("Domain", "/", name).setProperties(props);
 
 		DocumentMessage msg = builder.build();
 		return msg;

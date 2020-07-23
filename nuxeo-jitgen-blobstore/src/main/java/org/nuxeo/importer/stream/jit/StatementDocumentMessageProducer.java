@@ -151,10 +151,10 @@ public class StatementDocumentMessageProducer<M extends Message> extends Abstrac
 	}
 
 	protected void mapMetaData(HashMap<String, Serializable> props, DocInfo docInfo) {
-		props.put("statement:accountNumber", docInfo.getMeta("ACCOUNTID").trim());		
+		props.put("account:number", docInfo.getMeta("ACCOUNTID").trim());
 		try {
 			Date stmDate = RandomDataGenerator.df.get().parse(docInfo.getMeta("DATE").trim());
-			props.put("statement:statementDate", stmDate);
+			props.put("all:documentDate", stmDate);
 			props.put("dc:created", stmDate);
 			props.put("dc:modified", stmDate);
 			props.put("dc:creator", "nco-admin");						
@@ -163,17 +163,17 @@ public class StatementDocumentMessageProducer<M extends Message> extends Abstrac
 		}		
 		String fullname = docInfo.getMeta("NAME").trim();
 		int idx = fullname.indexOf(" ");		
-		props.put("all:customerFirstname", fullname.substring(0, idx).trim());
-		props.put("all:customerLastname", fullname.substring(idx).trim());
+		props.put("customer:firstname", fullname.substring(0, idx).trim());
+		props.put("customer:lastname", fullname.substring(idx).trim());
 		
 		Map<String, String> address = new HashMap<String, String>();
 		address.put("city", docInfo.getMeta("CITY").trim());
 		address.put("street", docInfo.getMeta("STREET").trim());
 		address.put("country", "US");
 		address.put("state", USStateHelper.getStateCode(docInfo.getMeta("STATE").trim()));
-		props.put("all:customerAddress", (Serializable) address);		
+		props.put("customer:address", (Serializable) address);
 
-		props.put("all:customerNumber", docInfo.getMeta("ACCOUNTID").trim().substring(0,19));
+		props.put("customer:number", docInfo.getMeta("ACCOUNTID").trim().substring(0,19));
 	}
 
 	protected String getName(String title) {

@@ -21,7 +21,7 @@
       }
    ],
    "properties":{
-      "all:customerAddress":{
+      "customer:address":{
          "properties":{
             "city":{
                "type":"keyword",
@@ -50,21 +50,21 @@
             }
          }
       },
-      "all:customerFirstname":{
+      "customer:firstname":{
          "type":"keyword",
          "copy_to":[
             "all_field"
          ],
          "ignore_above":64
       },
-      "all:customerLastname":{
+      "customer:lastname":{
          "type":"keyword",
          "copy_to":[
             "all_field"
          ],
          "ignore_above":64
       },
-      "all:customerNumber":{
+      "customer:number":{
          "type":"keyword",
          "copy_to":[
             "all_field"
@@ -505,24 +505,24 @@
          "type":"keyword",
          "ignore_above":64
       },
-      "statement:accountNumber":{
+      "account:number":{
          "type":"keyword",
          "copy_to":[
             "all_field"
          ],
          "ignore_above":64
       },
-      "statement:branch":{
+      "account:branch":{
          "type":"keyword",
          "ignore_above":64,
          "copy_to":[
             "all_field"
          ]
       },
-      "statement:paperless":{
+      "all:paperless":{
          "type":"boolean"
       },
-      "statement:statementDate":{
+      "all:documentDate":{
          "type":"date",
          "copy_to":[
             "all_field"

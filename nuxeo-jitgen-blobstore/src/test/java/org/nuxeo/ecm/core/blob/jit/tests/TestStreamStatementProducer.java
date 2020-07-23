@@ -235,7 +235,7 @@ public class TestStreamStatementProducer {
 	}
 
 	protected static String getState(DocumentMessage docMessage) {
-		Map<String, String> address = (Map<String, String>) docMessage.getProperties().get("all:customerAddress");
+		Map<String, String> address = (Map<String, String>) docMessage.getProperties().get("customer:address");
 		return address.get("state");
 	}
 	protected static String[] expectedAccountID = new String[] { "0E570-08A8E-53AE1E6-01", "0D377-0F93A-3A16029-01",
@@ -273,8 +273,8 @@ public class TestStreamStatementProducer {
 					assertEquals("Statement", docMessage.getType());
 					assertEquals("initialImport", docMessage.getProperties().get("dc:source"));
 
-					String account = (String) docMessage.getProperties().get("statement:accountNumber");
-					String customer = (String) docMessage.getProperties().get("all:customerNumber");
+					String account = (String) docMessage.getProperties().get("account:number");
+					String customer = (String) docMessage.getProperties().get("customer:number");
 
 					if (count % 48 == 0) {
 						lastAccounId = account;
@@ -325,7 +325,7 @@ public class TestStreamStatementProducer {
 				record = tailer.read(Duration.ofSeconds(10));
 				if (record != null) {
 					DocumentMessage docMessage = record.message();
-					String account = (String) docMessage.getProperties().get("statement:accountNumber");
+					String account = (String) docMessage.getProperties().get("account:number");
 					generatedAccounts.add(account);
 				}
 			} while (record != null);
@@ -391,8 +391,8 @@ public class TestStreamStatementProducer {
 					assertEquals("Statement", docMessage.getType());
 					assertEquals("initialImport", docMessage.getProperties().get("dc:source"));
 
-					String account = (String) docMessage.getProperties().get("statement:accountNumber");
-					Date date = (Date) docMessage.getProperties().get("statement:statementDate");
+					String account = (String) docMessage.getProperties().get("account:number");
+					Date date = (Date) docMessage.getProperties().get("all:documentDate");
 
 					String tag = (String) docMessage.getProperties().get("dc:publisher");
 					assertNotNull(tag);
