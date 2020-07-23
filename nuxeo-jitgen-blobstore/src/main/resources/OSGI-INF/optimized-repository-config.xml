@@ -3,6 +3,11 @@
 
   <require>default-repository-config</require>
 
+  <extension target="org.nuxeo.ecm.core.api.repository.RepositoryManager" point="repositories">
+    <repository name="us-east" label="US East" />
+    <repository name="us-west" label="US West" />
+  </extension>
+  
   <extension target="org.nuxeo.ecm.core.storage.mongodb.MongoDBRepositoryService" point="repository">
     <repository name="default">
       

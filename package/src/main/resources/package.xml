@@ -17,6 +17,8 @@
   <supported>false</supported>
   <platforms>
     <platform>server-@DISTRIB_VERSION@</platform>
+    <platform>server-11.1.*</platform>
+    <platform>server-11.2.*</platform>
   </platforms>
   <!-- Dependencies on other packages -->
   <dependencies>

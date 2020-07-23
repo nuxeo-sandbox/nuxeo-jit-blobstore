@@ -62,17 +62,19 @@ public class CSVDedup {
 				
 		
 		
-		PrintWriter pw = null;
+		PrintWriter out = null;
+		PrintWriter dup = null;
 		
 		try {
-			pw = new PrintWriter(new FileWriter(new File(dest)));
+			out = new PrintWriter(new FileWriter(new File(dest)));
+			dup = new PrintWriter(new FileWriter(new File(dest+".dup")));
 		} catch (IOException e) {
 			System.err.println("Unable to open output file " + e.getMessage());
 			e.printStackTrace();
 			return;
-		}
-
-		Set<String> ids = new HashSet<String>();
+		}		
+		
+		Set<String> ids = new KeyBuffer(5000000,5000);
 
 		long processedLines=0;
 		long skippedLines=0;
@@ -113,10 +115,11 @@ public class CSVDedup {
 				if (parts.length>col) {
 					String key = parts[col];			
 					if (!ids.contains(key)) {
-						pw.write(line + "\n");
+						out.write(line + "\n");
 						ids.add(key);
 					} else {
 						//System.out.println("Skip line " + fline + " :" + key);
+						dup.write(key+"\n");
 						skippedLines++;
 						fSkipped++;
 					}
@@ -129,7 +132,8 @@ public class CSVDedup {
 			scanner.close();
 			System.out.printf("\n\n skiped %,d / %,d on file %s ",  fSkipped, fProcessed, source  );
 		}		
-		pw.close();			
+		out.close();			
+		dup.close();
 		System.out.printf("Finished procesing skiped %,d / %,d on %d files",  skippedLines, processedLines, sources.length  );
 	}
 
