@@ -190,7 +190,7 @@ public class TestStreamStatementImporter {
 			automationService.run(ctx, DocumentConsumers.ID, params);
 
 			DocumentModelList docs = session
-					.query("select * from Folder where ecm:path STARTSWITH '/root' order by ecm:path");
+					.query("select * from Domain where ecm:path STARTSWITH '/root' order by ecm:path");
 			//dump(docs);
 			assertEquals(USStateHelper.STATES.length, docs.size());
 
@@ -218,13 +218,13 @@ public class TestStreamStatementImporter {
 			automationService.run(ctx, DocumentConsumers.ID, params);
 
 			docs = session
-					.query("select * from Document where ecm:primaryType IN ('CustomerDocument', 'CustomerFolder') order by ecm:path");
+					.query("select * from Document where ecm:primaryType IN ('Customer', 'IDCard') order by ecm:path");
 
 			//dump(docs);
 			assertEquals(200, docs.size());
 			
 			docs = session
-					.query("select * from CustomerDocument order by ecm:path");
+					.query("select * from IDCard order by ecm:path");
 
 			Blob importedBlob = (Blob) docs.get(0).getPropertyValue("file:content");
 			assertNotNull(importedBlob);
@@ -265,7 +265,7 @@ public class TestStreamStatementImporter {
 			automationService.run(ctx, DocumentConsumers.ID, params);
 
 			DocumentModelList docs = session
-					.query("select * from Folder where ecm:path STARTSWITH '/root' order by ecm:path");
+					.query("select * from  Folder where ecm:path STARTSWITH '/root' order by ecm:path");
 			//dump(docs);
 			assertEquals((48+4+1)*USStateHelper.STATES.length, docs.size());
 

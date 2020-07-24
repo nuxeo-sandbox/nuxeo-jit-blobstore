@@ -106,10 +106,10 @@ public class CustomerMessageProducer extends AbstractProducer<DocumentMessage> {
 		String stateName = USStateHelper.toPath(meta[6].trim());
 		
 		
-		String type = "Customer";
+		String type = "IDCard";
 		String path = "/" + stateName;
 		if (folder) {
-			type="CustomerFolder";
+			type="Customer";
 		} else {
 			path = path + "/" + name;
 			name = "IDCard";		

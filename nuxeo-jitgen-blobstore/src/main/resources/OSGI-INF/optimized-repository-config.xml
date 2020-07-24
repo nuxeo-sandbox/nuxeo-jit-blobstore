@@ -35,7 +35,7 @@
       <sequenceBlockSize>200000</sequenceBlockSize>
       
       <!-- Disable Full text at the Repository level -->
-      <fulltext disabled="true" searchDisabled="true">
+      <fulltext disabled="false" searchDisabled="true">
       </fulltext>
     
       <clustering>
@@ -54,7 +54,7 @@
       <sequenceBlockSize>200000</sequenceBlockSize>
       
       <!-- Disable Full text at the Repository level -->
-      <fulltext disabled="true" searchDisabled="true">
+      <fulltext disabled="false" searchDisabled="true">
       </fulltext>
     
       <clustering>

@@ -1,6 +1,7 @@
 package org.nuxeo.ecm.core.blob.jit.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
@@ -32,6 +33,7 @@ import org.nuxeo.ecm.core.api.repository.Repository;
 import org.nuxeo.ecm.core.api.repository.RepositoryManager;
 import org.nuxeo.ecm.core.blob.jit.gen.StatementsBlobGenerator;
 import org.nuxeo.ecm.core.bulk.BulkService;
+import org.nuxeo.ecm.core.repository.RepositoryService;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
 import org.nuxeo.ecm.core.work.api.WorkManager;
@@ -43,6 +45,7 @@ import org.nuxeo.importer.stream.automation.DocumentConsumers;
 import org.nuxeo.importer.stream.jit.USStateHelper;
 import org.nuxeo.importer.stream.jit.automation.CustomerFolderProducers;
 import org.nuxeo.importer.stream.jit.automation.CustomerProducers;
+import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
@@ -63,7 +66,7 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
 @Deploy("org.nuxeo.ecm.core.blob.jit.test:OSGI-INF/import-node-config.xml")
 @Deploy("org.nuxeo.ecm.core.blob.jit.test:OSGI-INF/test-storage-repo-mem-contrib.xml")
 @PartialDeploy(bundle = "studio.extensions.nuxeo-benchmark-10b-2020", extensions = {
-		TargetExtensions.ContentModel.class })
+		TargetExtensions.ContentModel.class, TargetExtensions.ContentTemplate.class })
 public class TestMultiRepositoryStreamImporter {
 
 	@Inject
@@ -97,6 +100,8 @@ public class TestMultiRepositoryStreamImporter {
 		esa.refresh();
 	}
 
+	
+	
 	@Test
 	public void testMultiRepository() throws Exception {
 
@@ -110,6 +115,14 @@ public class TestMultiRepositoryStreamImporter {
 
 		Assert.assertTrue(repoNames.contains("us-east"));
 		Assert.assertTrue(repoNames.contains("us-west"));
+		
+		Object repo1 = Framework.getService(RepositoryService.class)
+         .getRepository("us-east");
+		assertNotNull(repo1);
+		
+		boolean ft = Framework.getService(RepositoryService.class)
+        .getRepository("us-east")
+		.getFulltextConfiguration().fulltextSearchDisabled;
 
 	}
 
@@ -128,6 +141,23 @@ public class TestMultiRepositoryStreamImporter {
 		return blobDigest;
 	}
 
+	@Test
+	public void testCreate() {
+		
+		DocumentModel c = session.createDocumentModel("/", "bibi", "Customer");
+		c = session.createDocument(c);
+			
+		DocumentModel id = session.createDocumentModel("/bibi", "idcard", "IDCard");
+		
+		Blob idblob = new StringBlob("whater");
+		idblob.setFilename("whatever.jpg");
+		id.setPropertyValue("file:content", (Serializable) idblob);
+		id = session.createDocument(id);	
+		
+	}
+	
+	
+	
 	@Test
 	public void canImportCustomers() throws Exception {
 
@@ -172,11 +202,11 @@ public class TestMultiRepositoryStreamImporter {
 			automationService.run(ctx, DocumentConsumers.ID, params);
 
 			DocumentModelList docs = eastSession
-					.query("select * from Folder where ecm:path STARTSWITH '/root' order by ecm:path");
+					.query("select * from Domain where ecm:path STARTSWITH '/root' order by ecm:path");
 			System.out.println("Docs in the East repository");
 			dump(docs);
 			stateCounts += docs.size();
-			// assertEquals(USStateHelper.STATES.length, docs.size());
+			assertTrue(docs.size()>0);
 		}
 		try (OperationContext ctx = new OperationContext(westSession)) {
 			Map<String, Serializable> params = new HashMap<>();
@@ -190,11 +220,11 @@ public class TestMultiRepositoryStreamImporter {
 			automationService.run(ctx, DocumentConsumers.ID, params);
 
 			DocumentModelList docs = westSession
-					.query("select * from Folder where ecm:path STARTSWITH '/root' order by ecm:path");
+					.query("select * from Domain where ecm:path STARTSWITH '/root' order by ecm:path");
 			System.out.println("Docs in the WEST repository");
 			dump(docs);
 			stateCounts += docs.size();
-			// assertEquals(USStateHelper.STATES.length, docs.size());
+			assertTrue(docs.size()>0);
 		}
 		assertEquals(USStateHelper.STATES.length, stateCounts);
 
@@ -230,7 +260,7 @@ public class TestMultiRepositoryStreamImporter {
 			automationService.run(ctx, DocumentConsumers.ID, params);
 
 			DocumentModelList docs = eastSession.query(
-					"select * from Document  where ecm:primaryType IN ('CustomerDocument', 'CustomerFolder') and ecm:path STARTSWITH '/root' order by ecm:path");
+					"select * from Document  where ecm:primaryType IN ('Customer', 'IDCard') and ecm:path STARTSWITH '/root' order by ecm:path");
 			System.out.println("Docs in the East repository");
 			dump(docs);
 			customerCount += docs.size();
@@ -248,12 +278,13 @@ public class TestMultiRepositoryStreamImporter {
 			automationService.run(ctx, DocumentConsumers.ID, params);
 
 			DocumentModelList docs = westSession.query(
-					"select * from Document  where  ecm:primaryType IN ('CustomerDocument', 'CustomerFolder') and ecm:path STARTSWITH '/root' order by ecm:path");
+					"select * from Document  where  ecm:primaryType IN ('Customer', 'IDCard') and ecm:path STARTSWITH '/root' order by ecm:path");
 			System.out.println("Docs in the WEST repository");
 			dump(docs);
 			customerCount += docs.size();
 
 		}
+		
 		assertEquals(200, customerCount);
 
 	}

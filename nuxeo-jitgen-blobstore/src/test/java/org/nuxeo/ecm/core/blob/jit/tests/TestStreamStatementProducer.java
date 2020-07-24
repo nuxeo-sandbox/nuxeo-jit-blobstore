@@ -124,7 +124,7 @@ public class TestStreamStatementProducer {
 				record = tailer.read(Duration.ofSeconds(1));
 				if (record != null) {
 					DocumentMessage docMessage = record.message();
-					assertEquals("Folder", docMessage.getType());
+					assertEquals("Domain", docMessage.getType());
 					assertFalse(names.contains(docMessage.getName()));
 					names.add(docMessage.getName());
 					count++;
@@ -206,7 +206,7 @@ public class TestStreamStatementProducer {
 				record = tailer1.read(Duration.ofSeconds(1));
 				if (record != null) {
 					DocumentMessage docMessage = record.message();
-					System.out.println("EAST: " + docMessage.getParentPath() + '/' + docMessage.getName());
+					System.out.println("EAST: " + docMessage.getParentPath() + '/' + docMessage.getName() + "--" + docMessage.getType());
 					assertTrue(USStateHelper.isEastern(getState(docMessage)));
 					count++;
 				}
@@ -218,7 +218,7 @@ public class TestStreamStatementProducer {
 				record = tailer2.read(Duration.ofSeconds(1));
 				if (record != null) {
 					DocumentMessage docMessage = record.message();
-					System.out.println("EAST: " + docMessage.getParentPath() + '/' + docMessage.getName());
+					System.out.println("EAST: " + docMessage.getParentPath() + '/' + docMessage.getName() + "--" + docMessage.getType());
 					assertFalse(USStateHelper.isEastern(getState(docMessage)));
 					count++;
 				}
@@ -496,7 +496,7 @@ public class TestStreamStatementProducer {
 		try (OperationContext ctx = new OperationContext(session)) {
 			Map<String, Serializable> params = new HashMap<>();
 
-			long nbDocs = 1000000;
+			long nbDocs = 10000;
 
 			params.put("nbDocuments", nbDocs);
 			params.put("nbMonths", 60);
