@@ -138,6 +138,7 @@ public class RestCli {
 				return;
 			}
 
+			params.put("logName", logName);
 			params.put("nbThreads", nbThreads);
 			params.put("nbDocuments", nbDocs);
 			params.put("nbMonths", nbMonths);
