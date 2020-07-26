@@ -44,7 +44,7 @@ public class NuxeoClientHelper {
 	}
 
 	public static NuxeoClient createClient(Properties config) {
-		return createClient(config);
+		return createClient(config, false);
 	}
 
 	public static NuxeoClient createClient(Properties config, boolean async) {
