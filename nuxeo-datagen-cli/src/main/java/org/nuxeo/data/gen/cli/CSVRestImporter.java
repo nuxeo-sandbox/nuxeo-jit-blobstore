@@ -38,7 +38,9 @@ public class CSVRestImporter {
 		options.addOption("f", "file", true, "location of CSV file to import");
 		options.addOption("l", "logName", true, "name (or prefix) of the stream to use");
 		options.addOption("m", "multiRepo", false, "Define if multi-repositories is used");
-		
+		options.addOption("p", "logSize", true, "Number og partitions using in the stream");
+		options.addOption("b", "bucketSize", true, "Number of lines per page");
+
 		CommandLineParser parser = new DefaultParser();
 
 		CommandLine cmd = null;
@@ -68,12 +70,14 @@ public class CSVRestImporter {
 
 		NuxeoClient nuxeoClient = NuxeoClientHelper.createClient(nuxeoConfig);
 
-		if (nuxeoClient!=null) {
+		if (nuxeoClient != null) {
 			NuxeoVersion version = nuxeoClient.getServerVersion();
 			System.out.println("Connected to Nuxeo Server " + version.toString());
 		}
 
 		int nbThreads = Integer.parseInt(cmd.getOptionValue('t', "10"));
+		int pageSize = Integer.parseInt(cmd.getOptionValue('b', "" + PAGE_SIZE));
+		int logSize = Integer.parseInt(cmd.getOptionValue('p', "8"));
 
 		String csvFileName = cmd.getOptionValue('f', null);
 		File csvFile = null;
@@ -85,11 +89,11 @@ public class CSVRestImporter {
 		}
 
 		String logName = cmd.getOptionValue('l', "import/Customers");
-		boolean split=false;
+		boolean split = false;
 		if (cmd.hasOption("m")) {
-			split=true;
+			split = true;
 		}
-		
+
 		long t0 = System.currentTimeMillis();
 
 		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(nbThreads);
@@ -110,12 +114,16 @@ public class CSVRestImporter {
 				String line = sc.nextLine();
 				nbLines++;
 				page.append(line).append("\n");
-				if (nbLines % PAGE_SIZE == 0) {
-					executor.submit(mkTask(page.toString(), nuxeoClient, split, logName));
+				if (nbLines % pageSize == 0) {
+					executor.submit(mkTask(page.toString(), nuxeoClient, split, logName, logSize));
 					batches++;
 					System.out.println("Send batch " + batches);
 					page = new StringBuffer();
 				}
+			}
+			if (page.length() > 0) {
+				executor.submit(mkTask(page.toString(), nuxeoClient, split, logName, logSize));
+				batches++;
 			}
 			if (sc.ioException() != null) {
 				throw sc.ioException();
@@ -151,7 +159,7 @@ public class CSVRestImporter {
 			System.out.println("   Throughput:" + throughput + " d/s using " + threads + " threads");
 			System.out.println(" Queue size: " + executor.getQueue().size());
 			System.out.println(" Tasks count: " + executor.getTaskCount());
-			
+
 			try {
 				finished = executor.awaitTermination(pauseTimeS, TimeUnit.SECONDS);
 			} catch (InterruptedException e) {
@@ -159,12 +167,12 @@ public class CSVRestImporter {
 			}
 		}
 
-		if (nuxeoClient!=null) {
+		if (nuxeoClient != null) {
 			nuxeoClient.disconnect();
 		}
 	}
 
-	protected static Runnable mkTask(String csv, NuxeoClient client, boolean split, String logName) {
+	protected static Runnable mkTask(String csv, NuxeoClient client, boolean split, String logName, int logSize) {
 		return new Runnable() {
 
 			@Override
@@ -173,6 +181,7 @@ public class CSVRestImporter {
 				params.put("nbThreads", 1);
 				params.put("logName", logName);
 				params.put("split", split);
+				params.put("logSize", logSize);
 
 				if (client == null) {
 					try {
@@ -190,7 +199,5 @@ public class CSVRestImporter {
 
 		};
 	}
-
-	
 
 }

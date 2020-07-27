@@ -197,20 +197,22 @@ Trigger import in async mode on repository `us-west` using "/customers" as base:
 
 Using from pre-generated CSV using 8 threads for parallel chunks upload, with multi-repositories:
 
-    scripts/csvimport.sh -t 8 -f metadata-xxx.csv -m -l import/Customers
+    scripts/csvImport.sh -t 8 -p 8 -b 1000 -f metadata-xxx.csv -m -l import/Customers
 
 This will generate messages in 2 different streams `import/Customers-us-east` and `import/Customers-us-west`, one for each target repository.
 
+ - t: number of thread allocated client side to do the import
+ - p: number of partition in the target stream
+ - b: number of lines sent in each CSV chunk
+ - l: target topic name
 
 #### Import ID Cards 
 
-
 Trigger import on repository `us-east` using "/customers" as base::
 
-    scripts/import.sh -o import -l import/Customer-us-east -r us-east -b customers
-     
+    scripts/import.sh -o -t 8 import -l import/Customers-us-east -r us-east -b /    
 
 Trigger import in async mode on repository `us-west` using "/customers" as base::
 
-    scripts/import.sh -o import -l import/Customer-us-west -r us-west -a -b customers
+    scripts/import.sh -o -t 8 import -l import/Customers-us-west -r us-west -a -b /
  

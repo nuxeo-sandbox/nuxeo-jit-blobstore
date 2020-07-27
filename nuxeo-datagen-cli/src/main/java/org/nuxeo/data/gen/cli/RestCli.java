@@ -58,6 +58,10 @@ public class RestCli {
 		options.addOption("m", "multiRepo", false, "Define if multi-repositories is used");
 		options.addOption("a", "async", false, "Call Automation using the @async adapter");
 		
+		options.addOption("z", "batchSize", true, "Batch Size for Document Consumers");
+		options.addOption("p", "logSize", true, "Number og partitions using in the stream");
+		
+		
 		CommandLineParser parser = new DefaultParser();
 
 		CommandLine cmd = null;
@@ -98,7 +102,10 @@ public class RestCli {
 			System.err.println("Unable to read configuration file " + e.getMessage());
 			return;
 		}
-				
+		
+
+		int logSize = Integer.parseInt(cmd.getOptionValue('p', "8"));		
+		int batchSize = Integer.parseInt(cmd.getOptionValue('z', "500"));		
 		int nbThreads = Integer.parseInt(cmd.getOptionValue('t', "10"));
 		int nbDocs = Integer.parseInt(cmd.getOptionValue('n', "100000"));
 		int nbMonths = Integer.parseInt(cmd.getOptionValue('d', "48"));
@@ -120,31 +127,29 @@ public class RestCli {
 		}		
 		
 		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("logName", logName);
+		params.put("logSizxe", logSize);
+		params.put("nbThreads", nbThreads);		
 
 		if (CONSUMERTREE.equalsIgnoreCase(operation)) {
 			// force single thread
 			nbThreads = 1;
 			if (logName==null) {
 				logName = "import/hierarchy";
-			}
-			
-			params.put("logName", logName);
+			}			
 			params.put("split", split);
-			params.put("nbThreads", nbThreads);
 		} else if (IMPORT.equalsIgnoreCase(operation)) {
 
 			if (logName==null) {
 				System.err.println("You should provide a logName (-l)");
 				return;
 			}
-
-			params.put("logName", logName);
-			params.put("nbThreads", nbThreads);
 			params.put("nbDocuments", nbDocs);
 			params.put("nbMonths", nbMonths);
 			params.put("monthOffset", monthOffset);
-			params.put("nbThreads", nbThreads);		
 			params.put("seed", seed);			
+			params.put("batchSize", batchSize);
+			
 			if (root!=null) {
 				if (!root.startsWith("/")) {
 					// avoid losing time debuging documents not being imported 
