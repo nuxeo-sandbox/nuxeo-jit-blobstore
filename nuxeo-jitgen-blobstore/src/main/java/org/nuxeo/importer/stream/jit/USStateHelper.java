@@ -124,7 +124,8 @@ public class USStateHelper {
 	}
 	
 	public static String getStateCode(String stateName) {
-		String code =  StateName2StateCode.get(stateName.trim());		
+		stateName = stateName.trim();
+		String code =  StateName2StateCode.get(stateName);		
 		if (code!=null) {
 			return code;
 		}

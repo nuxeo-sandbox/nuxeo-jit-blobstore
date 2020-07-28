@@ -20,7 +20,7 @@ public class NuxeoClientHelper {
 
 			Request org = chain.request();
 
-			if (!org.url().encodedPath().contains("/automation/")) {
+			if (!org.url().encodedPath().contains("/automation/") || org.url().encodedPath().contains("/login")) {
 				return chain.proceed(org);
 			}
 			HttpUrl asyncUrl = org.url().newBuilder().addEncodedPathSegment("@async").build();

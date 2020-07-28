@@ -114,15 +114,21 @@ public class CSVRestImporter {
 				String line = sc.nextLine();
 				nbLines++;
 				page.append(line).append("\n");
-				if (nbLines % pageSize == 0) {
-					executor.submit(mkTask(page.toString(), nuxeoClient, split, logName, logSize));
+				if (nbLines % pageSize == 0) {					
+					executor.submit(mkTask(page.toString(), nuxeoClient, split, logName, logSize, pageSize));
 					batches++;
 					System.out.println("Send batch " + batches);
 					page = new StringBuffer();
+					
+					while (executor.getQueue().size()>25) {
+						Thread.sleep(1000);
+						System.out.print(".");
+					}
+					System.out.print("\n");
 				}
 			}
 			if (page.length() > 0) {
-				executor.submit(mkTask(page.toString(), nuxeoClient, split, logName, logSize));
+				executor.submit(mkTask(page.toString(), nuxeoClient, split, logName, logSize, pageSize));
 				batches++;
 			}
 			if (sc.ioException() != null) {
@@ -172,7 +178,7 @@ public class CSVRestImporter {
 		}
 	}
 
-	protected static Runnable mkTask(String csv, NuxeoClient client, boolean split, String logName, int logSize) {
+	protected static Runnable mkTask(String csv, NuxeoClient client, boolean split, String logName, int logSize, int pageSize) {
 		return new Runnable() {
 
 			@Override
@@ -182,6 +188,7 @@ public class CSVRestImporter {
 				params.put("logName", logName);
 				params.put("split", split);
 				params.put("logSize", logSize);
+				params.put("bufferSize", pageSize+1);
 
 				if (client == null) {
 					try {

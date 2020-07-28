@@ -61,6 +61,8 @@ public class RestCli {
 		options.addOption("z", "batchSize", true, "Batch Size for Document Consumers");
 		options.addOption("p", "logSize", true, "Number og partitions using in the stream");
 		
+		options.addOption( "bulk", false, "Enable bulkmode for import");
+		
 		
 		CommandLineParser parser = new DefaultParser();
 
@@ -128,7 +130,7 @@ public class RestCli {
 		
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("logName", logName);
-		params.put("logSizxe", logSize);
+		params.put("logSize", logSize);
 		params.put("nbThreads", nbThreads);		
 
 		if (CONSUMERTREE.equalsIgnoreCase(operation)) {
@@ -149,6 +151,11 @@ public class RestCli {
 			params.put("monthOffset", monthOffset);
 			params.put("seed", seed);			
 			params.put("batchSize", batchSize);
+		
+			if (cmd.hasOption("bulk")) {
+				params.put("blockIndexing", true);	
+			    params.put("blockDefaultSyncListeners", true);	
+			}
 			
 			if (root!=null) {
 				if (!root.startsWith("/")) {

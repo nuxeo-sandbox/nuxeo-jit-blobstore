@@ -195,9 +195,9 @@ Trigger import in async mode on repository `us-west` using "/customers" as base:
       
 #### Generate ID Cards document messages
 
-Using from pre-generated CSV using 8 threads for parallel chunks upload, with multi-repositories:
+Using from pre-generated CSV using 32 threads for parallel chunks upload, with multi-repositories:
 
-    scripts/csvImport.sh -t 8 -p 8 -b 1000 -f metadata-xxx.csv -m -l import/Customers
+    scripts/csvImport.sh -t 32 -p 16 -b 25000 -f metadata-xxx.csv -m -l import/Customers
 
 This will generate messages in 2 different streams `import/Customers-us-east` and `import/Customers-us-west`, one for each target repository.
 
@@ -210,9 +210,9 @@ This will generate messages in 2 different streams `import/Customers-us-east` an
 
 Trigger import on repository `us-east` using "/customers" as base::
 
-    scripts/import.sh -o -t 8 import -l import/Customers-us-east -r us-east -b /    
+    scripts/import.sh -o import -t 8 -l import/Customers-us-east -r us-east -b /    
 
 Trigger import in async mode on repository `us-west` using "/customers" as base::
 
-    scripts/import.sh -o -t 8 import -l import/Customers-us-west -r us-west -a -b /
+    scripts/import.sh -o import -t 8 -l import/Customers-us-west -r us-west -a -b /
  
