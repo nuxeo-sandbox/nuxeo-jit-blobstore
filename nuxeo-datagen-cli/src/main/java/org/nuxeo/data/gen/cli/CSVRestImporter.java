@@ -42,7 +42,6 @@ public class CSVRestImporter {
 		options.addOption("b", "bucketSize", true, "Number of lines per page");
 
 		CommandLineParser parser = new DefaultParser();
-
 		CommandLine cmd = null;
 		try {
 			cmd = parser.parse(options, args);
@@ -69,7 +68,6 @@ public class CSVRestImporter {
 		}
 
 		NuxeoClient nuxeoClient = NuxeoClientHelper.createClient(nuxeoConfig);
-
 		if (nuxeoClient != null) {
 			NuxeoVersion version = nuxeoClient.getServerVersion();
 			System.out.println("Connected to Nuxeo Server " + version.toString());
@@ -100,7 +98,6 @@ public class CSVRestImporter {
 		executor.prestartAllCoreThreads();
 
 		System.out.println("Started ThreadPool with " + nbThreads + " threads");
-
 		FileInputStream inputStream = null;
 		Scanner sc = null;
 
@@ -114,13 +111,13 @@ public class CSVRestImporter {
 				String line = sc.nextLine();
 				nbLines++;
 				page.append(line).append("\n");
-				if (nbLines % pageSize == 0) {					
+				if (nbLines % pageSize == 0) {
 					executor.submit(mkTask(page.toString(), nuxeoClient, split, logName, logSize, pageSize));
 					batches++;
 					System.out.println("Send batch " + batches);
 					page = new StringBuffer();
-					
-					while (executor.getQueue().size()>25) {
+
+					while (executor.getQueue().size() > 25) {
 						Thread.sleep(1000);
 						System.out.print(".");
 					}
@@ -178,7 +175,8 @@ public class CSVRestImporter {
 		}
 	}
 
-	protected static Runnable mkTask(String csv, NuxeoClient client, boolean split, String logName, int logSize, int pageSize) {
+	protected static Runnable mkTask(String csv, NuxeoClient client, boolean split, String logName, int logSize,
+			int pageSize) {
 		return new Runnable() {
 
 			@Override
@@ -188,7 +186,7 @@ public class CSVRestImporter {
 				params.put("logName", logName);
 				params.put("split", split);
 				params.put("logSize", logSize);
-				params.put("bufferSize", pageSize+1);
+				params.put("bufferSize", pageSize + 1);
 
 				if (client == null) {
 					try {

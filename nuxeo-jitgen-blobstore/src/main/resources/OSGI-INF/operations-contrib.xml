@@ -6,6 +6,7 @@
     <operation class="org.nuxeo.importer.stream.jit.automation.StatementFolderProducers" />
     <operation class="org.nuxeo.importer.stream.jit.automation.CustomerFolderProducers" />
     <operation class="org.nuxeo.importer.stream.jit.automation.CustomerProducers" />
+    <operation class="org.nuxeo.importer.stream.jit.automation.AccountProducers" />
     <operation class="org.nuxeo.importer.stream.jit.automation.RepositoryCleaner" />
   </extension>
 

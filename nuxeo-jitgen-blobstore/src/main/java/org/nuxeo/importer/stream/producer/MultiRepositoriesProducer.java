@@ -41,7 +41,7 @@ public class MultiRepositoriesProducer<M extends DocumentMessage> extends Produc
 
 	protected LogAppender<M> getAppender(M message) {
 		String state = null;
-		if ("Customer".equals(message.getType()) ||"IDCard".equals(message.getType())) {
+		if ("Customer".equals(message.getType()) ||"IDCard".equals(message.getType()) ||"Account".equals(message.getType()) || message.getType().startsWith("Correspondence")) {
 			state = message.getParentPath().split("/")[1];
 			state = USStateHelper.getStateCode(state);						
 		} else if ("Domain".equals(message.getType()) ) {

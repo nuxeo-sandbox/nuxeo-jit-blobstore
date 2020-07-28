@@ -13,6 +13,18 @@
   </extension>
 
   <extension point="kafkaConfig" target="org.nuxeo.runtime.stream.kafka.service">
+
+    <kafkaConfig name="default" topicPrefix="${kafka.topicPrefix}">
+      <producer>
+        <!-- allow to pack messages together => 10ms -->
+        <property name="linger.ms">10</property>
+        <!-- buffer / batch 256KB -->
+        <property name="batch.size">262144</property>
+        <!-- no compression (should be the default)-->
+        <property name="compression.type">none</property>       
+      </producer>
+    </kafkaConfig>
+    
     <kafkaConfig name="stmt" topicPrefix="${kafka.topicPrefix}">
       <producer>
         <property name="bootstrap.servers">${kafka.bootstrap.servers}</property>

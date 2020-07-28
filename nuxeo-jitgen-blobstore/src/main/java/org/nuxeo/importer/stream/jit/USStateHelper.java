@@ -12,6 +12,9 @@ public class USStateHelper {
 	public static final String WEST = "us-west";	
 	
 	public static String toPath(String stateName) {
+		if ("fl".equals(stateName)) {
+			return "florida";
+		}
 		return stateName.trim().toLowerCase().replace(" ", "-");		
 	}
 

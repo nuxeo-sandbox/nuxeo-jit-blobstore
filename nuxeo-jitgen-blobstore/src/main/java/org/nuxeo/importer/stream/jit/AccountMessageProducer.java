@@ -32,9 +32,9 @@ import org.nuxeo.ecm.core.blob.BlobInfo;
 import org.nuxeo.importer.stream.message.DocumentMessage;
 import org.nuxeo.lib.stream.pattern.producer.AbstractProducer;
 
-public class CustomerMessageProducer extends AbstractProducer<DocumentMessage> {
+public class AccountMessageProducer extends AbstractProducer<DocumentMessage> {
 
-	private static final Log log = LogFactory.getLog(CustomerMessageProducer.class);
+	private static final Log log = LogFactory.getLog(AccountMessageProducer.class);
 
 	protected int idx = 0;
 
@@ -44,7 +44,7 @@ public class CustomerMessageProducer extends AbstractProducer<DocumentMessage> {
 	
 	protected Stack<DocumentMessage> batch;
 	
-	public CustomerMessageProducer(int producerId, String blobStore, String[] csv) {
+	public AccountMessageProducer(int producerId, String blobStore, String[] csv) {
 		super(producerId);
 		this.csv = csv;
 		this.blobStore = blobStore;
@@ -72,19 +72,18 @@ public class CustomerMessageProducer extends AbstractProducer<DocumentMessage> {
 	public DocumentMessage next() {
 		
 		if (batch.size()==0) {
-			batch.push(createCustomer(csv[idx], false));
-			batch.push(createCustomer(csv[idx], true));	
+			batch.push(createAccount(csv[idx], false));
+			batch.push(createAccount(csv[idx], true));	
 			idx++;				
 		}
 		return batch.pop();
 	}
 
-	protected DocumentMessage createCustomer(String line, boolean folder) {
+	protected DocumentMessage createAccount(String line, boolean folder) {
 
 		String[] meta = line.split(",");
 		
 		HashMap<String, Serializable> props = new HashMap<>();
-		props.put("dc:title", meta[3].trim());
 
 		
 		String fullname = meta[3].trim();
@@ -99,20 +98,32 @@ public class CustomerMessageProducer extends AbstractProducer<DocumentMessage> {
 		address.put("state", USStateHelper.getStateCode(meta[6].trim()));
 
 		props.put("customer:address", (Serializable) address);
+		
+		
+		String accountNumber = meta[8].trim();
+		String customerID = accountNumber.substring(0,19);
+		String accountKey = accountNumber.substring(20);
+		
+		props.put("customer:number",customerID);
+		props.put("account:number",accountNumber);
 						
-		props.put("customer:number",meta[8].trim().substring(0,19));
-						
-		String name = meta[8].trim().substring(0,19);
+		String name = accountKey;
 		String stateName = USStateHelper.toPath(meta[6].trim());
 		
 		
-		String type = "IDCard";
-		String path = "/" + stateName;
+		String type = "Account";
+		String path = "/" + stateName + "/" + customerID ;
 		if (folder) {
-			type="Customer";
+			// create the Account Folder
+			//path = path + "/" + name;
+			props.put("dc:title", accountNumber);
+			
 		} else {
-			path = path + "/" + name;
-			name = "IDCard";		
+			// create the Correspondence file
+			path = path + "/" + accountKey;
+			name= "letter";
+			props.put("dc:title", meta[1].trim());			
+			type = "Correspondence" + USStateHelper.getStateCode(meta[6].trim());		
 		}
 		DocumentMessage.Builder builder = DocumentMessage.builder(type, path, name).setProperties(props);
 
@@ -121,7 +132,7 @@ public class CustomerMessageProducer extends AbstractProducer<DocumentMessage> {
 			bi.key = blobStore + ":" + meta[0].trim();
 			bi.digest=meta[0].trim();
 			bi.filename=meta[1].trim();
-			bi.mimeType="image/jpeg";
+			bi.mimeType="application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 			bi.length=Long.parseLong(meta[2].trim());					
 			builder.setBlobInfo(bi);		
 		}

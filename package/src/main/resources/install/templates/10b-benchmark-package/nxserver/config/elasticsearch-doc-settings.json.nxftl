@@ -7,7 +7,7 @@
   "number_of_shards": "1",
   "number_of_replicas": "0",
 </#if>
-  "refresh_interval": "120s",
+  "refresh_interval": null,
   "codec": "best_compression",
   "analysis": {
     "filter": {

@@ -43,6 +43,7 @@ import org.nuxeo.elasticsearch.api.ElasticSearchService;
 import org.nuxeo.elasticsearch.test.RepositoryElasticSearchFeature;
 import org.nuxeo.importer.stream.automation.DocumentConsumers;
 import org.nuxeo.importer.stream.jit.USStateHelper;
+import org.nuxeo.importer.stream.jit.automation.AccountProducers;
 import org.nuxeo.importer.stream.jit.automation.CustomerFolderProducers;
 import org.nuxeo.importer.stream.jit.automation.CustomerProducers;
 import org.nuxeo.runtime.api.Framework;
@@ -283,10 +284,75 @@ public class TestMultiRepositoryStreamImporter {
 			dump(docs);
 			customerCount += docs.size();
 
-		}
-		
+		}		
 		assertEquals(200, customerCount);
 
+		// -------------------------------
+
+		logName = "import/accounts";
+
+		try (OperationContext ctx = new OperationContext(session)) {
+			Map<String, Serializable> params = new HashMap<>();
+
+			// *************************
+			// create Customer messages
+			params.put("logConfig", "chronicle");
+			params.put("split", true);
+			params.put("logName", logName);
+
+			InputStream csv = StatementsBlobGenerator.class.getResourceAsStream("/letters.csv");
+			String csvContent = new String(IOUtils.toByteArray(csv));
+			csvContent = csvContent.replace("<DIGEST>", blobDigest);
+			Blob blob = new StringBlob(csvContent);
+			ctx.setInput(blob);
+
+			automationService.run(ctx, AccountProducers.ID, params);
+		}
+
+		int accountCount = 0;
+		try (OperationContext ctx = new OperationContext(eastSession)) {
+			Map<String, Serializable> params = new HashMap<>();
+			// *************************
+			// consume Folder messages
+			params = new HashMap<>();
+			params.put("rootFolder", rootEst.getPathAsString());
+			params.put("logConfig", "chronicle");
+			params.put("logName", logName + "-" + USStateHelper.EAST);
+			automationService.run(ctx, DocumentConsumers.ID, params);
+
+			DocumentModelList docs = eastSession.query(
+					"select * from Account where ecm:path STARTSWITH '/root' order by ecm:path");
+			docs.addAll(eastSession.query(
+					"select * from Correspondence where ecm:path STARTSWITH '/root' order by ecm:path"));
+			System.out.println("Docs in the East repository");
+			dump(docs);
+			accountCount += docs.size();
+		}
+		assertTrue(customerCount > 0);
+		try (OperationContext ctx = new OperationContext(westSession)) {
+			Map<String, Serializable> params = new HashMap<>();
+			// *************************
+			// consume Folder messages
+			params = new HashMap<>();
+			params.put("rootFolder", rootWest.getPathAsString());
+			params.put("logConfig", "chronicle");
+			params.put("logName", logName + "-" + USStateHelper.WEST);
+
+			automationService.run(ctx, DocumentConsumers.ID, params);
+
+			DocumentModelList docs = westSession.query(
+					"select * from Account where ecm:path STARTSWITH '/root' order by ecm:path");
+			docs.addAll(westSession.query(
+					"select * from Correspondence where ecm:path STARTSWITH '/root' order by ecm:path"));
+			
+			System.out.println("Docs in the WEST repository");
+			dump(docs);
+			accountCount += docs.size();
+
+		}		
+		assertEquals(50, accountCount);
+		
+		
 	}
 
 	protected void dump(DocumentModelList docs) {
