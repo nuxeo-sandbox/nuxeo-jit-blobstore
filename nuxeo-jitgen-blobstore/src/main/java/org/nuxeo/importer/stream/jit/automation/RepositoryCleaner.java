@@ -19,6 +19,8 @@
 
 package org.nuxeo.importer.stream.jit.automation;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.logging.Log;
@@ -31,6 +33,7 @@ import org.nuxeo.ecm.automation.core.annotations.Operation;
 import org.nuxeo.ecm.automation.core.annotations.OperationMethod;
 import org.nuxeo.ecm.automation.core.annotations.Param;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
+import org.nuxeo.ecm.core.api.repository.RepositoryManager;
 import org.nuxeo.elasticsearch.api.ElasticSearchAdmin;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.mongodb.MongoDBConnectionService;
@@ -81,10 +84,23 @@ public class RepositoryCleaner {
 		// if the key was provided and good: burn it!
 		key = null;
 
-		resetMongoDB(repositoryName);
-		resetES(repositoryName);
-
-		return "Repository " + repositoryName + " cleanedUp";
+		
+		List<String> repos = new ArrayList<>();
+		
+		if ("*".equals(repositoryName)) {
+			RepositoryManager rm = Framework.getService(RepositoryManager.class);
+			repos.addAll(rm.getRepositoryNames());
+		} else {
+			repos.add(repositoryName);
+		}
+		
+		
+		for (String repo: repos) {
+			resetMongoDB(repo);
+			resetES(repo);		
+		}		
+	
+		return "Cleaned up MongoDB and ES for " + String.join(" ", repos) + ".";
 	}
 
 	public void resetMongoDB(String repositoryName) {
