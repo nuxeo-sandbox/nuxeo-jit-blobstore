@@ -26,3 +26,6 @@ nuxeo.cache.maxsize=10000
 
 org.nuxeo.ecm.instance.description=Nuxeo ECM customized with 10B Benchmark Package
 
+kafka.linger.ms=0
+kafka.batch.size.bytes=16384
+kafka.compression.type=snappy

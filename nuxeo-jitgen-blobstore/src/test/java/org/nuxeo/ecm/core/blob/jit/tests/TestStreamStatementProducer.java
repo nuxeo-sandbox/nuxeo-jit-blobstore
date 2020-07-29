@@ -38,6 +38,7 @@ import org.nuxeo.importer.stream.jit.USStateHelper;
 import org.nuxeo.importer.stream.jit.automation.AccountProducers;
 import org.nuxeo.importer.stream.jit.automation.CustomerFolderProducers;
 import org.nuxeo.importer.stream.jit.automation.CustomerProducers;
+import org.nuxeo.importer.stream.jit.automation.CustomerProducersMT;
 import org.nuxeo.importer.stream.jit.automation.StatementFolderProducers;
 import org.nuxeo.importer.stream.jit.automation.StatementProducers;
 import org.nuxeo.importer.stream.message.DocumentMessage;
@@ -235,6 +236,8 @@ public class TestStreamStatementProducer {
 		}
 	}
 
+	
+	
 	protected static String getState(DocumentMessage docMessage) {
 		Map<String, String> address = (Map<String, String>) docMessage.getProperties().get("customer:address");
 		return address.get("state");
@@ -554,6 +557,67 @@ public class TestStreamStatementProducer {
 	
 			ctx.setInput(blob);
 			automationService.run(ctx, CustomerProducers.ID, params);
+	
+			LogManager manager = Framework.getService(StreamService.class).getLogManager("chronicle");
+	
+			LogTailer<DocumentMessage> tailer1 = manager.createTailer("test", logName + "-" + USStateHelper.EAST);
+			LogTailer<DocumentMessage> tailer2 = manager.createTailer("test", logName + "-" + USStateHelper.WEST);
+			int count = 0;
+	
+			LogRecord<DocumentMessage> record = null;
+			do {
+				record = tailer1.read(Duration.ofSeconds(1));
+				if (record != null) {
+					DocumentMessage docMessage = record.message();
+					System.out.println("EAST: " + docMessage.getParentPath() + '/' + docMessage.getName() + "--" + docMessage.getType());
+					assertTrue(USStateHelper.isEastern(getState(docMessage)));
+					count++;
+				}
+			} while (record != null);
+	
+			assertTrue(count>0);
+	
+			do {
+				record = tailer2.read(Duration.ofSeconds(1));
+				if (record != null) {
+					DocumentMessage docMessage = record.message();
+					System.out.println("EAST: " + docMessage.getParentPath() + '/' + docMessage.getName() + "--" + docMessage.getType());
+					assertFalse(USStateHelper.isEastern(getState(docMessage)));
+					count++;
+				}
+			} while (record != null);
+	
+			
+			assertEquals(200, count);
+			tailer1.commit();
+			tailer1.close();
+			tailer2.commit();
+			tailer2.close();
+	
+		}
+	}
+
+	
+
+	@Test
+	public void canCreateCustomerMessagesMultiRepoMT() throws Exception {
+	
+		try (OperationContext ctx = new OperationContext(session)) {
+			Map<String, Serializable> params = new HashMap<>();
+	
+			String logName = "import/consumers";
+			
+			params.put("logConfig", "chronicle");
+			params.put("bufferSize", "5");
+			params.put("nbThreads", "2");
+			params.put("split", true);
+			params.put("logName", logName);
+			
+			InputStream csv = StatementsBlobGenerator.class.getResourceAsStream("/id-cards.csv");
+			Blob blob = new StringBlob(new String(IOUtils.toByteArray(csv)));
+	
+			ctx.setInput(blob);
+			automationService.run(ctx, CustomerProducersMT.ID, params);
 	
 			LogManager manager = Framework.getService(StreamService.class).getLogManager("chronicle");
 	
