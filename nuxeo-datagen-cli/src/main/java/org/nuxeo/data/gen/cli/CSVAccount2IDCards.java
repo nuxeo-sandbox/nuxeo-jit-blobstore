@@ -83,7 +83,7 @@ public class CSVAccount2IDCards {
 
 		System.out.println("Init template engine");	
 		ITextIDTemplateCreator templateGen = new ITextIDTemplateCreator();		
-		InputStream bg = ITextIDTemplateCreator.class.getResourceAsStream("/id-back.jpeg");
+		InputStream bg = ITextIDTemplateCreator.class.getResourceAsStream("/id-back-2.jpeg");
 		templateGen.init(bg);
 		String[] keys = templateGen.getKeys();		
 		ByteArrayOutputStream templateOut = new ByteArrayOutputStream();
