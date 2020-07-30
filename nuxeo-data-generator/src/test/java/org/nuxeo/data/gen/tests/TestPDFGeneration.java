@@ -152,7 +152,7 @@ public class TestPDFGeneration {
 		gen.setPicture(ITextIDTemplateCreator.class.getResourceAsStream("/jexo.jpeg"));
 		
 		//Path p = Paths.get("/home/tiry/Pictures/id-faces/small");
-		//gen.setPictureFolder(p);		
+		//gen.setPictureFolder(p);				
 		
 		// PDF GEN
 		String[] data = rnd.generate();
