@@ -122,8 +122,11 @@ public class CSVAccount2IDCards {
 		System.out.println("Procesing " + csv.getAbsolutePath());
 		String[] pdfMeta= new String[7];				
 		List<String> newLine = new ArrayList<>();
+		
+		long t0 = System.currentTimeMillis();
 		while (scanner.hasNextLine()) {
 
+			processedLines++;
 			String line = scanner.nextLine();
 			String[] parts = line.split(",");
 
@@ -135,7 +138,12 @@ public class CSVAccount2IDCards {
 			pdfMeta[5]=FormatUtils.pad(parts[8],20, false);
 			
 			ByteArrayOutputStream pdfOut = new ByteArrayOutputStream();
-			
+
+			if (processedLines %10000==0) {
+				System.out.println("Generated " + processedLines + " id cards");
+				double tp = (1000*processedLines)/ (System.currentTimeMillis()-t0);
+				System.out.println("Throughput: " + tp + " pdf/s");		
+			}
 			StatementMeta meta = gen.generate(pdfOut, pdfMeta);
 			newLine.clear();
 			newLine.add(meta.getDigest());
@@ -146,8 +154,10 @@ public class CSVAccount2IDCards {
 				newLine.add(parts[i]);					
 			}
 			
-			File pdfFile = new File (outFolder, meta.getDigest());
-			Files.write(pdfOut.toByteArray(), pdfFile);
+			store(outFolder, meta.getDigest(), pdfOut.toByteArray());
+			
+			//File pdfFile = new File (outFolder, meta.getDigest());
+			//Files.write(pdfOut.toByteArray(), pdfFile);
 			
 			out.println(String.join(",", newLine));
 
@@ -155,5 +165,18 @@ public class CSVAccount2IDCards {
 		scanner.close();			
 		out.close();
 	
+	}
+	
+	protected static void store(String rootFolder, String digest, byte[] pdf) throws Exception{
+		
+		String prefix = digest.substring(0,2);
+		File folder = new File(rootFolder, prefix);
+		if (!folder.exists()) {
+			folder.mkdir();
+			folder = new File(rootFolder, prefix);
+		}
+		File pdfFile = new File (folder, digest);
+		Files.write(pdf, pdfFile);
+		
 	}
 }
