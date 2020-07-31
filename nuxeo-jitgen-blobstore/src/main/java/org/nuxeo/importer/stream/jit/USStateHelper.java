@@ -206,6 +206,4 @@ public class USStateHelper {
 		return s2c;
 	}
 	
-	
-	
 }

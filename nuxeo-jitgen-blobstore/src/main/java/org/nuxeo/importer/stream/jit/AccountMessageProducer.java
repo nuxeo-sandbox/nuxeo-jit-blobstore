@@ -109,7 +109,9 @@ public class AccountMessageProducer extends AbstractProducer<DocumentMessage> {
 						
 		String name = accountKey;
 		String stateName = USStateHelper.toPath(meta[6].trim());
-		
+		if ("fl".equalsIgnoreCase(stateName)) {
+			stateName="florida";
+		}
 		
 		String type = "Account";
 		String path = "/" + stateName + "/" + customerID ;

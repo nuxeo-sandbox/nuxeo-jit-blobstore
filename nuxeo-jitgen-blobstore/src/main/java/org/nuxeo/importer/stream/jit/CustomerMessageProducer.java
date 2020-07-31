@@ -103,8 +103,10 @@ public class CustomerMessageProducer extends AbstractProducer<DocumentMessage> {
 		props.put("customer:number",meta[8].trim().substring(0,19));
 						
 		String name = meta[8].trim().substring(0,19);
-		String stateName = USStateHelper.toPath(meta[6].trim());
-		
+		String stateName = USStateHelper.toPath(meta[6].trim());		
+		if ("fl".equalsIgnoreCase(stateName)) {
+			stateName="florida";
+		}
 		
 		String type = "IDCard";
 		String path = "/" + stateName;
