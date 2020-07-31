@@ -66,67 +66,13 @@ import org.nuxeo.data.gen.pdf.itext.filter.TiffFilter;
 
 public class EntryPoint {
 
-	protected static LoggerContext initLogger() {
-		ConfigurationBuilder<BuiltConfiguration> builder = ConfigurationBuilderFactory.newConfigurationBuilder();
-
-		AppenderComponentBuilder console = builder.newAppender("stdout", "Console");
-		builder.add(console);
-
-		AppenderComponentBuilder file1 = builder.newAppender("metadata", "File");
-		file1.addAttribute("fileName", "metadata.csv");
-		file1.addAttribute("filePattern", "metadata-%d{MM-dd-yy--hh:mm}-%i.csv");
-		ComponentBuilder rolloverPolicy = builder.newComponent("Policies")
-		        .addComponent(builder.newComponent("OnStartupTriggeringPolicy"));
-		file1.addComponent(rolloverPolicy);	
-
-		builder.add(file1);
-
-		AppenderComponentBuilder file2 = builder.newAppender("injector", "RollingFile");
-		file2.addAttribute("fileName", "injector.log");
-		file2.addAttribute("filePattern", "injector-%d{MM-dd-yy--hh:mm}-%i.log");
-		LayoutComponentBuilder layoutBuilder = builder.newLayout("PatternLayout").addAttribute("pattern","%d [%t] %-5level: %msg%n");
-		file2.add(layoutBuilder);
-        
-		ComponentBuilder rolloverPolicy2 = builder.newComponent("Policies")
-		        .addComponent(builder.newComponent("OnStartupTriggeringPolicy"));
-		file2.addComponent(rolloverPolicy2);	
-		
-		builder.add(file2);
-
-		// Use Async Logger
-		RootLoggerComponentBuilder rootLogger = builder.newAsyncRootLogger(Level.INFO);
-		// rootLogger.add(builder.newAppenderRef("stdout"));
-		// rootLogger.add(builder.newAppenderRef("log"));
-		builder.add(rootLogger);
-
-		// Use Async Logger
-		LoggerComponentBuilder logger1 = builder.newAsyncLogger("metadataLogger", Level.DEBUG);
-		logger1.add(builder.newAppenderRef("metadata"));
-		logger1.addAttribute("additivity", false);
-		builder.add(logger1);
-
-		// Use Async Logger
-		LoggerComponentBuilder logger2 = builder.newAsyncLogger("importLogger", Level.DEBUG);
-		logger2.add(builder.newAppenderRef("injector"));
-		logger2.addAttribute("additivity", false);
-		builder.add(logger2);
-
-		LoggerComponentBuilder logger3 = builder.newAsyncLogger("cmdLogger", Level.INFO);
-		logger3.add(builder.newAppenderRef("stdout"));
-		logger3.add(builder.newAppenderRef("injector"));
-		logger3.addAttribute("additivity", false);
-		builder.add(logger3);
-
-		return Configurator.initialize(builder.build());
-	}
 
 	public static void main(String[] args) {
 
-		LoggerContext ctx = initLogger();
-
-		Logger importLogger = ctx.getLogger("importLogger");
-		Logger metadataLogger = ctx.getLogger("metadataLogger");
-		Logger cmdLogger = ctx.getLogger("cmdLogger");
+		LoggerContext ctx = LoggerHelper.initLoggingContext();
+		Logger importLogger = ctx.getLogger(LoggerHelper.IMPORT);
+		Logger metadataLogger = ctx.getLogger(LoggerHelper.METADATA);
+		Logger cmdLogger = ctx.getLogger(LoggerHelper.CMD);
 
 		importLogger.log(Level.INFO, "#".repeat(80));
 		importLogger.log(Level.INFO, "# Executing command " + Arrays.toString(args));
