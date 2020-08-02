@@ -8,6 +8,7 @@
     <operation class="org.nuxeo.importer.stream.jit.automation.CustomerProducers" />
     <operation class="org.nuxeo.importer.stream.jit.automation.CustomerProducersMT" />
     <operation class="org.nuxeo.importer.stream.jit.automation.AccountProducers" />
+    <operation class="org.nuxeo.importer.stream.jit.automation.AccountProducersMT" />
     <operation class="org.nuxeo.importer.stream.jit.automation.RepositoryCleaner" />
   </extension>
 

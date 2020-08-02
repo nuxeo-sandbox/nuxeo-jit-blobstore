@@ -41,6 +41,7 @@ public class CSVRestImporter {
 		options.addOption("p", "logSize", true, "Number og partitions using in the stream");
 		options.addOption("b", "bucketSize", true, "Number of lines per page");
 		options.addOption("serverThreads", true, "Number of threads server side");
+		options.addOption("o", "operation", true, "ConsumerProducers or AccountProducers");
 		
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = null;
@@ -79,6 +80,8 @@ public class CSVRestImporter {
 		int logSize = Integer.parseInt(cmd.getOptionValue('p', "8"));
 		int nbServerThreads = Integer.parseInt(cmd.getOptionValue("serverThreads", "0"));
 		
+		String opId = cmd.getOptionValue('o', "ConsumerProducers");
+		
 		String csvFileName = cmd.getOptionValue('f', null);
 		File csvFile = null;
 		if (csvFileName != null) {
@@ -114,7 +117,7 @@ public class CSVRestImporter {
 				nbLines++;
 				page.append(line).append("\n");
 				if (nbLines % pageSize == 0) {
-					executor.submit(mkTask(page.toString(), nuxeoClient, split, logName, logSize, pageSize, nbServerThreads));
+					executor.submit(mkTask(page.toString(), nuxeoClient, split, logName, logSize, pageSize, nbServerThreads, opId));
 					batches++;
 					System.out.println("Send batch " + batches);
 					page = new StringBuffer();
@@ -127,7 +130,7 @@ public class CSVRestImporter {
 				}
 			}
 			if (page.length() > 0) {
-				executor.submit(mkTask(page.toString(), nuxeoClient, split, logName, logSize, pageSize, nbServerThreads));
+				executor.submit(mkTask(page.toString(), nuxeoClient, split, logName, logSize, pageSize, nbServerThreads, opId));
 				batches++;
 			}
 			if (sc.ioException() != null) {
@@ -178,7 +181,7 @@ public class CSVRestImporter {
 	}
 
 	protected static Runnable mkTask(String csv, NuxeoClient client, boolean split, String logName, int logSize,
-			int pageSize, int nbThreads) {
+			int pageSize, int nbThreads, String opName) {
 		return new Runnable() {
 
 			@Override
@@ -190,9 +193,9 @@ public class CSVRestImporter {
 				params.put("logSize", logSize);
 				params.put("bufferSize", pageSize + 1);
 
-				String opId = "StreamImporter.runConsumerProducers";
+				String opId = "StreamImporter.run" + opName;
 				if (nbThreads>0) {
-					opId = "StreamImporter.runConsumerProducersMT";
+					opId = opId + "MT";
 				}
 						
 				if (client == null) {

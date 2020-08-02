@@ -1,0 +1,499 @@
+[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.nuxeo.ecm.core:nuxeo-jitgen-blobstore:jar:11.2-SNAPSHOT
+[WARNING] 'parent.relativePath' of POM org.nuxeo.ecm.core:nuxeo-benchmark-10b-plugin:11.2-SNAPSHOT (/home/tiry/dev/github/perso/nuxeo-jitgen-blobstore/pom.xml) points at org.nuxeo.ecm.core:nuxeo-binarymanager-multi-parent instead of org.nuxeo:nuxeo-ecm, please verify your project structure @ org.nuxeo.ecm.core:nuxeo-benchmark-10b-plugin:11.2-SNAPSHOT, /home/tiry/dev/github/perso/nuxeo-jitgen-blobstore/pom.xml, line 4, column 11
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] 
+[INFO] -------------< org.nuxeo.ecm.core:nuxeo-jitgen-blobstore >--------------
+[INFO] Building Nuxeo jitgen blobstore 11.2-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:3.1.0:tree (default-cli) @ nuxeo-jitgen-blobstore ---
+[INFO] org.nuxeo.ecm.core:nuxeo-jitgen-blobstore:jar:11.2-SNAPSHOT
+[INFO] +- org.nuxeo.ecm.core:nuxeo-data-generator:jar:11.2-SNAPSHOT:compile
+[INFO] +- org.nuxeo.common:nuxeo-common:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- xerces:xercesImpl:jar:2.12.0-nx1:compile
+[INFO] |  +- org.apache.commons:commons-lang3:jar:3.9:compile
+[INFO] |  +- commons-collections:commons-collections:jar:3.2.2:compile
+[INFO] |  +- commons-codec:commons-codec:jar:1.14:compile
+[INFO] |  \- org.freemarker:freemarker:jar:2.3.29:compile
+[INFO] +- org.nuxeo.runtime:nuxeo-runtime:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- io.dropwizard.metrics5:metrics-core:jar:5.0.0-rc3:compile
+[INFO] |  +- org.osgi:org.osgi.core:jar:4.2.0:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-databind:jar:2.10.2:compile
+[INFO] |  \- com.fasterxml.jackson.dataformat:jackson-dataformat-properties:jar:2.10.2:compile
+[INFO] +- org.nuxeo.ecm.core:nuxeo-core-api:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- com.google.guava:guava:jar:28.2-jre:compile
+[INFO] |  |  +- com.google.guava:failureaccess:jar:1.0.1:compile
+[INFO] |  |  +- com.google.guava:listenablefuture:jar:9999.0-empty-to-avoid-conflict-with-guava:compile
+[INFO] |  |  +- com.google.code.findbugs:jsr305:jar:3.0.2:compile
+[INFO] |  |  +- org.checkerframework:checker-qual:jar:2.10.0:compile
+[INFO] |  |  +- com.google.errorprone:error_prone_annotations:jar:2.3.4:compile
+[INFO] |  |  \- com.google.j2objc:j2objc-annotations:jar:1.3:compile
+[INFO] |  +- org.apache.commons:commons-text:jar:1.8:compile
+[INFO] |  +- org.nuxeo.ecm.core:nuxeo-core-schema:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  \- com.sun.xsom:xsom:jar:20140925:compile
+[INFO] |  |     \- relaxngDatatype:relaxngDatatype:jar:20020414:compile
+[INFO] |  +- org.nuxeo.runtime:nuxeo-runtime-jtajca:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  +- javax.resource:connector-api:jar:1.5:compile
+[INFO] |  |  +- org.apache.geronimo.components:geronimo-connector:jar:2.2.1-NX1:compile
+[INFO] |  |  +- org.tranql:tranql-connector:jar:1.8:compile
+[INFO] |  |  +- org.apache.geronimo.components:geronimo-transaction:jar:2.2.1:compile
+[INFO] |  |  |  \- org.objectweb.howl:howl:jar:1.0.1-1:compile
+[INFO] |  |  \- org.apache.xbean:xbean-naming:jar:4.15:compile
+[INFO] |  +- org.nuxeo.runtime:nuxeo-runtime-kv:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  \- net.jodah:expiringmap:jar:0.5.9:compile
+[INFO] |  +- javax.servlet:javax.servlet-api:jar:4.0.1:compile
+[INFO] |  +- javax.validation:validation-api:jar:1.0.0.GA:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-core:jar:2.10.2:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.10.2:compile
+[INFO] |  \- javax.transaction:javax.transaction-api:jar:1.3:compile
+[INFO] +- org.nuxeo.ecm.core:nuxeo-core:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.runtime:nuxeo-runtime-datasource:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  \- org.apache.tomcat:tomcat-jdbc:jar:9.0.37:compile
+[INFO] |  |     \- org.apache.tomcat:tomcat-juli:jar:9.0.37:compile
+[INFO] |  +- org.nuxeo.runtime:nuxeo-runtime-migration:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  +- org.nuxeo.runtime:nuxeo-runtime-pubsub:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  \- org.nuxeo.runtime:nuxeo-runtime-cluster:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.ecm.core:nuxeo-core-query:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  \- cup:java-cup:jar:0.11a:compile
+[INFO] |  +- org.nuxeo.ecm.core:nuxeo-core-event:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  \- org.quartz-scheduler:quartz:jar:2.3.2:compile
+[INFO] |  |     +- com.mchange:c3p0:jar:0.9.5.4:compile
+[INFO] |  |     +- com.mchange:mchange-commons-java:jar:0.2.15:compile
+[INFO] |  |     \- com.zaxxer:HikariCP-java7:jar:2.4.13:compile
+[INFO] |  +- org.nuxeo.ecm.core:nuxeo-core-el:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  +- org.apache.tomcat:tomcat-el-api:jar:9.0.37:compile
+[INFO] |  |  \- org.jboss.el:jboss-el:jar:1.0_02.CR6:compile
+[INFO] |  +- org.nuxeo.ecm.core:nuxeo-core-bulk:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  +- org.nuxeo.ecm.core:nuxeo-core-cache:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  +- com.google.code.externalsortinginjava:externalsortinginjava:jar:0.2.5:compile
+[INFO] |  |  +- org.apache.avro:avro:jar:1.9.2:compile
+[INFO] |  |  |  \- org.apache.commons:commons-compress:jar:1.19:compile
+[INFO] |  |  \- org.apache.commons:commons-collections4:jar:4.4:compile
+[INFO] |  \- org.nuxeo.runtime:nuxeo-runtime-metrics:jar:11.2-SNAPSHOT:compile
+[INFO] |     +- io.dropwizard.metrics5:metrics-graphite:jar:5.0.0-rc3:compile
+[INFO] |     |  \- com.rabbitmq:amqp-client:jar:5.5.3:compile
+[INFO] |     +- io.dropwizard.metrics5:metrics-jmx:jar:5.0.0-rc3:compile
+[INFO] |     +- io.dropwizard.metrics5:metrics-log4j2:jar:5.0.0-rc3:compile
+[INFO] |     +- io.dropwizard.metrics5:metrics-jvm:jar:5.0.0-rc3:compile
+[INFO] |     +- org.coursera:metrics-datadog:jar:2.0.0-RC1:compile
+[INFO] |     |  +- org.apache.httpcomponents:fluent-hc:jar:4.5.11:compile
+[INFO] |     |  \- com.datadoghq:java-dogstatsd-client:jar:2.6.1:compile
+[INFO] |     |     \- com.github.jnr:jnr-unixsocket:jar:0.18:compile
+[INFO] |     |        +- com.github.jnr:jnr-ffi:jar:2.1.4:compile
+[INFO] |     |        |  +- com.github.jnr:jffi:jar:1.2.15:compile
+[INFO] |     |        |  +- com.github.jnr:jffi:jar:native:1.2.15:runtime
+[INFO] |     |        |  +- org.ow2.asm:asm-commons:jar:5.0.3:compile
+[INFO] |     |        |  +- org.ow2.asm:asm-analysis:jar:5.0.3:compile
+[INFO] |     |        |  +- org.ow2.asm:asm-tree:jar:5.0.3:compile
+[INFO] |     |        |  +- org.ow2.asm:asm-util:jar:5.0.3:compile
+[INFO] |     |        |  \- com.github.jnr:jnr-x86asm:jar:1.0.2:compile
+[INFO] |     |        +- com.github.jnr:jnr-constants:jar:0.9.8:compile
+[INFO] |     |        +- com.github.jnr:jnr-enxio:jar:0.16:compile
+[INFO] |     |        \- com.github.jnr:jnr-posix:jar:3.0.35:compile
+[INFO] |     +- io.opencensus:opencensus-exporter-trace-jaeger:jar:0.26.0:compile
+[INFO] |     |  +- io.opencensus:opencensus-exporter-trace-util:jar:0.26.0:compile
+[INFO] |     |  \- io.jaegertracing:jaeger-client:jar:0.33.1:compile
+[INFO] |     |     +- io.jaegertracing:jaeger-thrift:jar:0.33.1:compile
+[INFO] |     |     |  +- org.apache.thrift:libthrift:jar:0.11.0:compile
+[INFO] |     |     |  \- com.squareup.okhttp3:okhttp:jar:3.9.0:compile
+[INFO] |     |     |     \- com.squareup.okio:okio:jar:1.13.0:compile
+[INFO] |     |     +- io.jaegertracing:jaeger-core:jar:0.33.1:compile
+[INFO] |     |     |  +- io.opentracing:opentracing-api:jar:0.31.0:compile
+[INFO] |     |     |  \- io.opentracing:opentracing-util:jar:0.31.0:compile
+[INFO] |     |     |     \- io.opentracing:opentracing-noop:jar:0.31.0:compile
+[INFO] |     |     \- io.jaegertracing:jaeger-tracerresolver:jar:0.33.1:compile
+[INFO] |     |        \- io.opentracing.contrib:opentracing-tracerresolver:jar:0.1.5:compile
+[INFO] |     +- io.opencensus:opencensus-exporter-trace-datadog:jar:0.26.0:compile
+[INFO] |     |  \- com.google.auto.value:auto-value:jar:1.4:compile
+[INFO] |     +- io.opencensus:opencensus-exporter-trace-zipkin:jar:0.26.0:compile
+[INFO] |     |  +- io.zipkin.reporter2:zipkin-reporter:jar:2.7.14:compile
+[INFO] |     |  |  \- io.zipkin.zipkin2:zipkin:jar:2.12.0:compile
+[INFO] |     |  \- io.zipkin.reporter2:zipkin-sender-urlconnection:jar:2.7.14:compile
+[INFO] |     +- io.opencensus:opencensus-exporter-stats-prometheus:jar:0.26.0:compile
+[INFO] |     |  +- io.opencensus:opencensus-exporter-metrics-util:jar:0.26.0:compile
+[INFO] |     |  \- io.prometheus:simpleclient:jar:0.6.0:compile
+[INFO] |     +- io.opencensus:opencensus-contrib-dropwizard5:jar:0.26.0:compile
+[INFO] |     +- io.opencensus:opencensus-contrib-zpages:jar:0.26.0:compile
+[INFO] |     |  \- io.opencensus:opencensus-contrib-grpc-metrics:jar:0.26.0:compile
+[INFO] |     +- io.opencensus:opencensus-contrib-log-correlation-log4j2:jar:0.26.0:runtime
+[INFO] |     \- io.prometheus:simpleclient_httpserver:jar:0.8.1:compile
+[INFO] |        \- io.prometheus:simpleclient_common:jar:0.8.1:compile
+[INFO] +- org.nuxeo.runtime:nuxeo-runtime-mongodb:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.runtime:nuxeo-runtime-osgi:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.mongodb:mongo-java-driver:jar:3.12.1:compile
+[INFO] |  +- com.google.inject:guice:jar:3.0:compile
+[INFO] |  |  \- aopalliance:aopalliance:jar:1.0:compile
+[INFO] |  +- javax.inject:javax.inject:jar:1:compile
+[INFO] |  +- commons-beanutils:commons-beanutils:jar:1.9.4:compile
+[INFO] |  \- org.apache.httpcomponents:httpcore:jar:4.4.13:compile
+[INFO] +- org.nuxeo.ecm.core:nuxeo-core-test:jar:11.2-SNAPSHOT:test
+[INFO] |  +- org.nuxeo.runtime:nuxeo-runtime-reload:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  +- org.nuxeo.runtime:nuxeo-runtime-deploy:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  \- org.nuxeo.lib.runtime:nuxeo-runtime-launcher:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.runtime:nuxeo-runtime-management:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  +- org.javasimon:javasimon-jmx:jar:2.5.0:compile
+[INFO] |  |  |  \- org.javasimon:javasimon-jdbc3:jar:2.5.0:compile
+[INFO] |  |  +- com.thoughtworks.xstream:xstream:jar:1.4.11.1:compile
+[INFO] |  |  \- xpp3:xpp3:jar:clean:1.1.4c:compile
+[INFO] |  +- org.nuxeo.runtime:nuxeo-runtime-cluster:test-jar:tests:11.2-SNAPSHOT:test
+[INFO] |  +- org.nuxeo.runtime:nuxeo-runtime-stream:test-jar:tests:11.2-SNAPSHOT:test
+[INFO] |  +- org.jmock:jmock-junit4:jar:2.12.0:test
+[INFO] |  |  +- org.jmock:jmock-legacy:jar:2.12.0:test
+[INFO] |  |  \- org.jmock:jmock-imposters:jar:2.12.0:test
+[INFO] |  +- org.nuxeo.ecm.core:nuxeo-core-io:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  +- org.dom4j:dom4j:jar:2.1.3:compile
+[INFO] |  |  +- jaxen:jaxen:jar:1.2.0:compile
+[INFO] |  |  \- org.apache.commons:commons-csv:jar:1.7:compile
+[INFO] |  +- org.nuxeo.ecm.core:nuxeo-core-io:test-jar:tests:11.2-SNAPSHOT:test
+[INFO] |  +- org.nuxeo.ecm.core:nuxeo-core-bulk:test-jar:tests:11.2-SNAPSHOT:test
+[INFO] |  +- org.nuxeo.ecm.core:nuxeo-core-event:test-jar:tests:11.2-SNAPSHOT:test
+[INFO] |  +- org.nuxeo.ecm.core:nuxeo-core-convert:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.ecm.core:nuxeo-core-convert-plugins:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  +- net.htmlparser.jericho:jericho-html:jar:3.4:compile
+[INFO] |  |  +- org.apache.poi:poi:jar:4.1.2:compile
+[INFO] |  |  |  +- org.apache.commons:commons-math3:jar:3.6.1:compile
+[INFO] |  |  |  \- com.zaxxer:SparseBitSet:jar:1.2:compile
+[INFO] |  |  +- org.apache.poi:poi-ooxml:jar:4.1.2:compile
+[INFO] |  |  |  +- org.apache.poi:poi-ooxml-schemas:jar:4.1.2:compile
+[INFO] |  |  |  \- com.github.virtuald:curvesapi:jar:1.06:compile
+[INFO] |  |  +- org.apache.poi:poi-scratchpad:jar:4.1.2:compile
+[INFO] |  |  +- org.apache.xmlbeans:xmlbeans:jar:3.1.0:compile
+[INFO] |  |  \- org.nuxeo.ecm.platform:nuxeo-platform-commandline-executor:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.ecm.core:nuxeo-core-storage:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.ecm.core:nuxeo-core-storage-sql:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  \- net.sf.ehcache:ehcache-core:jar:2.6.11:compile
+[INFO] |  +- org.nuxeo.ecm.core:nuxeo-core-storage-sql-test:jar:11.2-SNAPSHOT:test
+[INFO] |  |  +- org.nuxeo.lib.core:nuxeo-core-storage-sql-extensions:jar:11.2-SNAPSHOT:test
+[INFO] |  |  +- com.h2database:h2:jar:1.4.200:provided
+[INFO] |  |  +- org.apache.lucene:lucene-core:jar:7.5.0:compile
+[INFO] |  |  +- org.apache.lucene:lucene-queryparser:jar:7.5.0:compile
+[INFO] |  |  +- org.apache.lucene:lucene-analyzers-common:jar:7.5.0:compile
+[INFO] |  |  +- org.postgresql:postgresql:jar:42.2.9:test
+[INFO] |  |  +- mysql:mysql-connector-java:jar:8.0.19:test
+[INFO] |  |  |  \- com.google.protobuf:protobuf-java:jar:3.6.1:test
+[INFO] |  |  +- org.mariadb.jdbc:mariadb-java-client:jar:1.7.4:test
+[INFO] |  |  \- com.microsoft.sqlserver:mssql-jdbc:jar:7.0.0.jre8:provided
+[INFO] |  +- org.nuxeo.ecm.core:nuxeo-core-storage-dbs:test-jar:tests:11.2-SNAPSHOT:test
+[INFO] |  +- org.nuxeo.ecm.core:nuxeo-core-storage-mem:jar:11.2-SNAPSHOT:test
+[INFO] |  |  \- org.nuxeo.ecm.core:nuxeo-core-storage-dbs:jar:11.2-SNAPSHOT:test
+[INFO] |  +- org.nuxeo.ecm.core:nuxeo-core-storage-mongodb:jar:11.2-SNAPSHOT:test
+[INFO] |  |  \- org.nuxeo.runtime:nuxeo-launcher-commons:jar:11.2-SNAPSHOT:compile
+[INFO] |  |     +- org.nuxeo.connect:nuxeo-connect-client:jar:1.7.8:compile
+[INFO] |  |     |  +- org.eclipse.equinox:org.eclipse.equinox.p2.cudf:jar:1.17-NX:compile
+[INFO] |  |     |  |  +- org.sat4j:org.sat4j.pb:jar:2.3.1:compile
+[INFO] |  |     |  |  +- org.sat4j:org.sat4j.core:jar:2.3.1:compile
+[INFO] |  |     |  |  +- org.eclipse.core:org.eclipse.core.jobs:jar:3.5.0.v20100515:compile
+[INFO] |  |     |  |  \- org.eclipse.equinox:org.eclipse.equinox.common:jar:3.6.0.v20100503:compile
+[INFO] |  |     |  \- org.json:json:jar:20070829:compile
+[INFO] |  |     +- com.sun.xml.bind:jaxb-impl:jar:2.3.0.1:compile
+[INFO] |  |     \- com.sun.xml.bind:jaxb-core:jar:2.3.0.1:compile
+[INFO] |  +- org.javasimon:javasimon-core:jar:2.5.0:compile
+[INFO] |  \- com.github.kirviq:dumbster:jar:1.7:test
+[INFO] +- org.nuxeo.ecm.core:nuxeo-core-api:test-jar:tests:11.2-SNAPSHOT:test
+[INFO] +- io.opencensus:opencensus-api:jar:0.26.0:test
+[INFO] |  \- io.grpc:grpc-context:jar:1.27.2:compile
+[INFO] +- io.opencensus:opencensus-impl:jar:0.26.0:test
+[INFO] |  \- io.opencensus:opencensus-impl-core:jar:0.26.0:compile
+[INFO] +- org.nuxeo.runtime:nuxeo-runtime-test:jar:11.2-SNAPSHOT:test
+[INFO] |  +- io.github.classgraph:classgraph:jar:4.8.60:test
+[INFO] |  +- com.tngtech.jgiven:jgiven-core:jar:0.18.2:test
+[INFO] |  |  +- com.google.code.gson:gson:jar:2.2.2:compile
+[INFO] |  |  +- com.thoughtworks.paranamer:paranamer:jar:2.8:test
+[INFO] |  |  +- net.bytebuddy:byte-buddy:jar:1.9.2:test
+[INFO] |  |  \- org.fusesource.jansi:jansi:jar:1.18:test
+[INFO] |  +- com.tngtech.jgiven:jgiven-junit:jar:0.18.2:test
+[INFO] |  |  \- com.tngtech.jgiven:jgiven-html5-report:jar:0.18.2:test
+[INFO] |  |     \- com.tngtech.jgiven:jgiven-html-app:jar:0.18.2:test
+[INFO] |  +- com.tngtech.java:junit-dataprovider:jar:1.13.1:test
+[INFO] |  +- org.jmock:jmock:jar:2.12.0:test
+[INFO] |  |  +- org.jmock:jmock-testjar:jar:2.12.0:test
+[INFO] |  |  |  \- com.google.code.findbugs:annotations:jar:3.0.1:test
+[INFO] |  |  |     \- net.jcip:jcip-annotations:jar:1.0:test
+[INFO] |  |  +- org.hamcrest:hamcrest:jar:2.1:test
+[INFO] |  |  +- org.hamcrest:hamcrest-library:jar:1.3:test
+[INFO] |  |  \- org.apache-extras.beanshell:bsh:jar:2.0b6:test
+[INFO] |  +- org.assertj:assertj-core:jar:3.14.0:test
+[INFO] |  +- org.mockito:mockito-core:jar:1.9.5:test
+[INFO] |  |  \- org.objenesis:objenesis:jar:1.0:test
+[INFO] |  +- org.nuxeo.runtime:nuxeo-runtime-server:jar:11.2-SNAPSHOT:test
+[INFO] |  |  +- org.apache.tomcat:tomcat-catalina:jar:9.0.37:test
+[INFO] |  |  |  +- org.apache.tomcat:tomcat-jsp-api:jar:9.0.37:test
+[INFO] |  |  |  +- org.apache.tomcat:tomcat-api:jar:9.0.37:test
+[INFO] |  |  |  +- org.apache.tomcat:tomcat-jni:jar:9.0.37:test
+[INFO] |  |  |  +- org.apache.tomcat:tomcat-util-scan:jar:9.0.37:test
+[INFO] |  |  |  \- org.apache.tomcat:tomcat-jaspic-api:jar:9.0.37:test
+[INFO] |  |  +- org.apache.tomcat:tomcat-coyote:jar:9.0.37:test
+[INFO] |  |  +- org.apache.tomcat:tomcat-util:jar:9.0.37:test
+[INFO] |  |  \- org.apache.tomcat:tomcat-jasper:jar:9.0.37:test
+[INFO] |  |     +- org.eclipse.jdt:ecj:jar:3.21.0:test
+[INFO] |  |     \- org.apache.tomcat:tomcat-jasper-el:jar:9.0.37:test
+[INFO] |  +- org.hamcrest:hamcrest-core:jar:1.3:test
+[INFO] |  +- org.seleniumhq.selenium:selenium-api:jar:2.53.0:test
+[INFO] |  +- org.seleniumhq.selenium:selenium-support:jar:2.53.0:test
+[INFO] |  |  \- org.seleniumhq.selenium:selenium-remote-driver:jar:2.53.0:test
+[INFO] |  |     \- cglib:cglib-nodep:jar:3.3.0:test
+[INFO] |  +- org.seleniumhq.selenium:selenium-firefox-driver:jar:2.53.0:test
+[INFO] |  |  \- org.apache.commons:commons-exec:jar:1.3:compile
+[INFO] |  +- org.seleniumhq.selenium:selenium-ie-driver:jar:2.53.0:test
+[INFO] |  |  +- net.java.dev.jna:jna:jar:4.5.2:test
+[INFO] |  |  \- net.java.dev.jna:jna-platform:jar:4.5.2:test
+[INFO] |  +- org.seleniumhq.selenium:selenium-chrome-driver:jar:2.53.0:test
+[INFO] |  +- org.seleniumhq.selenium:htmlunit-driver:jar:2.20:test
+[INFO] |  |  \- net.sourceforge.htmlunit:htmlunit:jar:2.20:test
+[INFO] |  |     +- xalan:xalan:jar:2.7.2:test
+[INFO] |  |     |  \- xalan:serializer:jar:2.7.2:test
+[INFO] |  |     +- org.apache.httpcomponents:httpmime:jar:4.5.11:test
+[INFO] |  |     +- net.sourceforge.htmlunit:htmlunit-core-js:jar:2.17:test
+[INFO] |  |     +- net.sourceforge.nekohtml:nekohtml:jar:1.9.22:test
+[INFO] |  |     +- net.sourceforge.cssparser:cssparser:jar:0.9.18:test
+[INFO] |  |     |  \- org.w3c.css:sac:jar:1.3:compile
+[INFO] |  |     \- org.eclipse.jetty.websocket:websocket-client:jar:9.2.15.v20160210:test
+[INFO] |  |        +- org.eclipse.jetty:jetty-util:jar:9.2.15.v20160210:test
+[INFO] |  |        +- org.eclipse.jetty:jetty-io:jar:9.2.15.v20160210:test
+[INFO] |  |        \- org.eclipse.jetty.websocket:websocket-common:jar:9.2.15.v20160210:test
+[INFO] |  |           \- org.eclipse.jetty.websocket:websocket-api:jar:9.2.15.v20160210:test
+[INFO] |  +- org.concordion:concordion:jar:1.3.0:test
+[INFO] |  |  \- ognl:ognl:jar:2.7.2:test
+[INFO] |  +- org.ow2.asm:asm:jar:7.3.1:compile
+[INFO] |  \- concurrent:concurrent:jar:1.3.4:test
+[INFO] +- org.nuxeo.ecm.platform:nuxeo-importer-stream:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.ecm.platform:nuxeo-importer-core:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-audit-api:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  \- org.nuxeo.ecm.platform:nuxeo-platform-filemanager-core:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.runtime:nuxeo-runtime-redis:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  \- org.apache.commons:commons-pool2:jar:2.8.0:compile
+[INFO] |  +- org.nuxeo.runtime:nuxeo-runtime-stream:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.lib.stream:nuxeo-stream:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  +- net.openhft:chronicle-queue:jar:5.17.28:compile
+[INFO] |  |  +- net.openhft:chronicle-core:jar:2.17.31:compile
+[INFO] |  |  |  \- com.intellij:annotations:jar:12.0:compile
+[INFO] |  |  +- net.openhft:chronicle-wire:jar:2.17.58:compile
+[INFO] |  |  |  \- net.openhft:compiler:jar:2.3.4:compile
+[INFO] |  |  +- net.openhft:chronicle-bytes:jar:2.17.42:compile
+[INFO] |  |  +- net.openhft:chronicle-threads:jar:2.17.2:compile
+[INFO] |  |  +- org.jgrapht:jgrapht-core:jar:1.0.1:compile
+[INFO] |  |  +- org.apache.kafka:kafka-clients:jar:2.5.0:compile
+[INFO] |  |  |  +- com.github.luben:zstd-jni:jar:1.4.4-7:compile
+[INFO] |  |  |  +- org.lz4:lz4-java:jar:1.7.1:compile
+[INFO] |  |  |  \- org.xerial.snappy:snappy-java:jar:1.1.7.3:compile
+[INFO] |  |  +- io.confluent:kafka-avro-serializer:jar:5.0.0:compile
+[INFO] |  |  \- io.confluent:kafka-schema-registry-client:jar:5.0.0:compile
+[INFO] |  +- net.jodah:failsafe:jar:1.1.0:compile
+[INFO] |  +- redis.clients:jedis:jar:2.9.0:compile
+[INFO] |  +- com.github.mike10004:commons-imaging:jar:1.0a1:compile
+[INFO] |  \- org.mp4parser:isoparser:jar:1.9.41:compile
+[INFO] +- org.nuxeo.ecm.platform:nuxeo-rest-api-server:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.ecm.automation:nuxeo-automation-server:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-types-api:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-url-api:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-web-common:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  |  +- javax.servlet.jsp:jsp-api:jar:2.2:compile
+[INFO] |  |  |  +- com.thetransactioncompany:cors-filter:jar:2.8:compile
+[INFO] |  |  |  |  \- com.thetransactioncompany:java-property-utils:jar:1.9.1:compile
+[INFO] |  |  |  \- io.opencensus:opencensus-contrib-http-servlet:jar:0.26.0:compile
+[INFO] |  |  |     \- io.opencensus:opencensus-contrib-http-util:jar:0.26.0:compile
+[INFO] |  |  \- org.nuxeo.ecm.webengine:nuxeo-webengine-base:jar:11.2-SNAPSHOT:compile
+[INFO] |  |     \- org.nuxeo.ecm.platform:nuxeo-platform-comment-api:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.ecm.platform:nuxeo-rest-api-io:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.ecm.platform:nuxeo-platform-rendition-api:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.ecm.platform:nuxeo-platform-collections-core:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  \- org.nuxeo.ecm.platform:nuxeo-platform-dublincore:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.ecm.core:nuxeo-core-mimetype:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  \- jmimemagic:jmimemagic:jar:0.1.2:compile
+[INFO] |  |     \- oro:oro:jar:2.0.8:compile
+[INFO] |  \- org.nuxeo.ecm.platform:nuxeo-platform-oauth:jar:11.2-SNAPSHOT:compile
+[INFO] |     +- org.nuxeo.ecm.platform:nuxeo-platform-directory-api:jar:11.2-SNAPSHOT:compile
+[INFO] |     +- org.nuxeo.ecm.platform:nuxeo-platform-login-jwt:jar:11.2-SNAPSHOT:compile
+[INFO] |     |  \- com.auth0:java-jwt:jar:3.9.0:compile
+[INFO] |     +- com.google.http-client:google-http-client:jar:1.19.0:compile
+[INFO] |     +- com.google.http-client:google-http-client-jackson2:jar:1.19.0:compile
+[INFO] |     \- com.google.oauth-client:google-oauth-client:jar:1.20.0:compile
+[INFO] +- org.nuxeo.ecm.automation:nuxeo-automation-core:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.ecm.platform:nuxeo-platform-rendering:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  \- org.wikimodel:wem:jar:2.0.2:compile
+[INFO] |  |     \- net.java.dev.javacc:javacc:jar:4.0:compile
+[INFO] |  +- org.nuxeo.ecm.platform:nuxeo-platform-convert:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  +- commons-fileupload:commons-fileupload:jar:1.4:compile
+[INFO] |  |  +- com.cforcoding.jmd:jmd:jar:0.8.1-tomasol-3e60e36137:compile
+[INFO] |  |  \- com.ibm.icu:icu4j:jar:65.1:compile
+[INFO] |  +- org.nuxeo.ecm.platform:nuxeo-platform-query-api:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  \- org.nuxeo.ecm.platform:nuxeo-platform-search-api:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.ecm.platform:nuxeo-platform-usermanager-api:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.ecm.core:nuxeo-core-convert-api:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.ecm.platform:nuxeo-mail:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- javax.mail:mail:jar:1.4.7:compile
+[INFO] |  +- org.nuxeo.ecm.platform:nuxeo-platform-forms-layout-api:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.ecm.platform:nuxeo-platform-forms-layout-core:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.ecm.webengine:nuxeo-webengine-core:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  +- com.sun.jersey:jersey-server:jar:1.19.4:compile
+[INFO] |  |  +- com.sun.jersey:jersey-servlet:jar:1.19.4:compile
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-api:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-versioning-api:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  +- org.nuxeo.build:nuxeo-apt-extensions:jar:1.0:compile
+[INFO] |  |  \- org.nuxeo.build:nuxeo-webengine-apt:jar:1.2:compile
+[INFO] |  +- org.nuxeo.ecm.platform:nuxeo-platform-actions-core:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.mvel:mvel2:jar:2.4.5.Final:compile
+[INFO] |  +- org.codehaus.groovy:groovy-all:jar:2.4.12:compile
+[INFO] |  \- com.sun.activation:javax.activation:jar:1.2.0:compile
+[INFO] +- nuxeo-studio:nuxeo-benchmark-10b-2020:jar:master-20200625.200422-1-SNAPSHOT:compile
+[INFO] +- org.nuxeo.elasticsearch:nuxeo-elasticsearch-core:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.ecm.core:nuxeo-core-management:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.ecm.platform:nuxeo-platform-directory-core:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.ecm.platform:nuxeo-platform-tag-api:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.elasticsearch:elasticsearch:jar:6.5.3:compile
+[INFO] |  |  +- org.elasticsearch:elasticsearch-core:jar:6.5.3:compile
+[INFO] |  |  +- org.elasticsearch:elasticsearch-secure-sm:jar:6.5.3:compile
+[INFO] |  |  +- org.elasticsearch:elasticsearch-x-content:jar:6.5.3:compile
+[INFO] |  |  |  +- com.fasterxml.jackson.dataformat:jackson-dataformat-smile:jar:2.10.2:compile
+[INFO] |  |  |  +- com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:jar:2.10.2:compile
+[INFO] |  |  |  \- com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:jar:2.10.2:compile
+[INFO] |  |  +- org.apache.lucene:lucene-backward-codecs:jar:7.5.0:compile
+[INFO] |  |  +- org.apache.lucene:lucene-grouping:jar:7.5.0:compile
+[INFO] |  |  +- org.apache.lucene:lucene-highlighter:jar:7.5.0:compile
+[INFO] |  |  +- org.apache.lucene:lucene-join:jar:7.5.0:compile
+[INFO] |  |  +- org.apache.lucene:lucene-memory:jar:7.5.0:compile
+[INFO] |  |  +- org.apache.lucene:lucene-misc:jar:7.5.0:compile
+[INFO] |  |  +- org.apache.lucene:lucene-queries:jar:7.5.0:compile
+[INFO] |  |  +- org.apache.lucene:lucene-sandbox:jar:7.5.0:compile
+[INFO] |  |  +- org.apache.lucene:lucene-spatial:jar:7.5.0:compile
+[INFO] |  |  +- org.apache.lucene:lucene-spatial-extras:jar:7.5.0:compile
+[INFO] |  |  +- org.apache.lucene:lucene-spatial3d:jar:7.5.0:compile
+[INFO] |  |  +- org.apache.lucene:lucene-suggest:jar:7.5.0:compile
+[INFO] |  |  +- org.elasticsearch:elasticsearch-cli:jar:6.5.3:compile
+[INFO] |  |  |  \- net.sf.jopt-simple:jopt-simple:jar:5.0.2:compile
+[INFO] |  |  +- com.carrotsearch:hppc:jar:0.7.1:compile
+[INFO] |  |  +- joda-time:joda-time:jar:2.10.5:compile
+[INFO] |  |  +- com.tdunning:t-digest:jar:3.2:compile
+[INFO] |  |  \- org.hdrhistogram:HdrHistogram:jar:2.1.9:compile
+[INFO] |  +- org.elasticsearch.client:elasticsearch-rest-high-level-client:jar:6.5.3:compile
+[INFO] |  |  +- org.elasticsearch.plugin:parent-join-client:jar:6.5.3:compile
+[INFO] |  |  +- org.elasticsearch.plugin:aggs-matrix-stats-client:jar:6.5.3:compile
+[INFO] |  |  +- org.elasticsearch.plugin:rank-eval-client:jar:6.5.3:compile
+[INFO] |  |  \- org.elasticsearch.plugin:lang-mustache-client:jar:6.5.3:compile
+[INFO] |  |     \- com.github.spullara.mustache.java:compiler:jar:0.9.3:compile
+[INFO] |  +- org.elasticsearch.client:elasticsearch-rest-client:jar:6.5.3:compile
+[INFO] |  |  \- org.apache.httpcomponents:httpasyncclient:jar:4.1.2:compile
+[INFO] |  +- org.elasticsearch.client:transport:jar:6.5.3:compile
+[INFO] |  |  +- org.elasticsearch.plugin:reindex-client:jar:6.5.3:compile
+[INFO] |  |  \- org.elasticsearch.plugin:percolator-client:jar:6.5.3:compile
+[INFO] |  +- org.elasticsearch.plugin:transport-netty4-client:jar:6.5.3:compile
+[INFO] |  |  +- io.netty:netty-buffer:jar:4.1.30.Final:compile
+[INFO] |  |  +- io.netty:netty-codec:jar:4.1.30.Final:compile
+[INFO] |  |  +- io.netty:netty-codec-http:jar:4.1.30.Final:compile
+[INFO] |  |  +- io.netty:netty-common:jar:4.1.30.Final:compile
+[INFO] |  |  +- io.netty:netty-handler:jar:4.1.30.Final:compile
+[INFO] |  |  +- io.netty:netty-resolver:jar:4.1.30.Final:compile
+[INFO] |  |  \- io.netty:netty-transport:jar:4.1.30.Final:compile
+[INFO] |  +- org.apache.httpcomponents:httpcore-nio:jar:4.4.13:compile
+[INFO] |  +- com.sun.jersey:jersey-core:jar:1.19.4:compile
+[INFO] |  |  \- javax.ws.rs:jsr311-api:jar:1.1.1:compile
+[INFO] |  +- com.sun.jersey:jersey-client:jar:1.19.4:compile
+[INFO] |  \- org.codelibs.elasticsearch.module:analysis-common:jar:6.5.3:compile
+[INFO] +- org.nuxeo.ecm.automation:nuxeo-automation-test:jar:11.2-SNAPSHOT:test
+[INFO] |  +- org.nuxeo.ecm.automation:nuxeo-automation-io:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  +- org.yaml:snakeyaml:jar:1.25:compile
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-forms-layout-export:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-preview-core:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-htmlsanitizer:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  |  |  \- com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:jar:20190103.NX1:compile
+[INFO] |  |  |  \- org.restlet.jse:org.restlet:jar:2.4.2:compile
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-usermanager-core:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  \- org.nuxeo.ecm.platform:nuxeo-invite:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.ecm.automation:nuxeo-automation-scripting:jar:11.2-SNAPSHOT:test
+[INFO] |  +- org.nuxeo.ecm.webengine:nuxeo-webengine-jaxrs:jar:11.2-SNAPSHOT:compile
+[INFO] |  +- org.nuxeo.ecm.platform:nuxeo-features-test:jar:11.2-SNAPSHOT:test
+[INFO] |  |  +- com.sun.jersey.contribs:jersey-apache-client4:jar:1.19.4:test
+[INFO] |  |  +- org.nuxeo.ecm.webengine:nuxeo-webengine-ui:jar:11.2-SNAPSHOT:test
+[INFO] |  |  |  \- net.sf.json-lib:json-lib:jar:jdk15:2.4:test
+[INFO] |  |  |     +- commons-lang:commons-lang:jar:2.6:test
+[INFO] |  |  |     \- net.sf.ezmorph:ezmorph:jar:1.0.4:test
+[INFO] |  |  +- org.nuxeo.ecm.core:nuxeo-core-management-jtajca:jar:11.2-SNAPSHOT:test
+[INFO] |  |  |  +- commons-dbcp:commons-dbcp:jar:1.4:test
+[INFO] |  |  |  |  \- commons-pool:commons-pool:jar:1.5.4:test
+[INFO] |  |  |  \- org.apache.tomcat:tomcat-dbcp:jar:9.0.37:test
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-login:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  \- javax.annotation:jsr250-api:jar:1.0:test
+[INFO] |  +- org.nuxeo.ecm.platform:nuxeo-platform-test:jar:11.2-SNAPSHOT:test
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-directory-sql:jar:11.2-SNAPSHOT:test
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-directory-sql:test-jar:tests:11.2-SNAPSHOT:test
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-directory-mongodb:jar:11.2-SNAPSHOT:test
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-directory-multi:jar:11.2-SNAPSHOT:test
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-directory-test:jar:11.2-SNAPSHOT:test
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-directory-test:test-jar:tests:11.2-SNAPSHOT:test
+[INFO] |  |  +- org.nuxeo.ecm.core:nuxeo-core-test:test-jar:tests:11.2-SNAPSHOT:test
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-mail:test-jar:tests:11.2-SNAPSHOT:test
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-login:test-jar:tests:11.2-SNAPSHOT:test
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-directory-types-contrib:jar:11.2-SNAPSHOT:runtime
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-content-template-manager:jar:11.2-SNAPSHOT:test
+[INFO] |  |  |  \- org.nuxeo.ecm.platform:nuxeo-platform-types-core:jar:11.2-SNAPSHOT:test
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-directory-ldap:jar:11.2-SNAPSHOT:test
+[INFO] |  |  |  +- org.apache.directory.server:apacheds-core:jar:1.5.1:test
+[INFO] |  |  |  |  +- org.apache.directory.server:apacheds-schema-bootstrap:jar:1.5.1:test
+[INFO] |  |  |  |  |  \- jdbm:jdbm:jar:1.0:test
+[INFO] |  |  |  |  +- org.apache.directory.server:apacheds-schema-registries:jar:1.5.1:test
+[INFO] |  |  |  |  +- org.apache.directory.server:apacheds-core-shared:jar:1.5.1:test
+[INFO] |  |  |  |  +- org.apache.directory.server:apacheds-utils:jar:1.5.1:test
+[INFO] |  |  |  |  +- org.apache.directory.server:apacheds-jdbm-store:jar:1.5.1:test
+[INFO] |  |  |  |  +- org.apache.directory.server:apacheds-constants:jar:1.5.1:test
+[INFO] |  |  |  |  +- org.apache.directory.server:apacheds-btree-base:jar:1.5.1:test
+[INFO] |  |  |  |  +- org.apache.directory.server:apacheds-bootstrap-extract:jar:1.5.1:test
+[INFO] |  |  |  |  \- org.apache.directory.server:apacheds-kerberos-shared:jar:1.5.1:test
+[INFO] |  |  |  |     +- org.apache.mina:mina-core:jar:1.1.2:test
+[INFO] |  |  |  |     \- org.apache.directory.server:apacheds-protocol-shared:jar:1.5.1:test
+[INFO] |  |  |  \- org.apache.directory.shared:shared-ldap:jar:0.9.7:test
+[INFO] |  |  |     +- org.apache.directory.shared:shared-asn1:jar:0.9.7:test
+[INFO] |  |  |     \- org.apache.directory.shared:shared-ldap-constants:jar:0.9.7:test
+[INFO] |  |  \- org.hibernate:hibernate-core:jar:3.3.2.GA:test
+[INFO] |  |     \- antlr:antlr:jar:2.7.7:test
+[INFO] |  +- org.apache.httpcomponents:httpclient:jar:4.5.11:compile
+[INFO] |  +- org.nuxeo.ecm.automation:nuxeo-automation-features:jar:11.2-SNAPSHOT:test
+[INFO] |  |  +- org.nuxeo.ecm.core:nuxeo-core-persistence:jar:11.2-SNAPSHOT:test
+[INFO] |  |  |  +- org.hibernate:hibernate-entitymanager:jar:3.4.0.GA:test
+[INFO] |  |  |  |  +- org.hibernate:hibernate-commons-annotations:jar:3.1.0.GA:test
+[INFO] |  |  |  |  \- javax.transaction:jta:jar:1.1:test
+[INFO] |  |  |  \- org.javassist:javassist:jar:3.26.0-GA:test
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-uidgen-core:jar:11.2-SNAPSHOT:test
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-relations-api:jar:11.2-SNAPSHOT:test
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-filemanager-api:jar:11.2-SNAPSHOT:compile
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-userworkspace-api:jar:11.2-SNAPSHOT:test
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-audit-core:jar:11.2-SNAPSHOT:test
+[INFO] |  |  |  \- org.hibernate:hibernate-annotations:jar:3.4.0.GA:test
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-collections-core:test-jar:tests:11.2-SNAPSHOT:test
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-notification-api:jar:11.2-SNAPSHOT:test
+[INFO] |  |  +- org.nuxeo.ecm.platform:nuxeo-platform-notification-core:jar:11.2-SNAPSHOT:test
+[INFO] |  |  +- javax.persistence:persistence-api:jar:1.0.2:test
+[INFO] |  |  \- com.sun.jersey.contribs:jersey-multipart:jar:1.19.4:test
+[INFO] |  |     \- org.jvnet.mimepull:mimepull:jar:1.9.3:test
+[INFO] |  \- org.osgi:org.osgi.compendium:jar:4.2.0:compile
+[INFO] +- org.nuxeo.elasticsearch:nuxeo-elasticsearch-core:test-jar:tests:11.2-SNAPSHOT:test
+[INFO] +- com.itextpdf:kernel:jar:7.1.10:compile
+[INFO] |  +- org.bouncycastle:bcpkix-jdk15on:jar:1.64:compile
+[INFO] |  +- org.bouncycastle:bcprov-jdk15on:jar:1.64:compile
+[INFO] |  \- org.slf4j:slf4j-api:jar:1.7.30:compile
+[INFO] +- com.itextpdf:io:jar:7.1.10:compile
+[INFO] +- com.itextpdf:layout:jar:7.1.10:compile
+[INFO] +- com.lmax:disruptor:jar:3.3.2:compile
+[INFO] +- commons-cli:commons-cli:jar:1.4:compile
+[INFO] +- commons-io:commons-io:jar:2.6:compile
+[INFO] +- javax.xml.bind:jaxb-api:jar:2.2.11:compile
+[INFO] +- org.apache.pdfbox:pdfbox:jar:2.0.19:compile
+[INFO] |  \- org.apache.pdfbox:fontbox:jar:2.0.19:compile
+[INFO] +- commons-logging:commons-logging:jar:1.2:compile
+[INFO] +- org.apache.logging.log4j:log4j-api:jar:2.13.3:compile
+[INFO] +- org.apache.logging.log4j:log4j-core:jar:2.13.3:test
+[INFO] +- org.apache.logging.log4j:log4j-jcl:jar:2.13.3:test
+[INFO] +- org.apache.logging.log4j:log4j-slf4j-impl:jar:2.13.3:test
+[INFO] +- org.apache.logging.log4j:log4j-1.2-api:jar:2.13.3:test
+[INFO] \- junit:junit:jar:4.13:test
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  2.369 s
+[INFO] Finished at: 2020-07-20T15:54:37-04:00
+[INFO] ------------------------------------------------------------------------
