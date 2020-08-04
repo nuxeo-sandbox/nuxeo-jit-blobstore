@@ -119,9 +119,7 @@ public class AccountProducers {
 
     protected void startProducer(LogManager manager, String[] lines) throws OperationException {
 
-    	String repositoryName = context.getCoreSession().getRepositoryName();
-
-    	AccountMessageProducerFactory factory = new AccountMessageProducerFactory(repositoryName, lines);
+    	AccountMessageProducerFactory factory = new AccountMessageProducerFactory(lines);
     	Codec<DocumentMessage> codec = StreamImporters.getDocCodec();
     	
         try (ProducerPool<DocumentMessage> producers = new MultiRepositoriesProducerPool<>(logName, manager, codec, factory,

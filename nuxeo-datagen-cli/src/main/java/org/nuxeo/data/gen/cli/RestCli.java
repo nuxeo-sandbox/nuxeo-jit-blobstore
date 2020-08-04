@@ -138,7 +138,8 @@ public class RestCli {
 			nbThreads = 1;
 			if (logName==null) {
 				logName = "import/hierarchy";
-			}			
+			}
+			params.put("logName", logName);
 			params.put("split", split);
 		} else if (IMPORT.equalsIgnoreCase(operation)) {
 
@@ -146,10 +147,6 @@ public class RestCli {
 				System.err.println("You should provide a logName (-l)");
 				return;
 			}
-			params.put("nbDocuments", nbDocs);
-			params.put("nbMonths", nbMonths);
-			params.put("monthOffset", monthOffset);
-			params.put("seed", seed);			
 			params.put("batchSize", batchSize);
 		
 			if (cmd.hasOption("bulk")) {
@@ -164,6 +161,11 @@ public class RestCli {
 				}
 				params.put("rootFolder", root);
 			}		
+		} else {
+			params.put("nbDocuments", nbDocs);
+			params.put("nbMonths", nbMonths);
+			params.put("monthOffset", monthOffset);
+			params.put("seed", seed);					
 		}
 		
 

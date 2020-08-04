@@ -49,7 +49,7 @@ public class AccountMessageProducer extends AbstractProducer<DocumentMessage> {
 		this.csv = csv;
 		this.blobStore = blobStore;
 		batch = new Stack<>();
-		log.info("CustomerMessageProducer created");
+		log.info("AccountMessageProducer created");
 	}
 
 	@Override

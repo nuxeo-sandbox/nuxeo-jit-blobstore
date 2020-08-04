@@ -117,9 +117,7 @@ public class AccountProducersMT {
 	protected void startProducer(LogManager manager, List<List<String>> csvChunks, int nbThreads)
 			throws OperationException {
 
-		String repositoryName = context.getCoreSession().getRepositoryName();
-
-		AccountMessageProducerFactoryMT factory = new AccountMessageProducerFactoryMT(repositoryName, csvChunks);
+		AccountMessageProducerFactoryMT factory = new AccountMessageProducerFactoryMT(csvChunks);
 		Codec<DocumentMessage> codec = StreamImporters.getDocCodec();
 
 		try (ProducerPool<DocumentMessage> producers = new MultiRepositoriesProducerPool<>(logName, manager, codec,

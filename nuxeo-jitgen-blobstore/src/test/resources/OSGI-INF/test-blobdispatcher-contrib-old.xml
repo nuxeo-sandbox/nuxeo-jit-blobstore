@@ -14,9 +14,7 @@
     <blobdispatcher>
       <class>org.nuxeo.ecm.core.blob.DefaultBlobDispatcher</class>      
 	      <property name="dc:source=initialImport">jit</property>
-	      <property name="default">snowball</property>
-	      <property name="ecm:repositoryName=us-east">snowball</property>
-	      <property name="ecm:repositoryName=us-west">snowball</property>
+	      <property name="default">test</property>
     </blobdispatcher>
   </extension>
 

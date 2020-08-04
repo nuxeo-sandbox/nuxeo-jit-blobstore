@@ -6,6 +6,11 @@
     <thumbnailFactory name="thumbnailStatementFactory"
       docType="Statement"
       factoryClass="org.nuxeo.ecm.core.blob.jit.thumbnail.StatementThumbnailFactory" />
+
+    <thumbnailFactory name="thumbnailIDCardFactory"
+      docType="IDCard"
+      factoryClass="org.nuxeo.ecm.core.blob.jit.thumbnail.IDCardThumbnailFactory" />
+
   </extension>
 
 </component>

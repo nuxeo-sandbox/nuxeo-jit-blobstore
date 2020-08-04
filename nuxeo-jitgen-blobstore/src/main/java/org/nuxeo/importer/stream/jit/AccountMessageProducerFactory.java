@@ -22,19 +22,17 @@ import org.nuxeo.importer.stream.message.DocumentMessage;
 import org.nuxeo.lib.stream.pattern.producer.ProducerFactory;
 import org.nuxeo.lib.stream.pattern.producer.ProducerIterator;
 
-public class AccountMessageProducerFactory implements ProducerFactory<DocumentMessage> {
+public class AccountMessageProducerFactory extends BaseMessageProducerFactory implements ProducerFactory<DocumentMessage> {
 
 	protected String[] csv;
-	protected String blobStore;
 	
-	public AccountMessageProducerFactory(String blobStore, String[] csv) {	
+	public AccountMessageProducerFactory(String[] csv) {	
 		this.csv = csv;
-		this.blobStore = blobStore;
 	}
 
 	@Override
 	public ProducerIterator<DocumentMessage> createProducer(int producerId) {
-		return new AccountMessageProducer(producerId, blobStore, csv);
+		return new AccountMessageProducer(producerId, SNOWBALL, csv);
 	}
 
 	protected String getGroupName(int producerId) {

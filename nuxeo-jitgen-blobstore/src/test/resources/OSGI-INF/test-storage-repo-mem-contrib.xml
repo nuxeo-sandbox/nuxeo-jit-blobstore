@@ -13,6 +13,9 @@
     <blobprovider name="us-west">
       <class>org.nuxeo.ecm.core.blob.binary.DefaultBinaryManager</class>
     </blobprovider>
+    <blobprovider name="snowball">
+      <class>org.nuxeo.ecm.core.blob.binary.DefaultBinaryManager</class>
+    </blobprovider>
   </extension>
  
   <extension target="org.nuxeo.ecm.core.storage.mem.MemRepositoryService" point="repository">

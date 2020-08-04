@@ -24,20 +24,18 @@ import org.nuxeo.importer.stream.message.DocumentMessage;
 import org.nuxeo.lib.stream.pattern.producer.ProducerFactory;
 import org.nuxeo.lib.stream.pattern.producer.ProducerIterator;
 
-public class AccountMessageProducerFactoryMT implements ProducerFactory<DocumentMessage> {
+public class AccountMessageProducerFactoryMT extends BaseMessageProducerFactory implements ProducerFactory<DocumentMessage> {
 
 	protected List<List<String>> csvs;
-	protected String blobStore;
 	
-	public AccountMessageProducerFactoryMT(String blobStore, List<List<String>> csvs) {	
+	public AccountMessageProducerFactoryMT(List<List<String>> csvs) {	
 		this.csvs = csvs;
-		this.blobStore = blobStore;
 	}
 
 	@Override
 	public ProducerIterator<DocumentMessage> createProducer(int producerId) {
 		List<String> csv = csvs.get(producerId);
-		return new AccountMessageProducer(producerId, blobStore, csv.toArray(new String[0]));
+		return new AccountMessageProducer(producerId, SNOWBALL, csv.toArray(new String[0]));
 	}
 
 	protected String getGroupName(int producerId) {

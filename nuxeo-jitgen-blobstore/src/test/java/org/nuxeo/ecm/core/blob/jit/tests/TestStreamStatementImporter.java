@@ -25,6 +25,8 @@ import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.api.DocumentModelList;
 import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
+import org.nuxeo.ecm.core.blob.BlobManager;
+import org.nuxeo.ecm.core.blob.BlobProvider;
 import org.nuxeo.ecm.core.blob.jit.es.StatementESDocumentWriter;
 import org.nuxeo.ecm.core.blob.jit.gen.StatementsBlobGenerator;
 import org.nuxeo.ecm.core.bulk.BulkService;
@@ -42,6 +44,7 @@ import org.nuxeo.importer.stream.jit.automation.CustomerFolderProducers;
 import org.nuxeo.importer.stream.jit.automation.CustomerProducers;
 import org.nuxeo.importer.stream.jit.automation.StatementFolderProducers;
 import org.nuxeo.importer.stream.jit.automation.StatementProducers;
+import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
@@ -60,6 +63,7 @@ import org.nuxeo.runtime.transaction.TransactionHelper;
 @Deploy("org.nuxeo.ecm.core.blob.jit.test:OSGI-INF/test-blobdispatcher-contrib.xml")
 @Deploy("org.nuxeo.ecm.core.blob.jit.test:OSGI-INF/test-stream-contrib.xml")
 @Deploy("org.nuxeo.ecm.core.blob.jit.test:OSGI-INF/import-node-config.xml")
+@Deploy("org.nuxeo.ecm.core.blob.jit.test:OSGI-INF/test-storage-repo-mem-contrib.xml")
 @PartialDeploy(bundle = "studio.extensions.nuxeo-benchmark-10b-2020", extensions = { TargetExtensions.ContentModel.class })
 public class TestStreamStatementImporter {
 
@@ -162,10 +166,24 @@ public class TestStreamStatementImporter {
 		DocumentModel file = session.createDocumentModel("/", "someFilet", "File");
 		Blob idblob = new StringBlob(blobTextContent);
 		idblob.setFilename("whatever.jpg");
-		file.setPropertyValue("file:content", (Serializable)idblob);
-		file = session.createDocument(file);
-		idblob = (Blob) file.getPropertyValue("file:content");
-		String blobDigest = idblob.getDigest();
+		//file.setPropertyValue("file:content", (Serializable)idblob);
+		//file = session.createDocument(file);
+	
+		
+		BlobManager bm = Framework.getService(BlobManager.class);
+		Map<String, BlobProvider> providers = bm.getBlobProviders();
+		BlobProvider snowball = bm.getBlobProvider("snowball");
+		assertNotNull(snowball);
+		
+		String blobDigest = snowball.writeBlob(idblob);
+		snowball.getBinaryManager().getBinary(idblob);
+		
+		//snowball.
+		//Blobidblob = (Blob) file.getPropertyValue("file:content");
+		//String blobDigest = idblob.getDigest();
+		
+		
+		
 		System.out.println(blobDigest);		
 		
 		try (OperationContext ctx = new OperationContext(session)) {
