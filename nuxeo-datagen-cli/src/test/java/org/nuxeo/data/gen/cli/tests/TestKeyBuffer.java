@@ -48,5 +48,12 @@ public class TestKeyBuffer {
 			assertTrue(kb.contains(keys[i]));
 		}
 	}
+	
+	@Test
+	public void testFormat() {
+		long pEast=40;
+		long pWest = 60;
+		System.out.printf("East %d %% - West %d %%  \r", pEast, pWest);
+	}
 
 }

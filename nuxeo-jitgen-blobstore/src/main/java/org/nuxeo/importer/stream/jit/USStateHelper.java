@@ -110,9 +110,11 @@ public class USStateHelper {
 				"OH",
 				"IN",
 				"MI",
-				"IN",
+				"IL",
 				"VA",
-				"MD"));
+				"MD",
+				"DE",
+				"WI"));
 	
 	protected static Map<String, String> StateName2StateCode = initStateCode();
 	

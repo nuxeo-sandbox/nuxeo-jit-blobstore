@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.blob.jit.gen.StatementsBlobGenerator;
 import org.nuxeo.ecm.core.blob.jit.thumbnail.StatementThumbnailFactory;
+import org.nuxeo.importer.stream.jit.USStateHelper;
 
 public class BenchPDF2Thumb {
 
