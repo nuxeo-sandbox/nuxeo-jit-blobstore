@@ -39,6 +39,7 @@ public class CSVAccount2IDCards {
 		options.addOption("o", "out", true, "IDCard generated pdf files");
 		
 		options.addOption("p", "picture", true, "picture directory");
+		options.addOption("t", "threads", true, "number of threads");
 		
 		options.addOption("h", "help", false, "help");
 
@@ -147,11 +148,12 @@ public class CSVAccount2IDCards {
 		String accountsfile = cmd.getOptionValue("a");
 		String outFolder = cmd.getOptionValue("o");
 		String picFolder = cmd.getOptionValue("p");
+		String threads = cmd.getOptionValue("t", "10");
 		
 		BlobWriter out=null;
 		if (outFolder!=null) {
 			if (outFolder.startsWith("s3:")) {
-				out = new S3Writer(outFolder);
+				out = new S3Writer(outFolder.substring(3));
 			} else {
 				out = new FolderWriter(outFolder);		
 			}
@@ -206,7 +208,7 @@ public class CSVAccount2IDCards {
 		t0 = System.currentTimeMillis();
 		
 		int batchSize = 1000;
-		int nbThreads=10;
+		int nbThreads=Integer.parseInt(threads);
 		
 		List<String> batch = new ArrayList<>();
 
