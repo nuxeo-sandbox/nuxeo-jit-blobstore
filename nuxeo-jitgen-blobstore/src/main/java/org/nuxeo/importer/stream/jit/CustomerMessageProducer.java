@@ -120,10 +120,15 @@ public class CustomerMessageProducer extends AbstractProducer<DocumentMessage> {
 
 		if (!folder) {
 			BlobInfo bi = new BlobInfo();
+			String fname = meta[1].trim();
 			bi.key = blobStore + ":" + meta[0].trim();
 			bi.digest=meta[0].trim();
-			bi.filename=meta[1].trim();
-			bi.mimeType="image/jpeg";
+			bi.filename=fname;
+			if (fname.endsWith("pdf")) {
+				bi.mimeType="application/pdf";				
+			} else {
+				bi.mimeType="image/jpeg";	
+			}
 			bi.length=Long.parseLong(meta[2].trim());					
 			builder.setBlobInfo(bi);		
 		}

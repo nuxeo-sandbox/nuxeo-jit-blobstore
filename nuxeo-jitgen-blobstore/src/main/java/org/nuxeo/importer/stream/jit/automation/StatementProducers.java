@@ -88,6 +88,9 @@ public class StatementProducers {
         
 	@Param(name = "withStates", required = false)
 	protected boolean withStates = false;
+	
+	@Param(name = "storeInCustomerFolder", required = false)
+	protected boolean storeInCustomerFolder = false;		
 
     protected void checkAccess() {
         NuxeoPrincipal principal = context.getPrincipal();
@@ -111,7 +114,7 @@ public class StatementProducers {
         	docPerThreads++;
         }
 
-        factory = new StatementDocumentMessageProducerFactory(seed, skip, docPerThreads, nbMonths, monthOffset, batchTag, useRecords, withStates);
+        factory = new StatementDocumentMessageProducerFactory(seed, skip, docPerThreads, nbMonths, monthOffset, batchTag, useRecords, withStates, storeInCustomerFolder);
 
         ProducerPool producers=null;
         try {        	

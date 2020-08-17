@@ -54,9 +54,11 @@ public class StatementDocumentMessageProducer<M extends Message> extends Abstrac
 
 	protected final boolean withStates;
 	
+	protected final boolean storeInCustomerFolder;	
+	
 	protected final int nbMonths;
 	
-	public StatementDocumentMessageProducer(SequenceGenerator sequenceGen, int producerId, long nbDocuments, int nbMonths, int monthOffset, String batchTag, boolean useRecords, boolean withStates) {
+	public StatementDocumentMessageProducer(SequenceGenerator sequenceGen, int producerId, long nbDocuments, int nbMonths, int monthOffset, String batchTag, boolean useRecords, boolean withStates, boolean storeInCustomerFolder) {
 		super(producerId);
 		this.nbDocuments = nbDocuments;
 		this.nbMonths=nbMonths;
@@ -69,6 +71,7 @@ public class StatementDocumentMessageProducer<M extends Message> extends Abstrac
 		this.sequenceGen=sequenceGen;
 		this.batchTag=batchTag;
 		this.useRecords=useRecords;
+		this.storeInCustomerFolder=storeInCustomerFolder;
 		log.info("StatementDocumentMessageProducer created, nbDocuments: " + nbDocuments);
 	}
 
@@ -113,7 +116,13 @@ public class StatementDocumentMessageProducer<M extends Message> extends Abstrac
 		
 		DocInfo docInfo = getGen().computeDocInfo("jit", currentAccountSeed, currentDataSeed, month);
 
-		if (withStates) {			
+		if (storeInCustomerFolder) {
+			String accountID = docInfo.getMeta("ACCOUNTID").trim();
+			String customerId = accountID.substring(0,19);
+			String state = docInfo.getMeta("STATE").trim();
+			String stateName = USStateHelper.toPath(state);			
+			parentPath = "/" + stateName + "/" + customerId + "/" + accountID.substring(20);
+		} else 	if (withStates) {			
 			String state = docInfo.getMeta("STATE");
 			int stateOffset = USStateHelper.getOffset(state);
 			if (stateOffset==-1) {
