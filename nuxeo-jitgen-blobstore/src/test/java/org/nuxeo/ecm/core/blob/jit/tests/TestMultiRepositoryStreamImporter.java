@@ -46,6 +46,7 @@ import org.nuxeo.importer.stream.jit.USStateHelper;
 import org.nuxeo.importer.stream.jit.automation.AccountProducers;
 import org.nuxeo.importer.stream.jit.automation.CustomerFolderProducers;
 import org.nuxeo.importer.stream.jit.automation.CustomerProducers;
+import org.nuxeo.importer.stream.jit.automation.StatementProducers;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
@@ -160,7 +161,7 @@ public class TestMultiRepositoryStreamImporter {
 	
 	
 	@Test
-	public void canImportCustomers() throws Exception {
+	public void canImportCustomersAccountsStatements() throws Exception {
 
 		CoreSession eastSession = CoreInstance.getCoreSession(USStateHelper.EAST);
 		CoreSession westSession = CoreInstance.getCoreSession(USStateHelper.WEST);
@@ -313,7 +314,7 @@ public class TestMultiRepositoryStreamImporter {
 		try (OperationContext ctx = new OperationContext(eastSession)) {
 			Map<String, Serializable> params = new HashMap<>();
 			// *************************
-			// consume Folder messages
+			// consume messages
 			params = new HashMap<>();
 			params.put("rootFolder", rootEst.getPathAsString());
 			params.put("logConfig", "chronicle");
@@ -332,7 +333,7 @@ public class TestMultiRepositoryStreamImporter {
 		try (OperationContext ctx = new OperationContext(westSession)) {
 			Map<String, Serializable> params = new HashMap<>();
 			// *************************
-			// consume Folder messages
+			// consume messages
 			params = new HashMap<>();
 			params.put("rootFolder", rootWest.getPathAsString());
 			params.put("logConfig", "chronicle");
@@ -350,8 +351,65 @@ public class TestMultiRepositoryStreamImporter {
 			accountCount += docs.size();
 
 		}		
-		assertEquals(50, accountCount);
+		assertEquals(55*2, accountCount);
 		
+		//
+
+		logName = "import/stmt";
+
+		try (OperationContext ctx = new OperationContext(session)) {
+			Map<String, Serializable> params = new HashMap<>();
+
+			// *************************
+			// create Customer messages
+			params.put("logConfig", "chronicle");
+			params.put("split", true);
+			params.put("logName", logName);
+			params.put("storeInCustomerFolder", true);
+			params.put("nbDocuments", 150);
+			params.put("nbMonths", 6);
+			
+			automationService.run(ctx, StatementProducers.ID, params);
+		}
+		
+
+		int stmtCount = 0;
+		try (OperationContext ctx = new OperationContext(eastSession)) {
+			Map<String, Serializable> params = new HashMap<>();
+			// *************************
+			// consume messages
+			params = new HashMap<>();
+			params.put("rootFolder", rootEst.getPathAsString());
+			params.put("logConfig", "chronicle");
+			params.put("logName", logName + "-" + USStateHelper.EAST);
+			automationService.run(ctx, DocumentConsumers.ID, params);
+
+			DocumentModelList docs = eastSession.query(
+					"select * from Statement where ecm:path STARTSWITH '/root' order by ecm:path");
+			System.out.println("Docs in the East repository");
+			dump(docs);
+			stmtCount += docs.size();
+		}
+		assertTrue(stmtCount > 0);
+		try (OperationContext ctx = new OperationContext(westSession)) {
+			Map<String, Serializable> params = new HashMap<>();
+			// *************************
+			// consume messages
+			params = new HashMap<>();
+			params.put("rootFolder", rootWest.getPathAsString());
+			params.put("logConfig", "chronicle");
+			params.put("logName", logName + "-" + USStateHelper.WEST);
+
+			automationService.run(ctx, DocumentConsumers.ID, params);
+
+			DocumentModelList docs = westSession.query(
+					"select * from Statement where ecm:path STARTSWITH '/root' order by ecm:path");
+			System.out.println("Docs in the WEST repository");
+			dump(docs);
+			stmtCount += docs.size();
+
+		}		
+		assertEquals(152, stmtCount);
 		
 	}
 

@@ -34,11 +34,14 @@ import org.nuxeo.ecm.automation.core.annotations.Param;
 import org.nuxeo.ecm.core.api.NuxeoPrincipal;
 import org.nuxeo.importer.stream.StreamImporters;
 import org.nuxeo.importer.stream.jit.StatementDocumentMessageProducerFactory;
+import org.nuxeo.importer.stream.jit.USStateHelper;
 import org.nuxeo.importer.stream.message.DocumentMessage;
+import org.nuxeo.importer.stream.producer.MultiRepositoriesProducerPool;
 import org.nuxeo.lib.stream.codec.AvroBinaryCodec;
 import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.computation.Record;
 import org.nuxeo.lib.stream.log.LogManager;
+import org.nuxeo.lib.stream.log.Name;
 import org.nuxeo.lib.stream.pattern.Message;
 import org.nuxeo.lib.stream.pattern.producer.ProducerPool;
 import org.nuxeo.runtime.api.Framework;
@@ -92,6 +95,9 @@ public class StatementProducers {
 	@Param(name = "storeInCustomerFolder", required = false)
 	protected boolean storeInCustomerFolder = false;		
 
+	@Param(name = "split", required = false)
+	protected Boolean splitOutput = false;
+
     protected void checkAccess() {
         NuxeoPrincipal principal = context.getPrincipal();
         if (principal == null || !principal.isAdministrator()) {
@@ -103,24 +109,33 @@ public class StatementProducers {
     public void run() throws OperationException {
         
     	checkAccess();
-        
-        LogManager manager = Framework.getService(StreamService.class).getLogManager(logConfig);
-        manager.createIfNotExists(logName, getLogSize());
+                
+        LogManager manager = Framework.getService(StreamService.class).getLogManager();        
+        if (splitOutput) {
+        	manager.createIfNotExists(MultiRepositoriesProducerPool.getLogName(logName, USStateHelper.EAST), getLogSize());
+        	manager.createIfNotExists(MultiRepositoriesProducerPool.getLogName(logName, USStateHelper.WEST), getLogSize());      	
+        } else {
+        	manager.createIfNotExists(Name.ofUrn(logName), getLogSize());            	
+        }
 
-        StatementDocumentMessageProducerFactory factory;
+        
         
         long docPerThreads = nbDocuments/nbThreads;
         if (nbDocuments%nbThreads!=0) {
         	docPerThreads++;
         }
 
-        factory = new StatementDocumentMessageProducerFactory(seed, skip, docPerThreads, nbMonths, monthOffset, batchTag, useRecords, withStates, storeInCustomerFolder);
+        StatementDocumentMessageProducerFactory factory = new StatementDocumentMessageProducerFactory(seed, skip, docPerThreads, nbMonths, monthOffset, batchTag, useRecords, withStates, storeInCustomerFolder);
 
         ProducerPool producers=null;
         try {        	
             if (!useRecords){
                 Codec<DocumentMessage> codec = StreamImporters.getDocCodec();
-            	producers = new ProducerPool<DocumentMessage>(logName, manager, codec, factory, nbThreads.shortValue());
+                if (splitOutput) {
+                   	producers = new MultiRepositoriesProducerPool(logName, manager, codec, factory, nbThreads.shortValue(),splitOutput);                    
+                } else {
+                   	producers = new ProducerPool<DocumentMessage>(logName, manager, codec, factory, nbThreads.shortValue());                                   	
+                }                
             } else {
             	Codec<Message> codec = new AvroBinaryCodec<>(Message.class);
             	producers = new ProducerPool<Message>(logName, manager, codec, factory, nbThreads.shortValue());

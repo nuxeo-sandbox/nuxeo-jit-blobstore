@@ -26,11 +26,12 @@ public class RestCli {
 
 	public static final String CONSUMERTREE = "consumertree";	
 	public static final String IMPORT = "import";	
+	public static final String STATEMENT = "statements";	
 	
 	private static final Map<String, String> opMap = new HashMap<String, String>();
     static {
         opMap.put("statementtree", "StreamImporter.runStatementFolderProducers");
-        opMap.put("statements", "StreamImporter.runStatementProducers");
+        opMap.put(STATEMENT, "StreamImporter.runStatementProducers");
         opMap.put(CONSUMERTREE, "StreamImporter.runConsumerFolderProducers");
         opMap.put(IMPORT, "StreamImporter.runDocumentConsumers");        
     }
@@ -60,6 +61,8 @@ public class RestCli {
 		
 		options.addOption("z", "batchSize", true, "Batch Size for Document Consumers");
 		options.addOption("p", "logSize", true, "Number og partitions using in the stream");
+	
+		options.addOption("skip", true, "Number of entries to skip in the random sequence");
 		
 		options.addOption( "bulk", false, "Enable bulkmode for import");
 		
@@ -162,10 +165,20 @@ public class RestCli {
 				params.put("rootFolder", root);
 			}		
 		} else {
+			if (logName==null) {
+				logName = "import/statements";
+			}
+			params.put("logName", logName);
+			params.put("split", split);
 			params.put("nbDocuments", nbDocs);
 			params.put("nbMonths", nbMonths);
 			params.put("monthOffset", monthOffset);
-			params.put("seed", seed);					
+			params.put("storeInCustomerFolder", true);			
+			params.put("seed", seed);		
+			
+			int skip = Integer.parseInt(cmd.getOptionValue("skip", "0"));
+			params.put("skip", skip);		
+			
 		}
 		
 

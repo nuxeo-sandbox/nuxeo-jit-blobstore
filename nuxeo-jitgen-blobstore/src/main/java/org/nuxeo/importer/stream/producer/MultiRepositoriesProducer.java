@@ -47,6 +47,9 @@ public class MultiRepositoriesProducer<M extends DocumentMessage> extends Produc
 		} else if ("Domain".equals(message.getType()) ) {
 			state = message.getName();
 			state = USStateHelper.getStateCode(state);
+		} else if ("Statement".equals(message.getType()) ) {
+			Map<String, String> address = (Map<String, String>) message.getProperties().get("customer:address");
+			state = address.get("state");			
 		} else {
 			String msg = "DocType " + message.getType() + " is not supported";
 			RuntimeException e = new RuntimeException(msg);
