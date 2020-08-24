@@ -13,7 +13,7 @@
   </extension>
   
   <extension target="org.nuxeo.ecm.core.bulk" point="actions">
-    <action name="index" bucketSize="1000" batchSize="50" enabled="true" />
+    <action name="index" inputStream="bulk/index" bucketSize="1000" batchSize="50" enabled="true" />
   </extension>
 
 <#if "${nuxeo.instance.type}" == "worker">
