@@ -2,11 +2,13 @@
 
 <component name="org.nuxeo.bench.document.pageproviders">
 
+  <require>org.nuxeo.ecm.document.pageproviders</require>
+  
   <extension target="org.nuxeo.ecm.platform.query.api.PageProviderService" point="providers">
 
-    <genericPageProvider name="advanced_document_content_noagg"
+    <genericPageProvider name="advanced_document_content"
       class="org.nuxeo.elasticsearch.provider.ElasticSearchNxqlPageProvider">
-      <trackUsage>true</trackUsage>
+      <trackUsage>false</trackUsage>
       <property name="maxResults">DEFAULT_NAVIGATION_RESULTS</property>
       <whereClause docType="AdvancedContent">
         <fixedPart>
@@ -29,7 +31,6 @@
       <sort column="dc:modified" ascending="false" />
       <pageSize>20</pageSize>
       </genericPageProvider>
-
 
     <genericPageProvider name="advanced_document_content_alt"
       class="org.nuxeo.elasticsearch.provider.ElasticSearchNxqlPageProvider">
