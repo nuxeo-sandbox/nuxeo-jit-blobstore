@@ -1,0 +1,5 @@
+Bundle-SymbolicName: org.nuxeo.data.gen.cli.test;singleton:=true
+Manifest-Version: 1.0
+Bundle-Name: Nuxeo Data Generator Test
+Bundle-ManifestVersion: 2
+

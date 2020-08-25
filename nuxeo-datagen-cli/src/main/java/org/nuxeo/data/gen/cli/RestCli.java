@@ -58,6 +58,7 @@ public class RestCli {
 		options.addOption("l", "logName", true, "name (or prefix) of the stream to use");
 		options.addOption("m", "multiRepo", false, "Define if multi-repositories is used");
 		options.addOption("a", "async", false, "Call Automation using the @async adapter");
+		options.addOption("w", "wait", true, "Pools server until async execution is completed");
 		
 		options.addOption("z", "batchSize", true, "Batch Size for Document Consumers");
 		options.addOption("p", "logSize", true, "Number og partitions using in the stream");
@@ -195,6 +196,12 @@ public class RestCli {
 		  op = op.header("X-NXRepository", repo); 
 		}
 		op.voidOperation(true).execute();
+		
+		if (async && cmd.hasOption("w")) {
+			System.out.println("waiting for end of Async Exec");
+			int timeout = Integer.parseInt(cmd.getOptionValue('w', ""+12*3600));				
+			NuxeoClientHelper.waitForResult(nuxeoConfig, 60, timeout);	
+		}
 		
 		nuxeoClient.disconnect();
 	}
