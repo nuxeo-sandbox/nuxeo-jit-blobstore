@@ -10,7 +10,7 @@
   <artifactId>10B-benchmark-package</artifactId>
   <packaging>zip</packaging>
   <name>10 b benchmark package - 10 b benchmark package</name>
-  <version>11.2.17-SNAPSHOT</version>
+  <version>11.2.20-SNAPSHOT</version>
 
  <properties>
 	 <nuxeo.distribution.version>11.2-SNAPSHOT</nuxeo.distribution.version>

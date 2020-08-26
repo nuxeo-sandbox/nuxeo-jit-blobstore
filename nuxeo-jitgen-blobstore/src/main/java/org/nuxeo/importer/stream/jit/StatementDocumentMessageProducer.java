@@ -120,7 +120,10 @@ public class StatementDocumentMessageProducer<M extends Message> extends Abstrac
 			String accountID = docInfo.getMeta("ACCOUNTID").trim();
 			String customerId = accountID.substring(0,19);
 			String state = docInfo.getMeta("STATE").trim();
-			String stateName = USStateHelper.toPath(state);			
+			String stateName = USStateHelper.toPath(state);		
+			if ("fl".equalsIgnoreCase(stateName)) {
+				stateName="florida";
+			}
 			parentPath = "/" + stateName + "/" + customerId + "/" + accountID.substring(20);
 		} else 	if (withStates) {			
 			String state = docInfo.getMeta("STATE");
