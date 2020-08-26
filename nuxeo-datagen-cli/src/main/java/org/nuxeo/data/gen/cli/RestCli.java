@@ -152,11 +152,12 @@ public class RestCli {
 				return;
 			}
 			params.put("batchSize", batchSize);
-		
+	
+		    params.put("blockDefaultSyncListeners", true);				
 			if (cmd.hasOption("bulk")) {
 				params.put("blockIndexing", true);	
-			    params.put("blockDefaultSyncListeners", true);	
 			}
+			
 			
 			if (root!=null) {
 				if (!root.startsWith("/")) {
