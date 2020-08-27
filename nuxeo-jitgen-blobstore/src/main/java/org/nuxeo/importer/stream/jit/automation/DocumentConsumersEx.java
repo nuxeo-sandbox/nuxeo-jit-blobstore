@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.nuxeo.common.utils.Path;
 import org.nuxeo.ecm.automation.OperationContext;
 import org.nuxeo.ecm.automation.OperationException;
 import org.nuxeo.ecm.automation.core.Constants;
@@ -20,6 +21,7 @@ import org.nuxeo.ecm.automation.core.annotations.Param;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.importer.StmtId2PathCache;
 import org.nuxeo.importer.stream.StreamImporters;
 import org.nuxeo.importer.stream.automation.DocumentConsumers;
 import org.nuxeo.importer.stream.automation.RandomBlobProducers;
@@ -90,8 +92,15 @@ public class DocumentConsumersEx extends DocumentConsumers {
 	@Param(name = "waitMessageTimeoutSeconds", required = false)
 	protected Integer waitMessageTimeoutSeconds = 20;
 
+	
+	
 	@OperationMethod
 	public void run() throws OperationException {
+		try {
+			ParentRefHelper.init();
+		} catch (Exception e) {
+			throw new OperationException("Unable to unit Cache", e);
+		}
 		repositoryName = getRepositoryName();
 		ConsumerPolicy consumerPolicy = DocumentConsumerPolicy.builder().blockIndexing(blockIndexing)
 				.blockAsyncListeners(blockAsyncListeners).blockPostCommitListeners(blockPostCommitListeners)
@@ -139,7 +148,11 @@ public class DocumentConsumersEx extends DocumentConsumers {
 		@Override
 		public void accept(DocumentMessage message) {
 			
-			DocumentModel doc = session.createDocumentModel(rootPath, message.getName(), message.getType());
+			Path p = new Path(rootPath);
+			p=p.append(message.getParentPath());
+			String targetPath = p.toString();
+			
+			DocumentModel doc = session.createDocumentModel(targetPath, message.getName(), message.getType());
 			doc.putContextData(CoreSession.SKIP_DESTINATION_CHECK_ON_CREATE, true);
 			Blob blob = getBlob(message);
 			if (blob != null) {
@@ -150,6 +163,8 @@ public class DocumentConsumersEx extends DocumentConsumers {
 				setDocumentProperties(doc, props);
 			}
 			
+			// force ParentRef resolution in advance using cache
+			ParentRefHelper.getInstance().setParentRef(session, doc, targetPath);
 			
 			doc = session.createDocument(doc);
 		}
