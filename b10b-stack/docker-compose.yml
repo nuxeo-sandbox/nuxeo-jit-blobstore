@@ -1,0 +1,146 @@
+version: "2.4"
+services:
+  zookeeper:
+    image: zookeeper:3.5.7
+    container_name: zookeeper
+    hostname: zookeeper
+    volumes:
+      - ./data/zookeeper/data:/datalog
+      - ./data/zookeeper/log:/data
+  kafka:
+    image: wurstmeister/kafka:2.12-2.5.0
+    container_name: kafka
+    hostname: kafka
+    environment:
+      #KAFKA_BROKER_ID: 1
+      KAFKA_PORT: 9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 10
+      KAFKA_OFFSETS_RETENTION_MINUTES: 20160
+      KAFKA_HEAP_OPTS: "-Xmx256M -Xms256M"
+      KAFKA_LOG_DIRS: /kafka/log
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ADVERTISED_PORT: 9092
+    depends_on:
+      - zookeeper
+    volumes:
+      - ./data/kafka/data:/kafka:rw
+      - ./data/kafka/log:/opt/kafka/log:rw
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+  kafkahq:
+    image: tchiotludo/kafkahq:0.12.0
+    container_name: kafkahq
+    hostname: kafkahq
+    labels:
+      - "traefik.port=8080"
+      - "traefik.frontend.rule=Host:kafkahq.docker.localhost"
+    depends_on:
+      - kafka
+    volumes:
+      - ./kafkahq/kafkahq.yml:/app/application.yml:ro
+  mongodb:
+    image: mongo:4.0.12
+    container_name: mongo
+    hostname: mongo
+    command: mongod --replSet rs0
+    volumes:
+      - ./mongo/initRS.js:/docker-entrypoint-initdb.d/initRS.js:ro
+      - ./data/mongo/configdb:/data/configdb:rw
+      - ./data/mongo/db:/data/db:rw
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.5.3
+    container_name: elastic
+    hostname: elastic
+    labels:
+      - "traefik.port=9200"
+      - "traefik.frontend.rule=Host:elastic.docker.localhost"
+    environment:
+      discovery.type: single-node
+      ES_JAVA_OPTS: -Xms384m -Xmx384m
+    volumes:
+      - esdata:/usr/share/elasticsearch/data:rw
+  graphite:
+    build: graphite
+    image: mygraphite:build1
+    container_name: graphite
+    hostname: graphite
+    user: root
+    labels:
+      - "traefik.port=80"
+      - "traefik.frontend.rule=Host:graphite.docker.localhost"
+    volumes:
+      - ./data/graphite:/opt/graphite/storage/whisper:rw
+  grafana:
+    image: grafana/grafana:7.0.3
+    container_name: grafana
+    hostname: grafana
+    user: root
+    labels:
+      - "traefik.port=3000"
+      - "traefik.frontend.rule=Host:grafana.docker.localhost"
+    links:
+      - graphite
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana/provisioning/:/etc/grafana/provisioning/:rw
+      - ./data/grafana:/var/lib/grafana:rw
+  nuxeo:
+    image: nuxeo/nuxeo:latest
+    container_name: nuxeo
+    hostname: nuxeo
+    # required to setup async-profiling
+    privileged: true
+    mem_reservation: 1g
+    mem_limit: 3g
+    environment:
+      NUXEO_CONNECT_URL: https://nos-preprod-connect.nuxeocloud.com/nuxeo/site/
+      # NUXEO_CONNECT_URL: https://connect.nuxeo.com/nuxeo/site/
+      NUXEO_CLID: ${NUXEO_CLID}
+      NUXEO_PACKAGES: nuxeo-web-ui nuxeo-platform-importer
+      JAVA_OPTS: -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8787
+    depends_on:
+      - kafka
+      - elasticsearch
+      - mongodb
+    labels:
+      - "traefik.http.port=8080"
+      - "traefik.http.frontend.rule=Host:nuxeo.docker.localhost"
+      - "traefik.direct.port=8080"
+      - "traefik.direct.frontend.rule=Host:nuxeo-node.docker.localhost"
+      - "traefik.backend.healthcheck.path=/nuxeo/runningstatus"
+      - "traefik.backend.healthcheck.port=8080"
+      - "traefik.backend.healthcheck.interval=10s"
+    volumes:
+      - ./nuxeo/nuxeo.conf:/etc/nuxeo/conf.d/nuxeo-stack.conf:ro
+      - ./nuxeo/templates:/templates:ro
+      - /home/ben/dev/tickets/benchmark-2020/b10b-stack/data/nuxeo-binaries:/var/lib/nuxeo/binaries:rw
+      - /home/ben/dev/tickets/benchmark-2020/b10b-stack/data/nuxeo/data:/var/lib/nuxeo/data:rw
+      - /home/ben/dev/tickets/benchmark-2020/b10b-stack/data/nuxeo/packages:/opt/nuxeo/server/packages:rw
+      - /home/ben/dev/tickets/benchmark-2020/b10b-stack/data/profiler:/profiler:rw
+  jaeger:
+    # the all in one version is an in-memory version
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    labels:
+      - "traefik.port=16686"
+      - "traefik.frontend.rule=Host:jaeger.docker.localhost"
+  traefik:
+    image: traefik:maroilles-alpine
+    container_name: traefik
+    command: --api --docker
+    ports:
+      - 80:80
+    labels:
+      - "traefik.port=8080"
+      - "traefik.frontend.rule=Host:traefik.docker.localhost"
+    depends_on:
+      - nuxeo
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+volumes:
+  esdata:
+    driver_opts:
+      type: none
+      device: ${PWD}/data/elastic
+      o: bind
