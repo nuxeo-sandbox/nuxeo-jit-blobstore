@@ -135,13 +135,44 @@ public class DocumentConsumersEx extends DocumentConsumers {
 
 		@Override
 		public Consumer<DocumentMessage> createConsumer(String consumerId) {
-			return new DocumentMessageConsumerNoPath(consumerId, repositoryName, rootPath);
+			
+			if (rootPath.contains("misc")) {		
+				return new DocumentMessageConsumerNoPath(consumerId, repositoryName, rootPath);
+			} else {
+				return new DocumentMessageConsumerCachedPath(consumerId, repositoryName, rootPath);
+			}
+	
 		}
 	}
 
 	protected static class DocumentMessageConsumerNoPath extends DocumentMessageConsumer {
 
 		public DocumentMessageConsumerNoPath(String consumerId, String repositoryName, String rootPath) {
+			super(consumerId, repositoryName, rootPath);
+		}
+
+		@Override
+		public void accept(DocumentMessage message) {
+						
+			DocumentModel doc = session.createDocumentModel(rootPath, message.getName(), message.getType());
+			doc.putContextData(CoreSession.SKIP_DESTINATION_CHECK_ON_CREATE, true);
+			Blob blob = getBlob(message);
+			if (blob != null) {
+				doc.setProperty("file", "content", blob);
+			}
+			Map<String, Serializable> props = message.getProperties();
+			if (props != null && !props.isEmpty()) {
+				setDocumentProperties(doc, props);
+			}
+			
+			doc = session.createDocument(doc);
+		}
+
+	}
+
+	protected static class DocumentMessageConsumerCachedPath extends DocumentMessageConsumer {
+
+		public DocumentMessageConsumerCachedPath(String consumerId, String repositoryName, String rootPath) {
 			super(consumerId, repositoryName, rootPath);
 		}
 
