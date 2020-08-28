@@ -87,6 +87,16 @@ Mongo client?
 ./bin/mongo.sh
 ```
 
+Reset all data, start from scratch?
+```
+./bin/stack-reset-all-data.sh
+``` 
+
+Stream lag
+```
+./bin/stream.sh lag -k
+```
+
 
 Visit https://github.com/bdelbosc/nuxeo-stacks for more information,
 especially if you use a MacOS.
