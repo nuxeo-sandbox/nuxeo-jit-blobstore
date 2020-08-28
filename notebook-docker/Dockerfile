@@ -28,7 +28,7 @@ RUN mkdir -p /nxbench/data \
 RUN curl -fsSL https://downloads.mongodb.org/linux/mongodb-shell-linux-x86_64-ubuntu1804-4.4.0.tgz -o /tmp/mongodb-shell.tgz \
     && tar -xzvf /tmp/mongodb-shell.tgz -C /nxbench/cli/ \
     && rm /tmp/mongodb-shell.tgz
-ENV PATH /nxbench/cli/mongodb-shell-linux-x86_64-ubuntu1804-4.4.0/bin:$PATH
+ENV PATH /nxbench/cli/mongodb-linux-x86_64-ubuntu1804-4.4.0/bin:$PATH
 
 # Add Kafka CLI
 RUN curl -fsSL https://mirrors.ocf.berkeley.edu/apache/kafka/2.3.1/kafka_2.11-2.3.1.tgz -o /tmp/kafka-cli.tgz \
