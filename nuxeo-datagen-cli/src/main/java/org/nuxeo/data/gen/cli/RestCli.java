@@ -26,6 +26,7 @@ public class RestCli {
 
 	public static final String CONSUMERTREE = "consumertree";	
 	public static final String IMPORT = "import";	
+	public static final String IMPORTEX = "importEx";	
 	public static final String STATEMENT = "statements";	
 	
 	private static final Map<String, String> opMap = new HashMap<String, String>();
@@ -33,7 +34,8 @@ public class RestCli {
         opMap.put("statementtree", "StreamImporter.runStatementFolderProducers");
         opMap.put(STATEMENT, "StreamImporter.runStatementProducers");
         opMap.put(CONSUMERTREE, "StreamImporter.runConsumerFolderProducers");
-        opMap.put(IMPORT, "StreamImporter.runDocumentConsumers");        
+        opMap.put(IMPORT, "StreamImporter.runDocumentConsumers");   
+        opMap.put(IMPORTEX, "StreamImporter.runDocumentConsumersEx");   
     }
 
     protected static void help(Options options) {
@@ -145,7 +147,7 @@ public class RestCli {
 			}
 			params.put("logName", logName);
 			params.put("split", split);
-		} else if (IMPORT.equalsIgnoreCase(operation)) {
+		} else if ((IMPORT.equalsIgnoreCase(operation))||(IMPORTEX.equalsIgnoreCase(operation))) {
 
 			if (logName==null) {
 				System.err.println("You should provide a logName (-l)");
@@ -156,6 +158,8 @@ public class RestCli {
 		    params.put("blockDefaultSyncListeners", true);				
 			if (cmd.hasOption("bulk")) {
 				params.put("blockIndexing", true);	
+				params.put("blockAsyncListeners", true);        
+				params.put("blockPostCommitListeners", true);
 			}
 			
 			
