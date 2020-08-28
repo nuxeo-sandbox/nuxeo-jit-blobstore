@@ -97,7 +97,7 @@ services:
       NUXEO_CONNECT_URL: https://nos-preprod-connect.nuxeocloud.com/nuxeo/site/
       # NUXEO_CONNECT_URL: https://connect.nuxeo.com/nuxeo/site/
       NUXEO_CLID: ${NUXEO_CLID}
-      NUXEO_PACKAGES: nuxeo-web-ui nuxeo-platform-importer
+      NUXEO_PACKAGES: nuxeo-web-ui nuxeo-platform-importer /pkg/10B-benchmark-package-11.2.32-SNAPSHOT.zip
       JAVA_OPTS: -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8787
     depends_on:
       - kafka
@@ -114,10 +114,11 @@ services:
     volumes:
       - ./nuxeo/nuxeo.conf:/etc/nuxeo/conf.d/nuxeo-stack.conf:ro
       - ./nuxeo/templates:/templates:ro
-      - /home/ben/dev/tickets/benchmark-2020/b10b-stack/data/nuxeo-binaries:/var/lib/nuxeo/binaries:rw
-      - /home/ben/dev/tickets/benchmark-2020/b10b-stack/data/nuxeo/data:/var/lib/nuxeo/data:rw
-      - /home/ben/dev/tickets/benchmark-2020/b10b-stack/data/nuxeo/packages:/opt/nuxeo/server/packages:rw
-      - /home/ben/dev/tickets/benchmark-2020/b10b-stack/data/profiler:/profiler:rw
+      - ./data/nuxeo-binaries:/var/lib/nuxeo/binaries:rw
+      - ./data/nuxeo/data:/var/lib/nuxeo/data:rw
+      - ./data/nuxeo/packages:/opt/nuxeo/server/packages:rw
+      - ./data/profiler:/profiler:rw
+      - ../package/target:/pkg:ro
   jaeger:
     # the all in one version is an in-memory version
     image: jaegertracing/all-in-one:latest
