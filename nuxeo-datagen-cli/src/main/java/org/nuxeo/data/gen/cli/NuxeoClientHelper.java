@@ -109,7 +109,7 @@ public class NuxeoClientHelper {
 				if (!body.contains("RUNNING")) {
 					running = false;
 					System.out.println("\nRunning completed");
-					System.out.println(body);
+					System.out.println(ResponseHelper.formatAsString(body));
 					completed=true;
 				} else {
 					System.out.print(".");

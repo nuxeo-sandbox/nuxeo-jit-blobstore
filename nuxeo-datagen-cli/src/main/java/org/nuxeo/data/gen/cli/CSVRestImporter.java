@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
@@ -153,7 +155,7 @@ public class CSVRestImporter {
 
 		executor.shutdown();
 		boolean finished = false;
-		Long throughput;
+		Long throughput= 0L;
 		long pauseTimeS = 2;
 
 		while (!finished) {
@@ -162,9 +164,9 @@ public class CSVRestImporter {
 			int threads = executor.getActiveCount();
 
 			long elapsed = (t1 - t0);
-			throughput = Math.round(nbLines * 1.0 / (elapsed / 1000));
+			throughput = Math.round(nbLines * 1000.0 / (elapsed ));
 
-			System.out.println("   Throughput:" + throughput + " d/s using " + threads + " threads");
+			System.out.println("   Throughput:" + throughput + " lines/s using " + threads + " threads");
 			System.out.println(" Queue size: " + executor.getQueue().size());
 			System.out.println(" Tasks count: " + executor.getTaskCount());
 
@@ -175,11 +177,39 @@ public class CSVRestImporter {
 			}
 		}
 
+		int totalProducers=0;
+		int totalMessages=0;
+		int totalFailures=0;
+		
+		for (String stat : producersStats) {
+			//System.out.println(ResponseHelper.formatAsString(stat));
+			Map<String, Object> parsedStats = ResponseHelper.formatAsMap(stat);
+			totalProducers+=(int) parsedStats.get("producers");
+			totalMessages+=(int) parsedStats.get("messages");
+			totalFailures+=(int) parsedStats.get("failures");
+		}
+
+		System.out.println(" ############################## ");
+		System.out.println(" CSV stats:");
+		System.out.println("    Throughput:" + throughput + " lines/s");
+		System.out.println("    Total lines:" + nbLines);
+		System.out.println(" Producers stats:");
+		System.out.println("    total producers:" + totalProducers);
+		System.out.println("    total messages:" + totalMessages);
+		System.out.println("    total failures:" + totalFailures);
+
+		long t1 = System.currentTimeMillis();	
+		long elapsed = (t1 - t0);
+		long msgThroughput = Math.round(totalMessages * 1000.0 / (elapsed));
+		System.out.println("    Throughput:" + msgThroughput);
+		
 		if (nuxeoClient != null) {
 			nuxeoClient.disconnect();
 		}
 	}
 
+	protected static List<String> producersStats = new LinkedList<>();
+	
 	protected static Runnable mkTask(String csv, NuxeoClient client, boolean split, String logName, int logSize,
 			int pageSize, int nbThreads, String opName) {
 		return new Runnable() {
@@ -208,7 +238,8 @@ public class CSVRestImporter {
 					Operation op = client.operation(opId).parameters(params);
 					Blob csvBlob = new StreamBlob(new ByteArrayInputStream(csv.getBytes()), "input.csv");
 					op.input(csvBlob);
-					op.voidOperation(true).execute();
+					String stats = (String) op.execute();
+					producersStats.add(stats);
 				}
 			}
 

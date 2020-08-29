@@ -173,6 +173,8 @@ public class Injector {
 
 		log("----------------------------------------------------------");
 
+		LoggerHelper.silencePDFBox();
+		
 		long t0 = System.currentTimeMillis();
 
 		SequenceGenerator sg = new SequenceGenerator(seed, nbMonths);

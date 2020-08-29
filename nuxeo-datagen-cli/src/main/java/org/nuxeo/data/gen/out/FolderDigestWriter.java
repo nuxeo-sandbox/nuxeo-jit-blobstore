@@ -19,16 +19,12 @@
 
 package org.nuxeo.data.gen.out;
 
-import java.io.File;
-
 import org.nuxeo.data.gen.pdf.StatementMeta;
 
 public class FolderDigestWriter extends FolderWriter implements BlobWriter {
 
 	public static final String NAME = "fileDigest:";
-
-	protected File folder;
-
+	
 	public FolderDigestWriter(String folder) {
 		super(folder);
 	}

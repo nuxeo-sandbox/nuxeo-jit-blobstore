@@ -21,10 +21,7 @@ import org.nuxeo.ecm.automation.core.annotations.Param;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
-import org.nuxeo.importer.StmtId2PathCache;
 import org.nuxeo.importer.stream.StreamImporters;
-import org.nuxeo.importer.stream.automation.DocumentConsumers;
-import org.nuxeo.importer.stream.automation.RandomBlobProducers;
 import org.nuxeo.importer.stream.consumer.DocumentConsumerPolicy;
 import org.nuxeo.importer.stream.consumer.DocumentConsumerPool;
 import org.nuxeo.importer.stream.consumer.DocumentMessageConsumer;
@@ -41,7 +38,7 @@ import org.nuxeo.runtime.stream.StreamService;
 import net.jodah.failsafe.RetryPolicy;
 
 @Operation(id = DocumentConsumersEx.ID, category = Constants.CAT_SERVICES, label = "Imports document", since = "9.1", description = "Import documents into repository.")
-public class DocumentConsumersEx extends DocumentConsumers {
+public class DocumentConsumersEx  {
 
 	private static final Log log = LogFactory.getLog(DocumentConsumersEx.class);
 
@@ -92,10 +89,12 @@ public class DocumentConsumersEx extends DocumentConsumers {
 	@Param(name = "waitMessageTimeoutSeconds", required = false)
 	protected Integer waitMessageTimeoutSeconds = 20;
 
-	
+	@Param(name = "usePathHack", required = false)
+	protected Boolean usePathHack = false;
+
 	
 	@OperationMethod
-	public void run() throws OperationException {
+	public String run() throws OperationException {
 		try {
 			ParentRefHelper.init();
 		} catch (Exception e) {
@@ -115,8 +114,8 @@ public class DocumentConsumersEx extends DocumentConsumers {
 		LogManager manager = Framework.getService(StreamService.class).getLogManager();
 		Codec<DocumentMessage> codec = StreamImporters.getDocCodec();
 		try (DocumentConsumerPool<DocumentMessage> consumers = new DocumentConsumerPool<>(logName, manager, codec,
-				new DocumentMessageConsumerFactoryEx(repositoryName, rootFolder), consumerPolicy)) {
-			consumers.start().get();
+				new DocumentMessageConsumerFactoryEx(repositoryName, rootFolder, usePathHack), consumerPolicy)) {
+			return ConsumerStatusHelper.aggregateJSON(consumers.start().get());
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			log.warn("Operation interrupted");
@@ -129,12 +128,19 @@ public class DocumentConsumersEx extends DocumentConsumers {
 
 	protected static class DocumentMessageConsumerFactoryEx extends DocumentMessageConsumerFactory {
 
-		public DocumentMessageConsumerFactoryEx(String repositoryName, String rootPath) {
+		final boolean usePathHack;
+		
+		public DocumentMessageConsumerFactoryEx(String repositoryName, String rootPath, boolean usePathHack) {
 			super(repositoryName, rootPath);
+			this.usePathHack=usePathHack;
 		}
 
 		@Override
 		public Consumer<DocumentMessage> createConsumer(String consumerId) {
+			
+			if (!usePathHack) {
+				return super.createConsumer(consumerId);
+			}
 			
 			if (rootPath.contains("misc")) {		
 				return new DocumentMessageConsumerNoPath(consumerId, repositoryName, rootPath);
