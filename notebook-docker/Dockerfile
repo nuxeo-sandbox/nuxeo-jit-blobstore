@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3.6 \
     python3-pip \
     python3-setuptools \
+    fonts-freefont-ttf \
  && rm -rf /var/lib/apt/lists/* \
  && pip3 -q install --upgrade pip \
  && pip3 install jupyter \
@@ -18,11 +19,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
  && pip3 install matplotlib
 
 
+
 # Build folder structure
 RUN mkdir -p /nxbench/data \
  && mkdir -p /nxbench/cli \
  && mkdir -p /nxbench/notebooks \
- && mkdir -p /nxbench/scripts
+ && mkdir -p /nxbench/scripts \
+ && mkdir -p /nxbench/blobs
  
 # Add the Mongo Shell client
 RUN curl -fsSL https://downloads.mongodb.org/linux/mongodb-shell-linux-x86_64-ubuntu1804-4.4.0.tgz -o /tmp/mongodb-shell.tgz \
@@ -31,7 +34,7 @@ RUN curl -fsSL https://downloads.mongodb.org/linux/mongodb-shell-linux-x86_64-ub
 ENV PATH /nxbench/cli/mongodb-linux-x86_64-ubuntu1804-4.4.0/bin:$PATH
 
 # Add Kafka CLI
-RUN curl -fsSL https://mirrors.ocf.berkeley.edu/apache/kafka/2.3.1/kafka_2.11-2.3.1.tgz -o /tmp/kafka-cli.tgz \
+RUN curl -fsSL http://apache.mirrors.hoobly.com/kafka/2.3.1/kafka_2.11-2.3.1.tgz -o /tmp/kafka-cli.tgz \
     && tar -xzvf /tmp/kafka-cli.tgz -C /nxbench/cli/ \
     && rm /tmp/kafka-cli.tgz
 ENV PATH /nxbench/cli/kafka_2.11-2.3.1/bin:$PATH

@@ -45,3 +45,9 @@ run.sh
 # stack
 b10b-stack/data/*
 b10b-stack/.env
+
+# Notebook
+blobstore/*
+notebooks/*.csv
+notebooks/nuxeo.properties
+notebooks/.ipynb_checkpoints
