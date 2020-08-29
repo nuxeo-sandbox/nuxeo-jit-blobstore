@@ -152,8 +152,10 @@ public class TestStreamStatementProducer {
 			Blob blob = new StringBlob(new String(IOUtils.toByteArray(csv)));
 
 			ctx.setInput(blob);
-			automationService.run(ctx, CustomerProducers.ID, params);
+			String result = (String) automationService.run(ctx, CustomerProducers.ID, params);
 
+			System.out.println(result);
+			
 			LogManager manager = Framework.getService(StreamService.class).getLogManager("chronicle");
 
 			LogTailer<DocumentMessage> tailer = manager.createTailer("test", StreamImporters.DEFAULT_LOG_DOC_NAME);
@@ -227,7 +229,7 @@ public class TestStreamStatementProducer {
 			} while (record != null);
 
 			
-			assertEquals(50, count);
+			assertEquals(110, count);
 			tailer1.commit();
 			tailer1.close();
 			tailer2.commit();

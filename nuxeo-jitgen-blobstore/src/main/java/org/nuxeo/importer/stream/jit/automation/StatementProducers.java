@@ -106,8 +106,9 @@ public class StatementProducers {
     }
 
     @OperationMethod
-    public void run() throws OperationException {
+    public String run() throws OperationException {
         
+        ProducerStatusHelper.init();    	
     	checkAccess();
                 
         LogManager manager = Framework.getService(StreamService.class).getLogManager();        
@@ -127,20 +128,26 @@ public class StatementProducers {
 
         StatementDocumentMessageProducerFactory factory = new StatementDocumentMessageProducerFactory(seed, skip, docPerThreads, nbMonths, monthOffset, batchTag, useRecords, withStates, storeInCustomerFolder);
 
-        ProducerPool producers=null;
+        ProducerPool<DocumentMessage> messageProducers=null;
+        ProducerPool<Message> recordProducers=null;
+        
         try {        	
             if (!useRecords){
                 Codec<DocumentMessage> codec = StreamImporters.getDocCodec();
                 if (splitOutput) {
-                   	producers = new MultiRepositoriesProducerPool(logName, manager, codec, factory, nbThreads.shortValue(),splitOutput);                    
+                	messageProducers = new MultiRepositoriesProducerPool(logName, manager, codec, factory, nbThreads.shortValue(),splitOutput);                    
                 } else {
-                   	producers = new ProducerPool<DocumentMessage>(logName, manager, codec, factory, nbThreads.shortValue());                                   	
-                }                
+                	messageProducers = new ProducerPool<DocumentMessage>(logName, manager, codec, factory, nbThreads.shortValue());                                   	
+                }
+                return ProducerStatusHelper.aggregateJSON(messageProducers.start().get());
             } else {
             	Codec<Message> codec = new AvroBinaryCodec<>(Message.class);
-            	producers = new ProducerPool<Message>(logName, manager, codec, factory, nbThreads.shortValue());
-            }        		
-            producers.start().get();
+            	recordProducers = new ProducerPool<Message>(logName, manager, codec, factory, nbThreads.shortValue());            	
+            	recordProducers.start().get();
+            	return "";
+            }     
+            
+            
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             log.warn("Operation interrupted");
@@ -149,7 +156,12 @@ public class StatementProducers {
             log.error("Operation fails", e);
             throw new OperationException(e);
         } finally {
-        	producers.close();
+        	if (messageProducers!=null) {
+        		messageProducers.close();
+        	}
+        	if (recordProducers!=null) {
+        		recordProducers.close();
+        	}
 		}
     }
 

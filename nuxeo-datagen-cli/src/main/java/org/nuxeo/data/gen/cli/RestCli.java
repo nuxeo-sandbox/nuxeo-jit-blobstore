@@ -200,7 +200,10 @@ public class RestCli {
 		if (repo!=null) {
 		  op = op.header("X-NXRepository", repo); 
 		}
-		op.voidOperation(true).execute();
+		String result = (String) op.execute();
+		if (result!=null) {
+			System.out.println(result);
+		}
 		
 		if (async && cmd.hasOption("w")) {
 			System.out.println("waiting for end of Async Exec");

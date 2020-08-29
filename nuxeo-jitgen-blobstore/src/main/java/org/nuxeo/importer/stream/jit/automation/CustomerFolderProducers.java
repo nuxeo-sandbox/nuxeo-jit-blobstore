@@ -72,7 +72,9 @@ public class CustomerFolderProducers {
 	}
 
 	@OperationMethod
-	public void run() throws OperationException {
+	public String run() throws OperationException {
+
+        ProducerStatusHelper.init();    	
 
 		checkAccess();
     	
@@ -89,7 +91,7 @@ public class CustomerFolderProducers {
 
 		try (ProducerPool<DocumentMessage> producers = new MultiRepositoriesProducerPool<>(logName, manager, codec, factory,
         		(short) 1, (boolean) splitOutput)) {
-			producers.start().get();
+			return ProducerStatusHelper.aggregateJSON(producers.start().get());
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			log.warn("Operation interrupted");

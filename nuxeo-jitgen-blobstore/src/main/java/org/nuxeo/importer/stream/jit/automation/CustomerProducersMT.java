@@ -23,8 +23,10 @@ package org.nuxeo.importer.stream.jit.automation;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.logging.Log;
@@ -48,6 +50,7 @@ import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.log.LogManager;
 import org.nuxeo.lib.stream.log.Name;
 import org.nuxeo.lib.stream.pattern.producer.ProducerPool;
+import org.nuxeo.lib.stream.pattern.producer.ProducerStatus;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.stream.StreamService;
 
@@ -82,8 +85,9 @@ public class CustomerProducersMT {
     }
 
     @OperationMethod
-    public void run(Blob csvData) throws OperationException {
+    public String run(Blob csvData) throws OperationException {
         
+        ProducerStatusHelper.init();    	
     	checkAccess();
     	    	
     	LogManager manager = Framework.getService(StreamService.class).getLogManager();        
@@ -107,14 +111,14 @@ public class CustomerProducersMT {
 	    		csvChunks.get(idx%nbThreads).add(reader.readLine());
 	    	    idx++;
 	    	}	    	
-    		startProducer(manager, csvChunks, nbThreads);
+	        return ProducerStatusHelper.aggregateJSON(startProducer(manager, csvChunks, nbThreads));
     	} catch (IOException e) {
 			throw new OperationException("Unable to read input CSV", e);
 		}
        
     }
 
-    protected void startProducer(LogManager manager, List<List<String>> csvChunks, int nbThreads) throws OperationException {
+    protected List<ProducerStatus> startProducer(LogManager manager, List<List<String>> csvChunks, int nbThreads) throws OperationException {
 
    
     	CustomerMessageProducerFactoryMT factory = new CustomerMessageProducerFactoryMT(csvChunks);
@@ -122,7 +126,7 @@ public class CustomerProducersMT {
     	
         try (ProducerPool<DocumentMessage> producers = new MultiRepositoriesProducerPool<>(logName, manager, codec, factory,
         		(short) nbThreads, (boolean) splitOutput)) {
-            producers.start().get();
+            return producers.start().get();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             log.warn("Operation interrupted");

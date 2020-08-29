@@ -72,7 +72,9 @@ public class StatementFolderProducers {
 	}
 
 	@OperationMethod
-	public void run() throws OperationException {
+	public String run() throws OperationException {
+
+        ProducerStatusHelper.init();    	
 
 		checkAccess();
 
@@ -84,7 +86,7 @@ public class StatementFolderProducers {
 		Codec<DocumentMessage> codec = StreamImporters.getDocCodec();
 		try (ProducerPool<DocumentMessage> producers = new ProducerPool<>(logName, manager, codec, factory,
 				(short) 1)) {
-			producers.start().get();
+			return ProducerStatusHelper.aggregateJSON(producers.start().get());
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			log.warn("Operation interrupted");

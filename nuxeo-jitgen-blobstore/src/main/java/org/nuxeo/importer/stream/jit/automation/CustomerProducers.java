@@ -23,6 +23,10 @@ package org.nuxeo.importer.stream.jit.automation;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.logging.Log;
@@ -45,8 +49,11 @@ import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.log.LogManager;
 import org.nuxeo.lib.stream.log.Name;
 import org.nuxeo.lib.stream.pattern.producer.ProducerPool;
+import org.nuxeo.lib.stream.pattern.producer.ProducerStatus;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.stream.StreamService;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Operation(id = CustomerProducers.ID, category = Constants.CAT_SERVICES, label = "Produces Bank Statements", since = "11.1", description = "")
 public class CustomerProducers {
@@ -78,10 +85,13 @@ public class CustomerProducers {
         }
     }
 
+    
+    
     @OperationMethod
-    public void run(Blob csvData) throws OperationException {
+    public String run(Blob csvData) throws OperationException {
         
-    	checkAccess();
+        ProducerStatusHelper.init();
+		checkAccess();
     	    	
     	LogManager manager = Framework.getService(StreamService.class).getLogManager();        
         if (splitOutput) {
@@ -92,6 +102,7 @@ public class CustomerProducers {
         }
            	
     	BufferedReader reader;
+    	List<ProducerStatus> statuses = new ArrayList<>();
     	try {
 			reader = new BufferedReader(new InputStreamReader(csvData.getStream()));
 			String[] lines = new String[bufferSize];
@@ -100,15 +111,16 @@ public class CustomerProducers {
 	    		lines[idx] = reader.readLine();
 	    	    idx++;
 	    	    if (idx>= lines.length) {
-	    	    	startProducer(manager, lines);
+	    	    	statuses.addAll(startProducer(manager, lines));
 	    	    	lines = new String[bufferSize];
 	    	    	idx=0;
 	    	    }	    	     
 	    	}
 	    	
 	    	if (idx>0) {
-	    		startProducer(manager, lines);
-	    	}
+	    		statuses.addAll(startProducer(manager, lines));
+	    	} 
+	    	return ProducerStatusHelper.aggregateJSON(statuses);
 
     	} catch (IOException e) {
 			throw new OperationException("Unable to read input CSV", e);
@@ -116,14 +128,14 @@ public class CustomerProducers {
        
     }
 
-    protected void startProducer(LogManager manager, String[] lines) throws OperationException {
+    protected List<ProducerStatus> startProducer(LogManager manager, String[] lines) throws OperationException {
 
     	CustomerMessageProducerFactory factory = new CustomerMessageProducerFactory(lines);
     	Codec<DocumentMessage> codec = StreamImporters.getDocCodec();
     	
         try (ProducerPool<DocumentMessage> producers = new MultiRepositoriesProducerPool<>(logName, manager, codec, factory,
         		(short) 1, (boolean) splitOutput)) {
-            producers.start().get();
+            return producers.start().get();            
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             log.warn("Operation interrupted");

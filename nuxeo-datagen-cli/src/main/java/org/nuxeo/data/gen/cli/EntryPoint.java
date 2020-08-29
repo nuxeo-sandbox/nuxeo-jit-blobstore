@@ -47,6 +47,7 @@ import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 import org.nuxeo.data.gen.docx.DocXLetterGenerator;
 import org.nuxeo.data.gen.meta.SequenceGenerator;
 import org.nuxeo.data.gen.out.BlobWriter;
+import org.nuxeo.data.gen.out.FolderDigestTreeWriter;
 import org.nuxeo.data.gen.out.FolderDigestWriter;
 import org.nuxeo.data.gen.out.FolderWriter;
 import org.nuxeo.data.gen.out.S3BulkArchiveWriter;
@@ -84,7 +85,7 @@ public class EntryPoint {
 		options.addOption("d", "months", true, "Number of months of statements to generate");
 		options.addOption("monthOffset", true, "Months offset");
 
-		options.addOption("o", "output", true, "generate and output PDF : mem (default), tmp, file:<path>, fileDigest:<path>, s3:<bucketName>, s3tm:<bucketName>, s3tma:<bucketName>, s3a:<bucketName>");
+		options.addOption("o", "output", true, "defines where the generated files are stored : mem (default), tmp, file:<path>, fileDigest:<path>, fileDigestTree:<path>,  s3:<bucketName>, s3tm:<bucketName>, s3tma:<bucketName>, s3a:<bucketName>");
 		options.addOption("h", "help", false, "Help");
 		options.addOption("s", "seed", true, "Seed");
 		options.addOption("j", "jump", true, "Jump to later in the sequence");
@@ -145,6 +146,10 @@ public class EntryPoint {
 			String folder = out.substring(FolderDigestWriter.NAME.length());
 			importLogger.log(Level.INFO, "Inititialize Folder Digest Writer in " + folder);
 			writer = new FolderDigestWriter(folder);
+		} else if (out.startsWith(FolderDigestTreeWriter.NAME)) {
+			String folder = out.substring(FolderDigestTreeWriter.NAME.length());
+			importLogger.log(Level.INFO, "Inititialize Folder Digest Tree Writer in " + folder);
+			writer = new FolderDigestTreeWriter(folder, 2);
 		} else if (out.startsWith("s3")) {
 			int idx = out.indexOf(":");
 			String bucketName = out.substring(idx+1);
