@@ -239,7 +239,9 @@ public class CSVRestImporter {
 					Blob csvBlob = new StreamBlob(new ByteArrayInputStream(csv.getBytes()), "input.csv");
 					op.input(csvBlob);
 					String stats = (String) op.execute();
-					producersStats.add(stats);
+					synchronized (producersStats) {
+						producersStats.add(stats);	
+					}					
 				}
 			}
 
