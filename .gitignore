@@ -43,7 +43,6 @@ metadata.csv
 run.sh
 
 # stack
-b10b-stack/data/*
 b10b-stack/.env
 
 # Notebook
