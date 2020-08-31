@@ -35,16 +35,18 @@ public class StatementDocumentMessageProducerFactory<M extends Message> implemen
 	protected final String batchTag;
 	protected boolean useRecords;
 	protected boolean withStates;
-	protected boolean storeInCustomerFolder;;
+	protected boolean storeInCustomerFolder;
+	protected boolean storeInRoot;
 	/**
 	 * Generates random documents messages that point to existing blobs.
 	 */
-	public StatementDocumentMessageProducerFactory(Long seed, long skip, long nbDocuments,int nbMonth, int monthOffset, String batchTag, boolean useRecords, boolean withStates, boolean storeInCustomerFolder) {
+	public StatementDocumentMessageProducerFactory(Long seed, long skip, long nbDocuments,int nbMonth, int monthOffset, String batchTag, boolean useRecords, boolean withStates, boolean storeInCustomerFolder, boolean storeInRoot) {
 		this.nbDocuments = nbDocuments;
 		this.nbMonth=nbMonth;
 		this.monthOffset=monthOffset;
 		this.withStates=withStates;
 		this.storeInCustomerFolder=storeInCustomerFolder;
+		this.storeInRoot=storeInRoot;
 		sequenceGen = new SequenceGenerator(seed, nbMonth);	
 		sequenceGen.setMonthOffset(monthOffset);
 		if (skip>0) {
@@ -60,7 +62,7 @@ public class StatementDocumentMessageProducerFactory<M extends Message> implemen
 
 	@Override
 	public ProducerIterator<M> createProducer(int producerId) {
-		return new StatementDocumentMessageProducer<M>(sequenceGen, producerId, nbDocuments, nbMonth, monthOffset, batchTag, useRecords, withStates,storeInCustomerFolder);
+		return new StatementDocumentMessageProducer<M>(sequenceGen, producerId, nbDocuments, nbMonth, monthOffset, batchTag, useRecords, withStates,storeInCustomerFolder, storeInRoot);
 	}
 
 	protected String getGroupName(int producerId) {

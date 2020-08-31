@@ -95,6 +95,9 @@ public class StatementProducers {
 	@Param(name = "storeInCustomerFolder", required = false)
 	protected boolean storeInCustomerFolder = false;		
 
+	@Param(name = "storeInRoot", required = false)
+	protected boolean storeInRoot = false;		
+
 	@Param(name = "split", required = false)
 	protected Boolean splitOutput = false;
 
@@ -126,7 +129,7 @@ public class StatementProducers {
         	docPerThreads++;
         }
 
-        StatementDocumentMessageProducerFactory factory = new StatementDocumentMessageProducerFactory(seed, skip, docPerThreads, nbMonths, monthOffset, batchTag, useRecords, withStates, storeInCustomerFolder);
+        StatementDocumentMessageProducerFactory factory = new StatementDocumentMessageProducerFactory(seed, skip, docPerThreads, nbMonths, monthOffset, batchTag, useRecords, withStates, storeInCustomerFolder, storeInRoot);
 
         ProducerPool<DocumentMessage> messageProducers=null;
         ProducerPool<Message> recordProducers=null;

@@ -68,6 +68,8 @@ public class RestCli {
 		options.addOption("skip", true, "Number of entries to skip in the random sequence");
 		
 		options.addOption( "bulk", false, "Enable bulkmode for import");
+		options.addOption( "storeInRoot", false, "Generate DocumentMessage that will have / as parent");
+		
 		
 		
 		CommandLineParser parser = new DefaultParser();
@@ -179,7 +181,13 @@ public class RestCli {
 			params.put("nbDocuments", nbDocs);
 			params.put("nbMonths", nbMonths);
 			params.put("monthOffset", monthOffset);
-			params.put("storeInCustomerFolder", true);			
+			
+			if (cmd.hasOption("storeInRoot")) {
+				params.put("storeInRoot", true);
+			} else {
+				params.put("storeInCustomerFolder", true);	
+			}
+						
 			params.put("seed", seed);		
 			
 			int skip = Integer.parseInt(cmd.getOptionValue("skip", "0"));

@@ -56,9 +56,11 @@ public class StatementDocumentMessageProducer<M extends Message> extends Abstrac
 	
 	protected final boolean storeInCustomerFolder;	
 	
+	protected final boolean storeInRoot;
+	
 	protected final int nbMonths;
 	
-	public StatementDocumentMessageProducer(SequenceGenerator sequenceGen, int producerId, long nbDocuments, int nbMonths, int monthOffset, String batchTag, boolean useRecords, boolean withStates, boolean storeInCustomerFolder) {
+	public StatementDocumentMessageProducer(SequenceGenerator sequenceGen, int producerId, long nbDocuments, int nbMonths, int monthOffset, String batchTag, boolean useRecords, boolean withStates, boolean storeInCustomerFolder, boolean storeInRoot) {
 		super(producerId);
 		this.nbDocuments = nbDocuments;
 		this.nbMonths=nbMonths;
@@ -72,6 +74,7 @@ public class StatementDocumentMessageProducer<M extends Message> extends Abstrac
 		this.batchTag=batchTag;
 		this.useRecords=useRecords;
 		this.storeInCustomerFolder=storeInCustomerFolder;
+		this.storeInRoot=storeInRoot;
 		log.info("StatementDocumentMessageProducer created, nbDocuments: " + nbDocuments);
 	}
 
@@ -135,6 +138,8 @@ public class StatementDocumentMessageProducer<M extends Message> extends Abstrac
 			int nbYears = nbMonths/12;			
 			int idx = stateOffset*(nbYears+nbMonths+1) + nbYears + entry.getMonth() +1 ;
 			parentPath = hierarchy.get(idx).getPath();
+		} else if (storeInRoot) {
+			parentPath = "/";
 		} else {
 			int nbYears = nbMonths/12;
 			parentPath = hierarchy.get(nbYears+entry.getMonth()).getPath();
