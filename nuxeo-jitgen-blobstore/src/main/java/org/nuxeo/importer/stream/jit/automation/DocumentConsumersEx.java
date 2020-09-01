@@ -1,9 +1,13 @@
 package org.nuxeo.importer.stream.jit.automation;
 
+import static org.nuxeo.elasticsearch.bulk.IndexAction.ACTION_NAME;
+import static org.nuxeo.elasticsearch.bulk.IndexAction.INDEX_UPDATE_ALIAS_PARAM;
 import static org.nuxeo.importer.stream.StreamImporters.DEFAULT_LOG_DOC_NAME;
 
 import java.io.Serializable;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -21,12 +25,16 @@ import org.nuxeo.ecm.automation.core.annotations.Param;
 import org.nuxeo.ecm.core.api.Blob;
 import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.ecm.core.bulk.BulkService;
+import org.nuxeo.ecm.core.bulk.message.BulkCommand;
+import org.nuxeo.elasticsearch.api.ElasticSearchAdmin;
 import org.nuxeo.importer.stream.StreamImporters;
 import org.nuxeo.importer.stream.consumer.DocumentConsumerPolicy;
 import org.nuxeo.importer.stream.consumer.DocumentConsumerPool;
 import org.nuxeo.importer.stream.consumer.DocumentMessageConsumer;
 import org.nuxeo.importer.stream.consumer.DocumentMessageConsumerFactory;
 import org.nuxeo.importer.stream.message.DocumentMessage;
+import org.nuxeo.importer.stream.scroll.ImporterCompanionScroller;
 import org.nuxeo.lib.stream.codec.Codec;
 import org.nuxeo.lib.stream.log.LogManager;
 import org.nuxeo.lib.stream.pattern.consumer.BatchPolicy;
@@ -38,7 +46,7 @@ import org.nuxeo.runtime.stream.StreamService;
 import net.jodah.failsafe.RetryPolicy;
 
 @Operation(id = DocumentConsumersEx.ID, category = Constants.CAT_SERVICES, label = "Imports document", since = "9.1", description = "Import documents into repository.")
-public class DocumentConsumersEx  {
+public class DocumentConsumersEx {
 
 	private static final Log log = LogFactory.getLog(DocumentConsumersEx.class);
 
@@ -91,8 +99,17 @@ public class DocumentConsumersEx  {
 
 	@Param(name = "usePathHack", required = false)
 	protected Boolean usePathHack = false;
-
 	
+	@Param(name = "useScroller", required = false)
+	protected Boolean useScroller = false;
+	
+
+	  @Context
+	    protected CoreSession session;
+
+	    @Context
+	    protected BulkService bulkService;
+
 	@OperationMethod
 	public String run() throws OperationException {
 		try {
@@ -111,10 +128,16 @@ public class DocumentConsumersEx  {
 				.build();
 		log.warn(String.format("Import documents from log: %s into: %s/%s, with policy: %s", logName, repositoryName,
 				rootFolder, consumerPolicy));
+		
+		BulkInfo bi=null;
+		if (useScroller) {
+			bi = startBulk();
+		}
+		
 		LogManager manager = Framework.getService(StreamService.class).getLogManager();
 		Codec<DocumentMessage> codec = StreamImporters.getDocCodec();
 		try (DocumentConsumerPool<DocumentMessage> consumers = new DocumentConsumerPool<>(logName, manager, codec,
-				new DocumentMessageConsumerFactoryEx(repositoryName, rootFolder, usePathHack), consumerPolicy)) {
+				new DocumentMessageConsumerFactoryEx(repositoryName, rootFolder, bi.scroller, usePathHack), consumerPolicy)) {
 			return ConsumerStatusHelper.aggregateJSON(consumers.start().get());
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
@@ -125,70 +148,95 @@ public class DocumentConsumersEx  {
 			throw new OperationException(e);
 		}
 	}
-
+	
+	protected static class BulkInfo {	
+		String commandId;
+		String scroller;	
+	}
+	
+	protected BulkInfo startBulk() {
+        String username = session.getPrincipal().getName();
+        
+        BulkInfo bi = new BulkInfo();
+        
+        boolean syncAlias=false;
+        String scrollerName = "Scroller-StreamImport-" + logName;
+        
+        
+        String commandId= bulkService.submit(
+                new BulkCommand.Builder(ACTION_NAME, null,  username).param(INDEX_UPDATE_ALIAS_PARAM, syncAlias)
+                                                                    .repository(getRepositoryName()).scroller(scrollerName).build());
+        
+        bi.scroller=scrollerName;
+        bi.commandId=commandId;
+        return bi;       
+    }
+	
 	protected static class DocumentMessageConsumerFactoryEx extends DocumentMessageConsumerFactory {
 
 		final boolean usePathHack;
-		
-		public DocumentMessageConsumerFactoryEx(String repositoryName, String rootPath, boolean usePathHack) {
+
+		final String scrollerId;
+
+		public DocumentMessageConsumerFactoryEx(String repositoryName, String rootPath, String scrollerId,
+				boolean usePathHack) {
 			super(repositoryName, rootPath);
-			this.usePathHack=usePathHack;
+			this.usePathHack = usePathHack;
+			this.scrollerId = scrollerId;
 		}
 
 		@Override
 		public Consumer<DocumentMessage> createConsumer(String consumerId) {
-			
+
 			if (!usePathHack) {
-				return super.createConsumer(consumerId);
+				return new DocumentMessageConsumerWithScroll(consumerId, repositoryName, rootPath, scrollerId);
 			}
-			
-			if (rootPath.contains("misc")) {		
-				return new DocumentMessageConsumerNoPath(consumerId, repositoryName, rootPath);
+
+			if (rootPath.contains("misc")) {
+				return new DocumentMessageConsumerNoPath(consumerId, repositoryName, rootPath, scrollerId);
 			} else {
-				return new DocumentMessageConsumerCachedPath(consumerId, repositoryName, rootPath);
+				return new DocumentMessageConsumerCachedPath(consumerId, repositoryName, rootPath, scrollerId);
 			}
-	
+
 		}
 	}
 
-	protected static class DocumentMessageConsumerNoPath extends DocumentMessageConsumer {
+	protected static class DocumentMessageConsumerWithScroll extends DocumentMessageConsumer {
 
-		public DocumentMessageConsumerNoPath(String consumerId, String repositoryName, String rootPath) {
+		protected final String scrollerId;
+		protected List<String> ids = new ArrayList<>();
+
+		public DocumentMessageConsumerWithScroll(String consumerId, String repositoryName, String rootPath,
+				String scrollerId) {
 			super(consumerId, repositoryName, rootPath);
+			this.scrollerId = scrollerId;
+		}
+
+		protected String getPathForMessage(DocumentMessage message) {
+			return rootPath + message.getParentPath();
+		}
+
+		protected void beforeCreateDocument(DocumentModel doc, String targetPath) {
+			// NOP
+		}
+
+		protected void afterCreateDocument(DocumentModel doc) {
+			ids.add(doc.getId());
+		}
+
+		@Override
+		public void commit() {
+			super.commit();
+			if (scrollerId != null) {
+				ImporterCompanionScroller.getInstance(scrollerId).handle(ids);
+				ids.clear();
+			}
 		}
 
 		@Override
 		public void accept(DocumentMessage message) {
-						
-			DocumentModel doc = session.createDocumentModel(rootPath, message.getName(), message.getType());
-			doc.putContextData(CoreSession.SKIP_DESTINATION_CHECK_ON_CREATE, true);
-			Blob blob = getBlob(message);
-			if (blob != null) {
-				doc.setProperty("file", "content", blob);
-			}
-			Map<String, Serializable> props = message.getProperties();
-			if (props != null && !props.isEmpty()) {
-				setDocumentProperties(doc, props);
-			}
-			
-			doc = session.createDocument(doc);
-		}
 
-	}
-
-	protected static class DocumentMessageConsumerCachedPath extends DocumentMessageConsumer {
-
-		public DocumentMessageConsumerCachedPath(String consumerId, String repositoryName, String rootPath) {
-			super(consumerId, repositoryName, rootPath);
-		}
-
-		@Override
-		public void accept(DocumentMessage message) {
-			
-			Path p = new Path(rootPath);
-			p=p.append(message.getParentPath());
-			String targetPath = p.toString();
-			
+			String targetPath = getPathForMessage(message);
 			DocumentModel doc = session.createDocumentModel(targetPath, message.getName(), message.getType());
 			doc.putContextData(CoreSession.SKIP_DESTINATION_CHECK_ON_CREATE, true);
 			Blob blob = getBlob(message);
@@ -199,11 +247,43 @@ public class DocumentConsumersEx  {
 			if (props != null && !props.isEmpty()) {
 				setDocumentProperties(doc, props);
 			}
-			
+
+			beforeCreateDocument(doc, targetPath);
+			doc = session.createDocument(doc);
+			afterCreateDocument(doc);
+		}
+
+	}
+
+	protected static class DocumentMessageConsumerNoPath extends DocumentMessageConsumerWithScroll {
+
+		public DocumentMessageConsumerNoPath(String consumerId, String repositoryName, String rootPath,
+				String scrollerId) {
+			super(consumerId, repositoryName, rootPath, scrollerId);
+		}
+
+		protected String getPathForMessage(DocumentMessage message) {
+			return rootPath;
+		}
+
+	}
+
+	protected static class DocumentMessageConsumerCachedPath extends DocumentMessageConsumerWithScroll {
+
+		public DocumentMessageConsumerCachedPath(String consumerId, String repositoryName, String rootPath,
+				String scrollerId) {
+			super(consumerId, repositoryName, rootPath, scrollerId);
+		}
+
+		protected String getPathForMessage(DocumentMessage message) {
+			Path p = new Path(rootPath);
+			p = p.append(message.getParentPath());
+			return p.toString();
+		}
+
+		protected void beforeCreateDocument(DocumentModel doc, String targetPath) {
 			// force ParentRef resolution in advance using cache
 			ParentRefHelper.getInstance().setParentRef(session, doc, targetPath);
-			
-			doc = session.createDocument(doc);
 		}
 
 	}
