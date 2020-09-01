@@ -5,8 +5,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -298,6 +300,72 @@ public class TestSequenceGenerator {
 			assertFalse(allDates.contains(e.getMetaData()[4]));
 			//System.out.println(e.getAccountID() + " --- " + e.getMetaData()[4]);
 		}		
+	}
+
+	
+	@Test
+	public void testDateParse() throws Exception {
+		
+
+		SimpleDateFormat sdf1 = new SimpleDateFormat("MMM dd YYYY");		
+		SimpleDateFormat sdf2 = new SimpleDateFormat("MMM dd yyyy");
+		
+		String strDate1 = sdf1.format(new Date());
+		String strDate2 = sdf2.format(new Date());
+		System.out.println(strDate1);
+		System.out.println(strDate2);
+		
+		
+		System.out.println(sdf1.parse(strDate1));
+		System.out.println(sdf1.parse(strDate2));
+
+		System.out.println(sdf2.parse(strDate1));
+		System.out.println(sdf2.parse(strDate2));
+		
+	}
+	
+	@Test
+	public void checkWorkAroundBug() throws Exception {		
+		
+		int nbEntries = 60;
+		SequenceGenerator sg = new SequenceGenerator(60);	
+		for (int i = 0; i < nbEntries; i++) {
+			SequenceGenerator.Entry e = sg.next();
+			System.out.println(e.getAccountID() + " --- " + e.getMetaData()[4]);
+			System.out.println(RandomDataGenerator.df.get().parse(e.getMetaData()[4].trim()));
+		}	
+		
+		System.out.println("Live statements");
+		// 6 last months of 2020
+		nbEntries = 6;
+		sg = new SequenceGenerator(60);	
+		sg.setMonthOffset(6);
+		for (int i = 0; i < nbEntries; i++) {
+			SequenceGenerator.Entry e = sg.next();
+			System.out.println(e.getAccountID() + " --- " + e.getMetaData()[4]);
+		}	
+		
+		System.out.println("Achive -recent");
+		// 6 previous months of 2020
+		nbEntries = 6;
+		sg = new SequenceGenerator(60);	
+		sg.setMonthOffset(0);
+		for (int i = 0; i < nbEntries; i++) {
+			SequenceGenerator.Entry e = sg.next();
+			System.out.println(e.getAccountID() + " --- " + e.getMetaData()[4]);
+		}	
+
+		System.out.println("Achive -old");
+		// 48 previous months of 2019=>2016
+		nbEntries = 48;
+		sg = new SequenceGenerator(60);	
+		sg.setMonthOffset(12);
+		for (int i = 0; i < nbEntries; i++) {
+			SequenceGenerator.Entry e = sg.next();
+			System.out.println(e.getAccountID() + " --- " + e.getMetaData()[4]);
+		}	
+		
+		
 	}
 
 }

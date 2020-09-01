@@ -58,7 +58,7 @@ public class RandomDataGenerator {
 	public static ThreadLocal<SimpleDateFormat> df = new ThreadLocal<SimpleDateFormat>() {
 		@Override
 		protected SimpleDateFormat initialValue() {
-			return new SimpleDateFormat("MMM dd YYYY");
+			return new SimpleDateFormat("MMM dd yyyy");
 		}
 	};
 
