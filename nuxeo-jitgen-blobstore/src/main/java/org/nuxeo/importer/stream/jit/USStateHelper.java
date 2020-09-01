@@ -129,6 +129,9 @@ public class USStateHelper {
 	}
 	
 	public static String getStateCode(String stateName) {
+		if ("fl".equals(stateName)) {
+			return "FL";
+		}
 		stateName = stateName.trim();
 		String code =  StateName2StateCode.get(stateName);		
 		if (code!=null) {

@@ -33,6 +33,7 @@ import org.nuxeo.ecm.core.blob.jit.gen.DocInfo;
 import org.nuxeo.ecm.core.blob.jit.gen.InMemoryBlobGenerator;
 import org.nuxeo.ecm.core.blob.jit.gen.NodeInfo;
 import org.nuxeo.importer.stream.message.DocumentMessage;
+import org.nuxeo.importer.stream.producer.StatementPartitioner;
 import org.nuxeo.lib.stream.pattern.Message;
 import org.nuxeo.lib.stream.pattern.producer.AbstractProducer;
 import org.nuxeo.runtime.api.Framework;
@@ -60,7 +61,11 @@ public class StatementDocumentMessageProducer<M extends Message> extends Abstrac
 	
 	protected final int nbMonths;
 	
-	public StatementDocumentMessageProducer(SequenceGenerator sequenceGen, int producerId, long nbDocuments, int nbMonths, int monthOffset, String batchTag, boolean useRecords, boolean withStates, boolean storeInCustomerFolder, boolean storeInRoot) {
+	protected final boolean smartPartitioning;
+	
+	protected StatementPartitioner partioner;
+	
+	public StatementDocumentMessageProducer(SequenceGenerator sequenceGen, int producerId, long nbDocuments, int nbMonths, int monthOffset, String batchTag, boolean useRecords, boolean withStates, boolean storeInCustomerFolder, boolean storeInRoot, boolean smartPartitioning) {
 		super(producerId);
 		this.nbDocuments = nbDocuments;
 		this.nbMonths=nbMonths;
@@ -75,6 +80,10 @@ public class StatementDocumentMessageProducer<M extends Message> extends Abstrac
 		this.useRecords=useRecords;
 		this.storeInCustomerFolder=storeInCustomerFolder;
 		this.storeInRoot=storeInRoot;
+		this.smartPartitioning=smartPartitioning;
+		if (smartPartitioning) {
+			partioner = StatementPartitioner.getInstance();
+		}
 		log.info("StatementDocumentMessageProducer created, nbDocuments: " + nbDocuments);
 	}
 
@@ -84,7 +93,14 @@ public class StatementDocumentMessageProducer<M extends Message> extends Abstrac
 
 	@Override
 	public int getPartition(Message message, int partitions) {
-		return getProducerId() % partitions;
+		if (smartPartitioning) {
+			DocumentMessage docMessage = (DocumentMessage) message;					
+			String stateCode = (String)((Map<String,String>)docMessage.getProperties().get("customer:address")).get("state");
+			String customerNumber = (String)docMessage.getProperties().get("customer:number");		
+			return partioner.getPartition(stateCode, customerNumber, partitions);			
+		} else {
+			return getProducerId() % partitions;
+		}
 	}
 
 	@Override

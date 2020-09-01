@@ -70,7 +70,7 @@ public class RestCli {
 		options.addOption( "bulk", false, "Enable bulkmode for import");
 		options.addOption( "storeInRoot", false, "Generate DocumentMessage that will have / as parent");
 		
-		
+		options.addOption( "smartPartitioning", false, "Statement messages in partitions in a way that optimize cache usage in DBS");		
 		
 		CommandLineParser parser = new DefaultParser();
 
@@ -173,6 +173,7 @@ public class RestCli {
 				params.put("rootFolder", root);
 			}		
 		} else {
+			// Statement producer
 			if (logName==null) {
 				logName = "import/statements";
 			}
@@ -187,6 +188,10 @@ public class RestCli {
 			} else {
 				params.put("storeInCustomerFolder", true);	
 			}
+			if (cmd.hasOption("smartPartitioning")) {
+				params.put("smartPartitioning", true);
+			} 
+			
 						
 			params.put("seed", seed);		
 			

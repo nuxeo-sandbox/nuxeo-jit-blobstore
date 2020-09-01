@@ -100,6 +100,10 @@ public class StatementProducers {
 
 	@Param(name = "split", required = false)
 	protected Boolean splitOutput = false;
+	
+	@Param(name = "smartPartitioning", required = false)
+	protected Boolean smartPartitioning = false;
+	
 
     protected void checkAccess() {
         NuxeoPrincipal principal = context.getPrincipal();
@@ -129,7 +133,7 @@ public class StatementProducers {
         	docPerThreads++;
         }
 
-        StatementDocumentMessageProducerFactory factory = new StatementDocumentMessageProducerFactory(seed, skip, docPerThreads, nbMonths, monthOffset, batchTag, useRecords, withStates, storeInCustomerFolder, storeInRoot);
+        StatementDocumentMessageProducerFactory factory = new StatementDocumentMessageProducerFactory(seed, skip, docPerThreads, nbMonths, monthOffset, batchTag, useRecords, withStates, storeInCustomerFolder, storeInRoot, smartPartitioning);
 
         ProducerPool<DocumentMessage> messageProducers=null;
         ProducerPool<Message> recordProducers=null;
