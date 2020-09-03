@@ -344,7 +344,17 @@ public class TestSequenceGenerator {
 			SequenceGenerator.Entry e = sg.next();
 			System.out.println(e.getAccountID() + " --- " + e.getMetaData()[4]);
 		}	
-		
+
+		System.out.println("Live statements");
+		// 6 last months of 2020
+		nbEntries = 6;
+		sg = new SequenceGenerator(6);	
+		sg.setMonthOffset(6);
+		for (int i = 0; i < nbEntries; i++) {
+			SequenceGenerator.Entry e = sg.next();
+			System.out.println(e.getAccountID() + " --- " + e.getMetaData()[4]);
+		}	
+
 		System.out.println("Achive -recent");
 		// 6 previous months of 2020
 		nbEntries = 6;
