@@ -36,9 +36,12 @@ public class ConsumerStatusHelper {
 		return result;
 	}
 
-	public static String aggregateJSON(List<ConsumerStatus> stats) throws OperationException {
+	public static String aggregateJSON(List<ConsumerStatus> stats, String batchId) throws OperationException {
 
 		Map<String, Serializable> map = aggregate(stats);
+		if (batchId!=null) {
+			map.put("bulkIndexingCommandId", batchId);
+		}
 		try {
 			return MAPPER.writeValueAsString(map);
 		} catch (JsonProcessingException e) {

@@ -27,7 +27,6 @@ import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.bulk.BulkService;
 import org.nuxeo.ecm.core.bulk.message.BulkCommand;
-import org.nuxeo.elasticsearch.api.ElasticSearchAdmin;
 import org.nuxeo.importer.stream.StreamImporters;
 import org.nuxeo.importer.stream.consumer.DocumentConsumerPolicy;
 import org.nuxeo.importer.stream.consumer.DocumentConsumerPool;
@@ -130,15 +129,23 @@ public class DocumentConsumersEx {
 				rootFolder, consumerPolicy));
 		
 		BulkInfo bi=null;
+		String scrollerName = null;
+		String batchId = null;
 		if (useScroller) {
 			bi = startBulk();
+			scrollerName = bi.scroller;
+			batchId = bi.commandId;
 		}
-		
 		LogManager manager = Framework.getService(StreamService.class).getLogManager();
 		Codec<DocumentMessage> codec = StreamImporters.getDocCodec();
+		
 		try (DocumentConsumerPool<DocumentMessage> consumers = new DocumentConsumerPool<>(logName, manager, codec,
-				new DocumentMessageConsumerFactoryEx(repositoryName, rootFolder, bi.scroller, usePathHack), consumerPolicy)) {
-			return ConsumerStatusHelper.aggregateJSON(consumers.start().get());
+				new DocumentMessageConsumerFactoryEx(repositoryName, rootFolder, scrollerName, usePathHack), consumerPolicy)) {
+			String json= ConsumerStatusHelper.aggregateJSON(consumers.start().get(), batchId);
+			if (useScroller) {
+				ImporterCompanionScroller.kill(scrollerName);
+			}
+			return json;
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			log.warn("Operation interrupted");
@@ -155,19 +162,17 @@ public class DocumentConsumersEx {
 	}
 	
 	protected BulkInfo startBulk() {
-        String username = session.getPrincipal().getName();
-        
+        String username = session.getPrincipal().getName();      
         BulkInfo bi = new BulkInfo();
-        
         boolean syncAlias=false;
-        String scrollerName = "Scroller-StreamImport-" + logName;
-        
-        
-        String commandId= bulkService.submit(
-                new BulkCommand.Builder(ACTION_NAME, null,  username).param(INDEX_UPDATE_ALIAS_PARAM, syncAlias)
-                                                                    .repository(getRepositoryName()).scroller(scrollerName).build());
-        
-        bi.scroller=scrollerName;
+        String query = logName;        		
+        BulkCommand cmd = new BulkCommand.Builder(ACTION_NAME, query,  username).param(INDEX_UPDATE_ALIAS_PARAM, syncAlias)
+                                                                    .repository(getRepositoryName())
+                                                                    .useGenericScroller().scroller("DocConsumerScroller")
+                                                                    .build();        
+        String commandId= bulkService.submit(cmd);
+                        
+        bi.scroller=query;
         bi.commandId=commandId;
         return bi;       
     }

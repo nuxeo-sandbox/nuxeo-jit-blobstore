@@ -53,7 +53,16 @@ import com.fasterxml.jackson.core.JsonGenerator;
 public class StatementESDocumentWriter extends JsonESDocumentWriter {
 	
     private static final Log log = LogFactory.getLog(StatementESDocumentWriter.class);
-
+    
+    protected void writeSchemas(JsonGenerator jg, DocumentModel doc, String[] schemas) throws IOException {
+    	if (limitedIndexing(doc)) {
+    		 // only index the account number !!!
+    		 writeProperties(jg, doc, "account", null);
+    	} else {
+    		super.writeSchemas(jg, doc, schemas);
+    	}
+    }
+        
 	protected void writeSystemProperties(JsonGenerator jg, DocumentModel doc) throws IOException {
 		String docId = doc.getId();
 		CoreSession session = doc.getCoreSession();
@@ -150,16 +159,22 @@ public class StatementESDocumentWriter extends JsonESDocumentWriter {
 
 	public Map<String, String> getFullText(DocumentModel doc) throws IOException {
 		if (doc.getType().equalsIgnoreCase("Statement")) {
-			Blob smt = (Blob) doc.getPropertyValue("file:content");
 			String txtContent="";
-			try {
-				txtContent = BlobTextExtractor.instance().getTextFromBlob(smt);
-			} catch (Exception e) {
-				log.error("Unable to extract text for Statement with UID" + doc.getId(), e);
+			if (!limitedIndexing(doc)) {
+				Blob smt = (Blob) doc.getPropertyValue("file:content");
+				try {
+					txtContent = BlobTextExtractor.instance().getTextFromBlob(smt);
+				} catch (Exception e) {
+					log.error("Unable to extract text for Statement with UID" + doc.getId(), e);
+				}
 			}
 			return Collections.singletonMap("binarytext", txtContent);
 		} else {
 			return doc.getBinaryFulltext();
 		}
+	}
+	
+	protected boolean limitedIndexing(DocumentModel doc) {
+		return "archives".equalsIgnoreCase(doc.getRepositoryName());
 	}
 }

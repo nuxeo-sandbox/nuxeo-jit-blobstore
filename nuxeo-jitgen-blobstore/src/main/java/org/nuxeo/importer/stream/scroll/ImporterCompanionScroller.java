@@ -24,10 +24,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.core.api.scroll.Scroll;
 import org.nuxeo.ecm.core.api.scroll.ScrollRequest;
+import org.nuxeo.ecm.core.scroll.GenericScrollRequest;
 
 public class ImporterCompanionScroller implements Scroll {
+
+	private static final Log log = LogFactory.getLog(ImporterCompanionScroller.class);
 
 	protected static Map<String, ImporterCompanionScroller> scrollers = new HashMap<>();
 
@@ -45,88 +50,138 @@ public class ImporterCompanionScroller implements Scroll {
 
 	public static ImporterCompanionScroller getInstance(String name) {
 		synchronized (scrollers) {
-			return scrollers.get(name);
+			if (scrollers.containsKey(name)) {
+				return scrollers.get(name);
+			} else {
+				return null;
+			}
 		}
 	}
 
-	public static class ImporterCompanionScrollRequest implements ScrollRequest {
-
-		public static final int DEFAULT_SCROLL_SIZE = 50;
-
-		protected static final String SCROLL_TYPE = "importerCompanion";
-
-		protected final String name;
-
-		protected final int bucketSize;
-
-		public ImporterCompanionScrollRequest(String name, int size) {
-			this.name = name;
-			this.bucketSize = size;
+	public static boolean kill(String name) {
+		synchronized (scrollers) {
+			if (scrollers.containsKey(name)) {
+				scrollers.get(name).finished = true;
+				return true;
+			} else {
+				return false;
+			}
 		}
-
-		public ImporterCompanionScrollRequest(String name) {
-			this(name, DEFAULT_SCROLL_SIZE);
-		}
-
-		public String getType() {
-			return SCROLL_TYPE;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public int getSize() {
-			return bucketSize;
-		}
-
 	}
 
 	protected ConcurrentLinkedQueue<List<String>> buckets;
 
-	protected ImporterCompanionScrollRequest request;
+	protected GenericScrollRequest request;
 
 	protected List<String> buffer = new ArrayList<>();
 
+	protected String logName;
+
+	protected boolean finished;
+
+	public static final String FINISHED_TOKEN = "<--END-->";
+
+	protected static final int TIMEOUTS = 5 * 60;
+
+	protected int inCount=0;
+
+	protected int outCount=0;
+	
 	@Override
 	public void init(ScrollRequest request, Map<String, String> options) {
 		buckets = new ConcurrentLinkedQueue<>();
-		this.request = (ImporterCompanionScrollRequest) request;
+		this.request = (GenericScrollRequest) request;
+		logName = this.request.getQuery();
+		finished = false;
 		register(this);
 	}
 
 	public void handle(List<String> commitedDocIds) {
 
 		synchronized (buffer) {
+			inCount+=commitedDocIds.size();
 			buffer.addAll(commitedDocIds);
-			while (buffer.size() > request.getSize()) {
+			while (buffer.size() >= request.getSize()) {
 
 				List<String> newbucket = new ArrayList<>();
 				newbucket.addAll(buffer.subList(0, request.getSize() - 1));
 				buffer.removeAll(newbucket);
+				// send FINISHED_TOKEN to tell the stream is over
+				if (newbucket.contains(FINISHED_TOKEN)) {
+					finished = true;
+					newbucket.remove(FINISHED_TOKEN);
+				}
 				buckets.add(newbucket);
 			}
 		}
 	}
 
 	public String getKey() {
-		return this.request.name;
+		return this.logName;
 	}
+	
+	protected boolean waitForNewMessagesOrFinished() {
 
+		long t0 = System.currentTimeMillis();
+		// wait for more data
+		while ((buckets.size() == 0) && (System.currentTimeMillis() - t0 < TIMEOUTS * 1000) && ! finished) {
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		if (buckets.size() > 0) {
+			return true;
+		} else if (buckets.size() == 0 && finished) {		
+			return flushIfNeededAndFinish();
+		} else {
+			log.warn("Scroller will  exit with timeout");					
+			return flushIfNeededAndFinish();
+		}
+	}
+	
+	protected boolean flushIfNeededAndFinish() {
+		if (buffer.size()>0) {
+			List<String> partialbucket = new ArrayList<>();
+			partialbucket.addAll(buffer);
+			buckets.add(partialbucket);
+			buffer.clear();
+			finished=true;
+			return true;		
+		}
+		return false;	
+	}
+	
+	
 	@Override
 	public boolean hasNext() {
-		return buckets.size() > 0;
+		if (buckets.size() > 0) {
+			return true;
+		} else {
+			if (finished) {
+				return flushIfNeededAndFinish();
+			} else {
+				return waitForNewMessagesOrFinished();
+			}
+		}
 	}
 
 	@Override
 	public List<String> next() {
-		return buckets.poll();
+		List<String> ids = buckets.poll();
+		if (ids!=null) {
+			outCount+=ids.size();
+		}
+		return ids;
 	}
 
 	@Override
 	public void close() {
 		buckets = null;
 		unregister(this);
+		String msg = String.format("Scroller closed after having received %s and produced %s ids", inCount, outCount);		
+		log.info(msg);
 	}
 
 }
