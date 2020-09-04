@@ -11,6 +11,7 @@ nuxeo.template.includes=common,perf,large-repository,importer-node
 ## Number of shards: 100 shards so that we can reach 2B+
 ##
 elasticsearch.indexNumberOfShards=35
+elasticsearch.indexArchivesNumberOfShards=100
 
 ## Number of replicas: keep to 1
 #elasticsearch.indexNumberOfReplicas=1
@@ -29,3 +30,8 @@ org.nuxeo.ecm.instance.description=Nuxeo ECM customized with 10B Benchmark Packa
 kafka.linger.ms=0
 kafka.batch.size.bytes=16384
 kafka.compression.type=snappy
+
+nuxeo.dbs.cache.maxSize=200000
+nuxeo.dbs.cache.concurrencyLevel=24
+
+

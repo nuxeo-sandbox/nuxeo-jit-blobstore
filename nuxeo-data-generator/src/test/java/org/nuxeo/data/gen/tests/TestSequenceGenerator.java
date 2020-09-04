@@ -327,6 +327,7 @@ public class TestSequenceGenerator {
 	@Test
 	public void checkWorkAroundBug() throws Exception {		
 		
+		
 		int nbEntries = 60;
 		SequenceGenerator sg = new SequenceGenerator(60);	
 		for (int i = 0; i < nbEntries; i++) {

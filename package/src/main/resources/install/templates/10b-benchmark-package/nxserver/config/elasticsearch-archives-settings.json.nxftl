@@ -1,0 +1,89 @@
+{
+  "index.translog.durability": "${elasticsearch.index.translog.durability}",
+<#if "${elasticsearch.addressList}" != "">
+  "number_of_shards": "${elasticsearch.indexArchivesNumberOfShards}",
+  "number_of_replicas": "${elasticsearch.indexNumberOfReplicas}",
+<#else>
+  "number_of_shards": "1",
+  "number_of_replicas": "0",
+</#if>
+  "refresh_interval": null,
+  "codec": "best_compression",
+  "analysis": {
+    "filter": {
+      "truncate_filter": {
+        "length": 256,
+        "type": "truncate"
+      },
+      "en_stem_filter": {
+        "name": "minimal_english",
+        "type": "stemmer"
+      },
+      "en_stop_filter": {
+        "stopwords": [
+          "_english_"
+        ],
+        "type": "stop"
+      },
+      "word_delimiter_filter": {
+        "type": "word_delimiter",
+        "preserve_original": true
+      },
+      "asciifolding_filter": {
+        "type": "asciifolding",
+        "preserve_original": true
+      }
+    },
+    "tokenizer": {
+      "path_tokenizer": {
+        "delimiter": "/",
+        "type": "path_hierarchy"
+      },
+      "ngram_tokenizer": {
+        "type": "nGram",
+        "min_gram": 3,
+        "max_gram": 4
+      }
+    },
+    "analyzer": {
+      "fulltext": {
+        "char_filter": [ ],
+        "filter": [
+          "word_delimiter_filter",
+          "lowercase",
+          "en_stop_filter",
+          "en_stem_filter"
+        ],
+        "type": "custom",
+        "tokenizer": "standard"
+      },
+      "path_analyzer": {
+        "type": "custom",
+        "tokenizer": "path_tokenizer"
+      },
+      "lowercase_analyzer": {
+        "type": "custom",
+        "filter": [
+          "truncate_filter",
+          "lowercase",
+          "asciifolding"
+        ],
+        "tokenizer": "keyword"
+      },
+      "ngram_analyzer": {
+        "type": "custom",
+        "filter": [
+          "lowercase"
+        ],
+        "tokenizer": "ngram_tokenizer"
+      },
+      "default": {
+        "type": "custom",
+        "filter": [
+          "truncate_filter"
+        ],
+        "tokenizer": "keyword"
+      }
+    }
+  }
+}

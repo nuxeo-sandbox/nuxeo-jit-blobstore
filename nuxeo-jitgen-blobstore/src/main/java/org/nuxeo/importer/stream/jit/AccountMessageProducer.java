@@ -127,6 +127,9 @@ public class AccountMessageProducer extends AbstractProducer<DocumentMessage> {
 			props.put("dc:title", meta[1].trim());			
 			type = "Correspondence" + USStateHelper.getStateCode(meta[6].trim());		
 		}
+		
+		props.put("dc:created", DateHelper.getRandomDatein2015());
+		
 		DocumentMessage.Builder builder = DocumentMessage.builder(type, path, name).setProperties(props);
 
 		if (!folder) {

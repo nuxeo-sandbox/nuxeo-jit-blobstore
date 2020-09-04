@@ -80,7 +80,6 @@ public class CustomerMessageProducer extends AbstractProducer<DocumentMessage> {
 	}
 
 	protected DocumentMessage createCustomer(String line, boolean folder) {
-
 		String[] meta = line.split(",");
 		
 		HashMap<String, Serializable> props = new HashMap<>();
@@ -116,6 +115,9 @@ public class CustomerMessageProducer extends AbstractProducer<DocumentMessage> {
 			path = path + "/" + name;
 			name = "IDCard";		
 		}
+
+		props.put("dc:created", DateHelper.getRandomDatein2015());
+		
 		DocumentMessage.Builder builder = DocumentMessage.builder(type, path, name).setProperties(props);
 
 		if (!folder) {

@@ -90,10 +90,6 @@
     
   </extension>
     
-  <!-- configure dedicated connection for repositories
-  <extension target="org.nuxeo.runtime.mongodb.MongoDBComponent" point="connection">
-    <connection id="repository/us-east">
-  -->
   
   <extension point="elasticSearchIndex" target="org.nuxeo.elasticsearch.ElasticSearchComponent">
 
@@ -102,15 +98,14 @@
         <mapping file="elasticsearch-doc-mapping.json"/>
     </elasticSearchIndex>
 
-
     <elasticSearchIndex name="us-west" repository="us-west"  create="true" type="doc">
         <settings file="elasticsearch-doc-settings.json"/>
         <mapping file="elasticsearch-doc-mapping.json"/> 
     </elasticSearchIndex>
 
     <elasticSearchIndex name="archives" repository="archives"  create="true" type="doc">
-        <settings file="elasticsearch-doc-settings.json"/>
-        <mapping file="elasticsearch-doc-mapping.json"/> 
+        <settings file="elasticsearch-archives-settings.json"/>
+        <mapping file="elasticsearch-archives-mapping.json"/> 
     </elasticSearchIndex>
 
   </extension>

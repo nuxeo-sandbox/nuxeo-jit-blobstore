@@ -2,6 +2,7 @@ package org.nuxeo.importer.stream.jit;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -210,5 +211,8 @@ public class USStateHelper {
 		
 		return s2c;
 	}
-	
+
+	public static Collection<String> getStateCodes() {
+		return StateName2StateCode.values();
+	}
 }

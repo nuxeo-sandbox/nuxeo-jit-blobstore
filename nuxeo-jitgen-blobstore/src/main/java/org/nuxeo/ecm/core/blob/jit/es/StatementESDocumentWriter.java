@@ -28,8 +28,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -46,6 +49,7 @@ import org.nuxeo.ecm.core.blob.jit.thumbnail.StatementThumbnailFactory;
 import org.nuxeo.ecm.core.security.SecurityService;
 import org.nuxeo.ecm.platform.tag.TagService;
 import org.nuxeo.elasticsearch.io.JsonESDocumentWriter;
+import org.nuxeo.importer.stream.jit.USStateHelper;
 import org.nuxeo.runtime.api.Framework;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -73,7 +77,7 @@ public class StatementESDocumentWriter extends JsonESDocumentWriter {
 
 		String pathAsString = doc.getPathAsString();
 		jg.writeStringField("ecm:path", pathAsString);
-		if (StringUtils.isNotBlank(pathAsString)) {
+/*		if (StringUtils.isNotBlank(pathAsString)) {
 			String[] split = pathAsString.split("/");
 			if (split.length > 0) {
 				for (int i = 1; i < split.length; i++) {
@@ -81,7 +85,7 @@ public class StatementESDocumentWriter extends JsonESDocumentWriter {
 				}
 			}
 			jg.writeNumberField("ecm:path@depth", split.length);
-		}
+		}*/
 
 		jg.writeStringField("ecm:primaryType", doc.getType());
 		DocumentRef parentRef = doc.getParentRef();
@@ -169,7 +173,19 @@ public class StatementESDocumentWriter extends JsonESDocumentWriter {
 				}
 			}
 			return Collections.singletonMap("binarytext", txtContent);
-		} else {
+		} else if (doc.getType().equals("IDCard") || doc.getType().equals("Customer")) {
+			String txt = (String) doc.getPropertyValue("customer:firstname");
+			txt = txt + " " + (String) doc.getPropertyValue("customer:lastname");		
+			txt = txt + " " + (String) doc.getPropertyValue("customer:number");		
+			return Collections.singletonMap("binarytext", txt);			
+		} else if (doc.getType().equals("Account") || doc.getType().startsWith("Correspondence")) {
+			String txt = (String) doc.getPropertyValue("customer:firstname");
+			txt = txt + " " + (String) doc.getPropertyValue("customer:lastname");		
+			txt = txt + " " + (String) doc.getPropertyValue("customer:number");		
+			txt = txt + " " + (String) doc.getPropertyValue("account:number");		
+			return Collections.singletonMap("binarytext", txt);			
+		}
+		else {
 			return doc.getBinaryFulltext();
 		}
 	}

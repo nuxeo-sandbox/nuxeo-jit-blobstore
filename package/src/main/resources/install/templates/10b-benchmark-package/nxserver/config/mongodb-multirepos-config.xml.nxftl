@@ -1,0 +1,32 @@
+<#escape x as x?xml>
+<?xml version="1.0"?>
+<component name="org.nuxeo.mongodb.connection">
+
+  <extension target="org.nuxeo.runtime.mongodb.MongoDBComponent" point="connection">
+    
+    <#if "${nuxeo.mongodb.serverEast}"?has_content>  
+    <connection id="repository/us-east">
+      <server>${nuxeo.mongodb.serverEast}</server>
+      <dbname>${nuxeo.mongodb.dbnameEast}</dbname>
+    </connection>
+	</#if>
+	
+    <#if "${nuxeo.mongodb.serverWest}"?has_content>  
+    <connection id="repository/us-west">
+      <server>${nuxeo.mongodb.serverWest}</server>
+      <dbname>${nuxeo.mongodb.dbnameWest}</dbname>
+    </connection>
+	</#if>
+
+    <#if "${nuxeo.mongodb.serverArchives}"?has_content>  
+    <connection id="repository/archives">
+      <server>${nuxeo.mongodb.serverArchives}</server>
+      <dbname>${nuxeo.mongodb.dbnameArchives}</dbname>
+    </connection>
+	</#if>
+
+ </extension>
+
+</component>
+
+</#escape>  
