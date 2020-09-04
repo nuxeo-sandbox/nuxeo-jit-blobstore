@@ -94,8 +94,8 @@ services:
     mem_reservation: 1g
     mem_limit: 3g
     environment:
-      NUXEO_CONNECT_URL: https://nos-preprod-connect.nuxeocloud.com/nuxeo/site/
-      # NUXEO_CONNECT_URL: https://connect.nuxeo.com/nuxeo/site/
+      #NUXEO_CONNECT_URL: https://nos-preprod-connect.nuxeocloud.com/nuxeo/site/
+      NUXEO_CONNECT_URL: https://connect.nuxeo.com/nuxeo/site/
       NUXEO_CLID: ${NUXEO_CLID}
       NUXEO_PACKAGES: nuxeo-web-ui nuxeo-platform-importer /pkg/10B-benchmark-package-11.2.32-SNAPSHOT.zip
       JAVA_OPTS: -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8787
@@ -111,11 +111,13 @@ services:
       - "traefik.backend.healthcheck.path=/nuxeo/runningstatus"
       - "traefik.backend.healthcheck.port=8080"
       - "traefik.backend.healthcheck.interval=10s"
+    entrypoint: /nuxeo-stack-entrypoint.sh
+    command: nuxeoctl console
     volumes:
+      - ./nuxeo/nuxeo-stack-entrypoint.sh:/nuxeo-stack-entrypoint.sh:ro
       - ./nuxeo/nuxeo.conf:/etc/nuxeo/conf.d/nuxeo-stack.conf:ro
-      - ./nuxeo/templates:/templates:ro
       - ./data/nuxeo-binaries:/var/lib/nuxeo/binaries:rw
-      - ./data/nuxeo/data:/var/lib/nuxeo/data:rw
+      - ./data/nuxeo/data:/var/lib/nuxeo:rw
       - ./data/nuxeo/packages:/opt/nuxeo/server/packages:rw
       - ./data/profiler:/profiler:rw
       - ../package/target:/pkg:ro
@@ -126,6 +128,21 @@ services:
     labels:
       - "traefik.port=16686"
       - "traefik.frontend.rule=Host:jaeger.docker.localhost"
+  notebook:
+    image: nxbench/notebook:latest
+    container_name: notebook
+    labels:
+      - "traefik.port=8888"
+      - "traefik.frontend.rule=Host:notebook.docker.localhost"
+    environment:
+      NXUSER: ${NXUSER}
+      NXPWD: ${NXPWD}
+      NXURL: ${NXURL}
+    volumes:
+      - ../notebooks:/nxbench/notebooks:rw
+      - ../nuxeo-datagen-cli/scripts:/nxbench/scripts:rw
+      - ./data/notebook/injector:/nxbench/data:rw
+      - ./data/notebook/blobs:/nxbench/blobs:rw
   traefik:
     image: traefik:maroilles-alpine
     container_name: traefik
