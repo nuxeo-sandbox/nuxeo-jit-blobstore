@@ -117,7 +117,7 @@ public class RestCli {
 		int logSize = Integer.parseInt(cmd.getOptionValue('p', "8"));		
 		int batchSize = Integer.parseInt(cmd.getOptionValue('z', "500"));		
 		int nbThreads = Integer.parseInt(cmd.getOptionValue('t', "10"));
-		int nbDocs = Integer.parseInt(cmd.getOptionValue('n', "100000"));
+		long nbDocs = Long.parseLong(cmd.getOptionValue('n', "100000"));
 		int nbMonths = Integer.parseInt(cmd.getOptionValue('d', "48"));
 		int monthOffset = Integer.parseInt(cmd.getOptionValue("monthOffset", "0"));
 		String root = cmd.getOptionValue('b',null);
