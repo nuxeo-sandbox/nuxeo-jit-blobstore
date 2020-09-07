@@ -1,0 +1,36 @@
+Using config /nxbench/notebooks/11B-Steps/nuxeo.properties
+url=http://127.0.0.1:8080/nuxeo
+login=nco-admin
+Nuxeo Client configured
+ (async mode actiavted)
+Connected to Nuxeo Server 11.3.26
+Running Operation:StreamImporter.runStatementProducers
+   nbThreads: 240 
+   split: false 
+   logName: import/statements_archive1 
+   seed: 2020 
+   nbDocuments: 1079993172 
+   logSize: 24 
+   storeInRoot: true 
+   skip: 0 
+   smartPartitioning: true 
+   nbMonths: 6 
+   monthOffset: 12 
+Async Automation Execution Scheduled
+  => status url:[http://127.0.0.1:8080/nuxeo/site/api/v1/automation/StreamImporter.runStatementProducers/@async/7c9714bc-005d-449b-bab1-7415044d547b/status]
+#####################
+Execution completed
+
+waiting for end of Async Exec
+url=http://127.0.0.1:8080/nuxeo
+login=nco-admin
+Nuxeo Client configured
+.......................................................................................................................................................................................................................................................................................................................................................................................................................................................
+Running completed
+elapsed:26372.814
+failures:0
+messages:1079993280
+throughput:40951.006593380596
+producers:240
+
+Exit after 26405 s
