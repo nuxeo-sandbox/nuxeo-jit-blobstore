@@ -39,6 +39,12 @@ RUN curl -fsSL http://apache.mirrors.hoobly.com/kafka/2.3.1/kafka_2.11-2.3.1.tgz
     && rm /tmp/kafka-cli.tgz
 ENV PATH /nxbench/cli/kafka_2.11-2.3.1/bin:$PATH
 
+# Add AWS CLI
+RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "/tmp/awscli-bundle.zip" \
+ && unzip /tmp/awscli-bundle.zip -d /tmp/ \ 
+ && /tmp/awscli-bundle/install -b /nxbench/aws
+ENV PATH /nxbench:$PATH
+
 # update path
 ENV PATH /nxbench/scripts:$PATH
 
