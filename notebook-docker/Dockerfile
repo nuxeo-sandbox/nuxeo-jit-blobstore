@@ -25,7 +25,8 @@ RUN mkdir -p /nxbench/data \
  && mkdir -p /nxbench/cli \
  && mkdir -p /nxbench/notebooks \
  && mkdir -p /nxbench/scripts \
- && mkdir -p /nxbench/blobs
+ && mkdir -p /nxbench/blobs \
+ && mkdir -p /nxbench/nuxeo-conf
  
 # Add the Mongo Shell client
 RUN curl -fsSL https://downloads.mongodb.org/linux/mongodb-shell-linux-x86_64-ubuntu1804-4.4.0.tgz -o /tmp/mongodb-shell.tgz \

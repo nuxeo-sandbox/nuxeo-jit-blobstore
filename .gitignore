@@ -50,3 +50,8 @@ blobstore/*
 notebooks/*.csv
 notebooks/nuxeo.properties
 notebooks/.ipynb_checkpoints
+notebooks/ToolBox/kafka-ssl.properties
+notebooks/ToolBox/updateRetention.sh
+notebooks/11B-Steps/nuxeo.properties
+notebook.env
+
