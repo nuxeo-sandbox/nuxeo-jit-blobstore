@@ -16,9 +16,7 @@
   <production-state>testing</production-state>
   <supported>false</supported>
   <platforms>
-    <platform>server-@DISTRIB_VERSION@</platform>
-    <platform>server-11.1.*</platform>
-    <platform>server-11.2.*</platform>
+    <platform>server-@NUXEO_TARGET_VERSION@</platform>
   </platforms>
   <!-- Dependencies on other packages -->
   <dependencies>

@@ -3,8 +3,8 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.nuxeo</groupId>
-    <artifactId>nuxeo-ecm</artifactId>
-    <version>11.2-SNAPSHOT</version>
+    <artifactId>nuxeo-parent</artifactId>
+    <version>11.2</version>
   </parent>
 
   <groupId>org.nuxeo.ecm.core</groupId>
@@ -92,18 +92,6 @@
         <artifactId>10B-benchmark-package</artifactId>
         <version>${project.version}</version>
       </dependency>
-
-      <dependency>
-        <groupId>org.nuxeo.ecm.platform</groupId>
-        <artifactId>nuxeo-importer-stream</artifactId>
-        <version>11.2-SNAPSHOT</version>
-     </dependency>
-      <dependency>
-        <groupId>org.nuxeo.ecm.distribution</groupId>
-	<artifactId>nuxeo-nxr-server</artifactId>
-	<type>zip</type>
-        <version>11.2-SNAPSHOT</version>
-     </dependency>
 
     </dependencies>
   </dependencyManagement>
