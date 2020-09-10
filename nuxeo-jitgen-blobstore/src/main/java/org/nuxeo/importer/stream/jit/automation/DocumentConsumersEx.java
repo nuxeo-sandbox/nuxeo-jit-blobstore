@@ -226,7 +226,9 @@ public class DocumentConsumersEx {
 		}
 
 		protected void afterCreateDocument(DocumentModel doc) {
-			ids.add(doc.getId());
+			if (scrollerId != null) {				
+				ids.add(doc.getId());
+			}
 		}
 
 		@Override
