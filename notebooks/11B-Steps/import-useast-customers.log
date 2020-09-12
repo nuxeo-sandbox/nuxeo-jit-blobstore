@@ -15,7 +15,7 @@ Running Operation:StreamImporter.runDocumentConsumersEx
    blockIndexing: true 
    batchSize: 500 
 Async Automation Execution Scheduled
-  => status url:[http://127.0.0.1:8080/nuxeo/site/api/v1/automation/StreamImporter.runDocumentConsumersEx/@async/3be570ce-98f1-4bab-8088-c3d58215482c/status]
+  => status url:[http://127.0.0.1:8080/nuxeo/site/api/v1/automation/StreamImporter.runDocumentConsumersEx/@async/4244d6e5-a44a-4837-83e4-fe277489df69/status]
 #####################
 Execution completed
 
@@ -23,12 +23,12 @@ waiting for end of Async Exec
 url=http://127.0.0.1:8080/nuxeo
 login=nco-admin
 Nuxeo Client configured
-.........................................................................................................................
+...........................................................................................................................
 Running completed
-elapsed:7301.021
+elapsed:7427.235
 committed:90918788
 failures:0
 consumers:16
-throughput:12452.886794874306
+throughput:12241.269866915482
 
-Exit after 7323 s
+Exit after 7443 s
