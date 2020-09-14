@@ -16,8 +16,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
  && pip3 install jupyter \
  && pip3 install --upgrade ipython \
  && pip3 install pandas \
- && pip3 install matplotlib
-
+ && pip3 install matplotlib \
+ && pip3 install plotly
 
 
 # Build folder structure
