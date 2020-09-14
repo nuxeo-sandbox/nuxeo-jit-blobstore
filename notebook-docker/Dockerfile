@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     fonts-freefont-ttf \
  && rm -rf /var/lib/apt/lists/* \
  && pip3 -q install --upgrade pip \
- && pip3 install jupyter \
+ && pip3 install notebook \
  && pip3 install --upgrade ipython \
  && pip3 install pandas \
  && pip3 install matplotlib \
