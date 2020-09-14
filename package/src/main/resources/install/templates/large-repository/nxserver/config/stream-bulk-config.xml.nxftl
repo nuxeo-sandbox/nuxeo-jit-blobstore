@@ -16,8 +16,12 @@
     <action name="index" inputStream="bulk/index" bucketSize="1000" batchSize="50" enabled="true" />
   </extension>
 
-<#if "${nuxeo.instance.type}" == "worker">
-  <#assign startProcessor = "true">
+<#if "${(nuxeo.instance.type)!}" == "worker">  
+  <#if "${(dedicated.import.node)!'false'}" == "true">
+   <#assign startProcessor = "false">
+  <#else>
+   <#assign startProcessor = "true">
+  </#if>  
 <#else>
   <#assign startProcessor = "false">
 </#if>

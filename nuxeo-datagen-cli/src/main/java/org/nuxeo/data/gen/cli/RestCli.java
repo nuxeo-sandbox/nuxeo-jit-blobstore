@@ -22,6 +22,12 @@ import org.nuxeo.client.objects.blob.Blob;
 import org.nuxeo.client.objects.blob.FileBlob;
 import org.nuxeo.data.gen.meta.SequenceGenerator;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class RestCli {
 
 	public static final String CONSUMERTREE = "consumertree";	
@@ -71,6 +77,7 @@ public class RestCli {
 		options.addOption( "storeInRoot", false, "Generate DocumentMessage that will have / as parent");
 		
 		options.addOption( "smartPartitioning", false, "Statement messages in partitions in a way that optimize cache usage in DBS");		
+		options.addOption( "json", true, "JSON string to pass additional parameters to the server");		
 		
 		CommandLineParser parser = new DefaultParser();
 
@@ -141,6 +148,22 @@ public class RestCli {
 		params.put("logSize", logSize);
 		params.put("nbThreads", nbThreads);		
 
+		
+		// allow to pass additional arbitrary parameters
+		String jsonParams = cmd.getOptionValue("json",null);
+		if (jsonParams!=null && !jsonParams.isEmpty()) {			
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode node;
+			try {
+				node = mapper.readTree(jsonParams);
+				Map<String, Object> additionalParams = mapper.convertValue(node, new TypeReference<Map<String, Object>>() {});
+				params.putAll(additionalParams);
+			} catch (Exception e) {
+				System.err.println("Unable to parse json parameter" + e.getMessage());
+				System.err.println(jsonParams);				
+			} 				
+		}
+		
 		if (CONSUMERTREE.equalsIgnoreCase(operation)) {
 			// force single thread
 			nbThreads = 1;

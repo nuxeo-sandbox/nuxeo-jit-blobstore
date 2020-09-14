@@ -94,7 +94,7 @@ public class DocumentConsumersEx {
 	protected Boolean useBulkMode = false;
 
 	@Param(name = "waitMessageTimeoutSeconds", required = false)
-	protected Integer waitMessageTimeoutSeconds = 20;
+	protected Integer waitMessageTimeoutSeconds = 60;
 
 	@Param(name = "usePathHack", required = false)
 	protected Boolean usePathHack = false;
