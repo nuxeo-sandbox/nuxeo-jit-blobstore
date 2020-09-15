@@ -19,3 +19,7 @@ org.nuxeo.core.delta.disabled=true
 # ES Timeout settings
 elasticsearch.restClient.socketTimeoutMs=300000
 elasticsearch.restClient.connectionTimeoutMs=10000
+
+es.baf.index.concurrency=12
+es.baf.bulkIndex.concurrency=8
+

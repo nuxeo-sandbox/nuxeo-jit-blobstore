@@ -8,13 +8,21 @@
     <connection id="repository/us-east">
       <server>${nuxeo.mongodb.serverEast}</server>
       <dbname>${nuxeo.mongodb.dbnameEast}</dbname>
+      <maxTime>${(nuxeo.mongodb.maxTime)!"12h"}<maxTime>
     </connection>
+    <#else>
+	  <connection id="repository/us-east">
+      <server>${nuxeo.mongodb.server}</server>
+      <dbname>${(nuxeo.mongodb.dbname)!'nuxeo'}</dbname>
+      <maxTime>${(nuxeo.mongodb.maxTime)!"12h"}<maxTime>
+      </connection> 
 	</#if>
 	
     <#if nuxeo.mongodb.serverWest??>  
     <connection id="repository/us-west">
       <server>${nuxeo.mongodb.serverWest}</server>
       <dbname>${nuxeo.mongodb.dbnameWest}</dbname>
+      <maxTime>${(nuxeo.mongodb.maxTime)!"12h"}<maxTime>
     </connection>
 	</#if>
 
@@ -22,6 +30,7 @@
     <connection id="repository/archives">
       <server>${nuxeo.mongodb.serverArchives}</server>
       <dbname>${nuxeo.mongodb.dbnameArchives}</dbname>
+      <maxTime>${(nuxeo.mongodb.maxTime)!"12h"}<maxTime>
     </connection>
 	</#if>
 

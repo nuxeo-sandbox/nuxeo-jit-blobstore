@@ -34,4 +34,4 @@ kafka.compression.type=snappy
 nuxeo.dbs.cache.maxSize=200000
 nuxeo.dbs.cache.concurrencyLevel=24
 
-
+nuxeo.mongodb.maxTime=12h

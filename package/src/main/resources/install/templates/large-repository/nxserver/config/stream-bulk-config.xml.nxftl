@@ -21,7 +21,7 @@
    <#assign startProcessor = "false">
   <#else>
    <#assign startProcessor = "true">
-  </#if>  
+  </#if>  i
 <#else>
   <#assign startProcessor = "false">
 </#if>
@@ -30,9 +30,9 @@
     <streamProcessor name="reindex" class="org.nuxeo.elasticsearch.bulk.IndexAction" logConfig="bulk"
       defaultConcurrency="6" defaultPartitions="36" start="${startProcessor}">
       <!-- concurrency to build indexing requests -->
-      <computation name="index" concurrency="4"/>
+      <computation name="index" concurrency="${(es.baf.index.concurrency)!12}"/>
       <!-- concurrency to execute indexing requests -->
-      <computation name="bulkIndex" concurrency="4" />
+      <computation name="bulkIndex" concurrency="${(es.baf.bulkIndex.concurrency)!8}" />
       <computation name="indexCompletion" concurrency="1" />
       <!-- flush elasticsearch bulk request interval -->
       <option name="flushIntervalSeconds">10</option>
