@@ -13,12 +13,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     fonts-freefont-ttf \
  && rm -rf /var/lib/apt/lists/* \
  && pip3 -q install --upgrade pip \
- && pip3 install notebook \
+ && pip3 install jupyterlab "ipywidgets==7.5" \
  && pip3 install --upgrade ipython \
  && pip3 install pandas \
  && pip3 install matplotlib \
- && pip3 install plotly
-
+ && pip3 install plotly \
+ && pip install -U kaleido
 
 # Build folder structure
 RUN mkdir -p /nxbench/data \
@@ -28,6 +28,16 @@ RUN mkdir -p /nxbench/data \
  && mkdir -p /nxbench/blobs \
  && mkdir -p /nxbench/nuxeo-conf
  
+# install node by hand since nodejs package does not seem to work with Jupyter
+RUN curl -fsSL https://nodejs.org/dist/v12.18.3/node-v12.18.3-linux-x64.tar.xz -o /tmp/node.tgz \
+    && tar -xf /tmp/node.tgz -C /nxbench/cli/ \
+    && rm /tmp/node.tgz
+ENV PATH /nxbench/cli/node-v12.18.3-linux-x64/bin:$PATH
+
+# configure Jupyter Lab
+RUN jupyter labextension install jupyterlab-plotly@4.10.0 \
+ && jupyter labextension install @jupyter-widgets/jupyterlab-manager plotlywidget@4.10.0
+
 # Add the Mongo Shell client
 RUN curl -fsSL https://downloads.mongodb.org/linux/mongodb-shell-linux-x86_64-ubuntu1804-4.4.0.tgz -o /tmp/mongodb-shell.tgz \
     && tar -xzvf /tmp/mongodb-shell.tgz -C /nxbench/cli/ \
@@ -65,7 +75,8 @@ WORKDIR /nxbench
 #ENTRYPOINT ["/docker-entrypoint.sh"]
 
 EXPOSE 8888
-CMD ["jupyter", "notebook", "--port=8888", "--no-browser", "--ip=0.0.0.0", "--allow-root"]
+#CMD ["jupyter", "notebook", "--port=8888", "--no-browser", "--ip=0.0.0.0", "--allow-root"]
+CMD ["jupyter", "lab", "--port=8888", "--no-browser", "--ip=0.0.0.0", "--allow-root"]
 
 #USER 1000
 
