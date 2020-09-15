@@ -70,6 +70,10 @@
         <property name="ssl.keystore.password">${kafka.keystore.password}</property>
 </#if>
 </#if>
+
+		<!-- change assignment strategy to avoid issues when partition/threads are not aligned-->
+        <property name="partition.assignment.strategy">org.apache.kafka.clients.consumer.RoundRobinAssignor</property>
+        
       </consumer>
     </kafkaConfig>
     
