@@ -12,7 +12,7 @@ kafka.max.poll.interval.ms=86400000
 nuxeo.db.transactiontimeout=86400
 
 # DBS Settings
-nuxeo.dbs.cache.maxSize=30000
+nuxeo.dbs.cache.maxSize=200000
 nuxeo.dbs.cache.ttl=60
 org.nuxeo.core.delta.disabled=true
 
@@ -22,4 +22,3 @@ elasticsearch.restClient.connectionTimeoutMs=10000
 
 es.baf.index.concurrency=12
 es.baf.bulkIndex.concurrency=8
-

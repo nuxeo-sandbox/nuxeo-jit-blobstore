@@ -9,7 +9,7 @@
   
   <!-- Configure Scroll to avoid timeout while Scrolling on large repositories -->
   <extension target="org.nuxeo.runtime.ConfigurationService" point="configuration">
-    <property name="nuxeo.core.bulk.scroller.scroll.keepAliveSeconds">3600</property>
+    <property name="nuxeo.core.bulk.scroller.scroll.keepAliveSeconds">7200</property>
   </extension>
   
   <extension target="org.nuxeo.ecm.core.bulk" point="actions">
@@ -21,7 +21,7 @@
    <#assign startProcessor = "false">
   <#else>
    <#assign startProcessor = "true">
-  </#if>  i
+  </#if>
 <#else>
   <#assign startProcessor = "false">
 </#if>
