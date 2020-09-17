@@ -36,8 +36,6 @@
       <!-- Increase Block size -->
       <sequenceBlockSize>200000</sequenceBlockSize>
       
-      <!-- Disable Full text at the Repository level -->
-      <!--  XXX keep enabled to work around CMIS issue -->
       <fulltext disabled="true" searchDisabled="true">
       </fulltext>
     
@@ -56,8 +54,6 @@
       <!-- Increase Block size -->
       <sequenceBlockSize>200000</sequenceBlockSize>
       
-      <!-- Disable Full text at the Repository level -->
-      <!--  XXX keep enabled to work around CMIS issue -->
       <fulltext disabled="true" searchDisabled="true">
       </fulltext>
     
@@ -76,10 +72,8 @@
       
       <!-- Increase Block size -->
       <sequenceBlockSize>200000</sequenceBlockSize>
-      
-      <!-- Disable Full text at the Repository level -->
-      <!--  XXX keep enabled to work around CMIS issue -->      
-      <fulltext disabled="false" searchDisabled="true">
+ 
+      <fulltext disabled="true" searchDisabled="true">
       </fulltext>
     
       <clustering>
