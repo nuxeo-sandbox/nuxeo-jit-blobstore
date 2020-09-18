@@ -58,10 +58,18 @@ public class StatementESDocumentWriter extends JsonESDocumentWriter {
 	
     private static final Log log = LogFactory.getLog(StatementESDocumentWriter.class);
     
+    private final HashSet<String> browsePermissions;
+    
+    public StatementESDocumentWriter() {
+    	SecurityService securityService = Framework.getService(SecurityService.class);
+		browsePermissions = new HashSet<>(Arrays.asList(securityService.getPermissionsToCheck(BROWSE)));		
+    }
+    
     protected void writeSchemas(JsonGenerator jg, DocumentModel doc, String[] schemas) throws IOException {
     	if (limitedIndexing(doc)) {
-    		 // only index the account number !!!
+    		 // only index some schemas
     		 writeProperties(jg, doc, "account", null);
+    		 writeProperties(jg, doc, "all", null); 		 
     	} else {
     		super.writeSchemas(jg, doc, schemas);
     	}
@@ -69,7 +77,7 @@ public class StatementESDocumentWriter extends JsonESDocumentWriter {
         
 	protected void writeSystemProperties(JsonGenerator jg, DocumentModel doc) throws IOException {
 		String docId = doc.getId();
-		CoreSession session = doc.getCoreSession();
+		
 		jg.writeStringField("ecm:repository", doc.getRepositoryName());
 		jg.writeStringField("ecm:uuid", docId);
 		jg.writeStringField("ecm:name", doc.getName());
@@ -114,13 +122,16 @@ public class StatementESDocumentWriter extends JsonESDocumentWriter {
 			jg.writeString(facet);
 		}
 		jg.writeEndArray();
-		TagService tagService = Framework.getService(TagService.class);
-		if (tagService != null && tagService.supportsTag(session, docId)) {
-			jg.writeArrayFieldStart("ecm:tag");
-			for (String tag : tagService.getTags(session, docId)) {
-				jg.writeString(tag);
+		if (!limitedIndexing(doc)) {
+			CoreSession session = doc.getCoreSession();
+			TagService tagService = Framework.getService(TagService.class);
+			if (tagService != null && tagService.supportsTag(session, docId)) {
+				jg.writeArrayFieldStart("ecm:tag");
+				for (String tag : tagService.getTags(session, docId)) {
+					jg.writeString(tag);
+				}
+				jg.writeEndArray();
 			}
-			jg.writeEndArray();
 		}
 		jg.writeStringField("ecm:changeToken", doc.getChangeToken());
 		Long pos = doc.getPos();
@@ -128,8 +139,6 @@ public class StatementESDocumentWriter extends JsonESDocumentWriter {
 			jg.writeNumberField("ecm:pos", pos.longValue());
 		}
 		// Add a positive ACL only
-		SecurityService securityService = Framework.getService(SecurityService.class);
-		List<String> browsePermissions = new ArrayList<>(Arrays.asList(securityService.getPermissionsToCheck(BROWSE)));
 		ACP acp = doc.getACP();
 		if (acp == null) {
 			acp = new ACPImpl();
@@ -150,12 +159,14 @@ public class StatementESDocumentWriter extends JsonESDocumentWriter {
 		}
 
 		jg.writeEndArray();
-		Map<String, String> bmap = getFullText(doc);
-		if (bmap != null && !bmap.isEmpty()) {
-			for (Map.Entry<String, String> item : bmap.entrySet()) {
-				String value = item.getValue();
-				if (value != null) {
-					jg.writeStringField("ecm:" + item.getKey(), value);
+		if (!limitedIndexing(doc)) {
+			Map<String, String> bmap = getFullText(doc);
+			if (bmap != null && !bmap.isEmpty()) {
+				for (Map.Entry<String, String> item : bmap.entrySet()) {
+					String value = item.getValue();
+					if (value != null) {
+						jg.writeStringField("ecm:" + item.getKey(), value);
+					}
 				}
 			}
 		}

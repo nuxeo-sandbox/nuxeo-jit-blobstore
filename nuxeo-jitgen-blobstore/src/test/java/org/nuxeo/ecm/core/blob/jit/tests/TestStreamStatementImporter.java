@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +38,7 @@ import org.nuxeo.elasticsearch.api.ElasticSearchAdmin;
 import org.nuxeo.elasticsearch.api.ElasticSearchIndexing;
 import org.nuxeo.elasticsearch.api.ElasticSearchService;
 import org.nuxeo.elasticsearch.commands.IndexingCommand;
+import org.nuxeo.elasticsearch.io.JsonESDocumentWriter;
 import org.nuxeo.elasticsearch.test.RepositoryElasticSearchFeature;
 import org.nuxeo.importer.stream.automation.DocumentConsumers;
 import org.nuxeo.importer.stream.jit.USStateHelper;
@@ -51,6 +53,9 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
 import org.nuxeo.runtime.test.runner.PartialDeploy;
 import org.nuxeo.runtime.test.runner.TargetExtensions;
 import org.nuxeo.runtime.transaction.TransactionHelper;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 
 @RunWith(FeaturesRunner.class)
 @Features({AutomationFeature.class, RepositoryElasticSearchFeature.class})
@@ -138,6 +143,34 @@ public class TestStreamStatementImporter {
 						
 			docs = session.query("select * from Statement order by ecm:path");
 			//dump(docs);
+			
+			
+			JsonESDocumentWriter stdWriter = new StatementESDocumentWriter();
+			JsonESDocumentWriter limitedWriter = new StatementESDocumentWriter() {			
+				@Override
+				protected boolean limitedIndexing(DocumentModel doc) {
+					return true;
+				}
+			};
+			
+			StringWriter writer = new StringWriter();
+			JsonGenerator jg = new JsonFactory().createGenerator(writer); 
+			jg.useDefaultPrettyPrinter();
+			
+			System.out.println("full ES Json");
+			stdWriter.writeESDocument(jg, docs.get(0), null, null);
+			System.out.print(writer.toString());			
+			writer.close();
+			
+			writer = new StringWriter();
+			jg = new JsonFactory().createGenerator(writer); 
+			jg.useDefaultPrettyPrinter();
+			
+			System.out.println("reduced ES Json");
+			limitedWriter.writeESDocument(jg, docs.get(0), null, null);
+			System.out.print(writer.toString());
+			writer.close();
+			
 			assertEquals(nbDocs, docs.size());
 			
 			esi.indexNonRecursive(new IndexingCommand(docs.get(0), IndexingCommand.Type.INSERT, true, false));

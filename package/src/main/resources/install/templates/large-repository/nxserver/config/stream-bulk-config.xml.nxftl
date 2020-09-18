@@ -29,7 +29,7 @@
   <extension target="org.nuxeo.runtime.stream.service" point="streamProcessor">
   
     <streamProcessor name="indexAction" class="org.nuxeo.elasticsearch.bulk.IndexAction"
-      defaultConcurrency="6" defaultPartitions="20" enabled="true" start="${startProcessor}">
+      defaultConcurrency="6" defaultPartitions="${(es.baf.index.defaultPartitions)!20}" enabled="true" start="${startProcessor}">
       <policy name="default" maxRetries="0" delay="1s" maxDelay="60s" continueOnFailure="false" />
       <!-- concurrency to build indexing requests -->
       <computation name="bulk/index" concurrency="${(es.baf.index.concurrency)!4}" />

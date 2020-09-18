@@ -20,5 +20,6 @@ org.nuxeo.core.delta.disabled=true
 elasticsearch.restClient.socketTimeoutMs=300000
 elasticsearch.restClient.connectionTimeoutMs=10000
 
-es.baf.index.concurrency=4
+es.baf.index.defaultPartitions=40
+es.baf.index.concurrency=5
 es.baf.bulkIndex.concurrency=4
