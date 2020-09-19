@@ -201,7 +201,7 @@ public class StatementESDocumentWriter extends JsonESDocumentWriter {
 		}
 	}
 	
-	protected boolean limitedIndexing(DocumentModel doc) {
-		return "archives".equalsIgnoreCase(doc.getRepositoryName());
+	protected boolean limitedIndexing(DocumentModel doc) {		
+		return "archives".equalsIgnoreCase(doc.getRepositoryName()) && "Statement".equalsIgnoreCase(doc.getType());
 	}
 }
