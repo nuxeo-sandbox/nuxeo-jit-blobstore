@@ -3,17 +3,17 @@
   <parent>
     <groupId>org.nuxeo.ecm.core</groupId>
     <artifactId>nuxeo-benchmark-10b-plugin</artifactId>
-    <version>11.2-SNAPSHOT</version>
+    <version>11.3-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>10B-benchmark-package</artifactId>
   <packaging>zip</packaging>
   <name>10 b benchmark package - 10 b benchmark package</name>
-  <version>11.2.47-SNAPSHOT</version>
+  <version>11.3.01-SNAPSHOT</version>
 
  <properties>
-	 <nuxeo.distribution.version>11.2-SNAPSHOT</nuxeo.distribution.version>
+	 <nuxeo.distribution.version>11.3-SNAPSHOT</nuxeo.distribution.version>
  </properties>
 
   <dependencies>
@@ -35,12 +35,12 @@
     <dependency>
       <groupId>org.nuxeo.ecm.core</groupId>
       <artifactId>nuxeo-jitgen-blobstore</artifactId>
-      <version>11.2-SNAPSHOT</version>
+      <version>11.3-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.nuxeo.ecm.core</groupId>
       <artifactId>nuxeo-data-generator</artifactId>
-      <version>11.2-SNAPSHOT</version>
+      <version>11.3-SNAPSHOT</version>
     </dependency>
 
  </dependencies>

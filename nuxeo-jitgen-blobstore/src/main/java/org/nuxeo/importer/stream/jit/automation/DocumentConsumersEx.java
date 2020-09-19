@@ -131,6 +131,7 @@ public class DocumentConsumersEx {
 		String bulkCommandId = null;
 		if (useScroller) {
 			bulkCommandId = startBulk();
+			log.warn("Started BulkIndex using ExternalScroller: " + bulkCommandId);
 		}
 		LogManager manager = Framework.getService(StreamService.class).getLogManager();
 		Codec<DocumentMessage> codec = StreamImporters.getDocCodec();
