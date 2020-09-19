@@ -55,3 +55,6 @@ notebooks/ToolBox/updateRetention.sh
 notebooks/11B-Steps/nuxeo.properties
 notebook.env
 
+# cli
+nuxeo-datagen-cli/dependency-reduced-pom.xml
+
