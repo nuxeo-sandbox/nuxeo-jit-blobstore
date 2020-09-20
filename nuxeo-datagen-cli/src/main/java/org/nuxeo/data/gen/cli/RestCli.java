@@ -76,6 +76,9 @@ public class RestCli {
 		options.addOption( "bulk", false, "Enable bulkmode for import");
 		options.addOption( "storeInRoot", false, "Generate DocumentMessage that will have / as parent");
 		
+		options.addOption( "useScroller", false, "Trigger Scroller for Bulk Indexing");
+		
+		
 		options.addOption( "smartPartitioning", false, "Statement messages in partitions in a way that optimize cache usage in DBS");		
 		options.addOption( "json", true, "JSON string to pass additional parameters to the server");		
 		
@@ -187,6 +190,9 @@ public class RestCli {
 				params.put("blockPostCommitListeners", true);
 			}
 			
+			if (cmd.hasOption("useScroller")) {
+				params.put("useScroller", true);
+			}				
 			
 			if (root!=null) {
 				if (!root.startsWith("/")) {

@@ -60,7 +60,7 @@ ENV PATH /nxbench:$PATH
 ENV PATH /nxbench/scripts:$PATH
 
 # add the java CLI
-COPY /nuxeo-datagen-cli/target/nuxeo-datagen-cli-11.2-SNAPSHOT.jar /nxbench/cli/.
+COPY /nuxeo-datagen-cli/target/nuxeo-datagen-cli-11.3-SNAPSHOT.jar /nxbench/cli/.
 # set the env variable used by the scripts to locate the Java CLI
 ENV CLI /nxbench/cli
 

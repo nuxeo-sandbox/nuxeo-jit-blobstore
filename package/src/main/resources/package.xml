@@ -19,6 +19,7 @@
     <platform>server-@DISTRIB_VERSION@</platform>
     <platform>server-11.1.*</platform>
     <platform>server-11.2.*</platform>
+    <platform>server-11.3.*</platform>
   </platforms>
   <!-- Dependencies on other packages -->
   <dependencies>
