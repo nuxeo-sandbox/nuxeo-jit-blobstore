@@ -1,0 +1,43 @@
+{
+  "name" : "G4PH9nZ",
+  "cluster_name" : "188670881089:es-nxbench-2826-benr",
+  "cluster_uuid" : "VkxqYf4lSLu0fU1msd7Qgw",
+  "version" : {
+    "number" : "6.5.4",
+    "build_flavor" : "oss",
+    "build_type" : "zip",
+    "build_hash" : "ad42e08",
+    "build_date" : "2020-06-18T23:56:05.513175Z",
+    "build_snapshot" : false,
+    "lucene_version" : "7.5.0",
+    "minimum_wire_compatibility_version" : "5.6.0",
+    "minimum_index_compatibility_version" : "5.0.0"
+  },
+  "tagline" : "You Know, for Search"
+}
+epoch      timestamp cluster                           status node.total node.data shards pri relo init unassign pending_tasks max_task_wait_time active_shards_percent
+1600960198 15:09:58  188670881089:es-nxbench-2826-benr green          15        12    394 242    0    0        0             0                  -                100.0%
+ip            heap.percent ram.percent cpu load_1m load_5m load_15m node.role master name
+x.x.x.x           63          98   0    0.00    0.02     0.09 di        -      UW3yTqZ
+x.x.x.x            34          98   0    0.00    0.08     0.17 di        -      6XUyTLV
+x.x.x.x             5          95   0    0.15    0.24     0.17 m         *      2uH41aE
+x.x.x.x            71          95   0    0.00    0.05     0.16 di        -      DP9w1-n
+x.x.x.x           39          95   0    0.00    0.08     0.20 di        -      G4PH9nZ
+x.x.x.x           41          96   0    0.17    0.17     0.17 di        -      8jUy_Kr
+x.x.x.x             50          98   0    0.00    0.03     0.14 di        -      cwWMIjI
+x.x.x.x           71          95   0    0.05    0.14     0.17 di        -      SvB-TY4
+x.x.x.x            5          96   0    0.00    0.04     0.07 m         -      jmDBhD9
+x.x.x.x           48          98   0    0.00    0.02     0.07 di        -      OzcDv6P
+x.x.x.x           74          96   0    0.00    0.00     0.08 di        -      ltvpFbI
+x.x.x.x            56          97   0    0.00    0.00     0.07 di        -      mrUAsod
+x.x.x.x            45          96   0    0.01    0.06     0.13 di        -      M_mhgBy
+x.x.x.x             6          95   0    0.00    0.08     0.10 m         -      jaOP5gp
+x.x.x.x           60          98   0    0.00    0.00     0.06 di        -      y4l0u2B
+health status index        uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+green  open   nuxeo-audit  gGm4wLiaQ1mDwroe_MhSWw  35   1    3601505            0        2gb            1gb
+green  open   us-west      cnMyWwwARz6pKNcr7-om9Q  35   1  801706663         6854      1.8tb        968.1gb
+green  open   .kibana_1    _2CznO6LRHCBOA_QcmUbuA   1   1          1            0      7.4kb          3.7kb
+green  open   archives     8CoDP5NPQ-qHfMRv5d_Buw 100   0 7560096887           29        3tb            3tb
+green  open   nuxeo        2NVvhrROSSOpu2EEN9qxxw  35   1        301           44      8.3mb          4.2mb
+green  open   nuxeo-uidgen 0bxocGu1SNeCJ8HqBwgE7A   1  11          1            0     31.3kb          2.6kb
+green  open   us-east      Jz3kBNZQTJyjVr9CPqUfTg  35   1  818318598         7187      1.9tb        989.4gb
