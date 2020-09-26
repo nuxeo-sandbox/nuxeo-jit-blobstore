@@ -1,0 +1,27 @@
+Using config /nxbench/notebooks/11B-Steps/nuxeo.properties
+url=http://127.0.0.1:8080/nuxeo
+login=nco-admin
+Nuxeo Client configured
+ (async mode actiavted)
+Connected to Nuxeo Server 11.3.26
+Running Operation:StreamImporter.runDocumentConsumersEx
+   nbThreads: 24 
+   blockPostCommitListeners: true 
+   logName: import/statements_live-us-east 
+   waitMessageTimeoutSeconds: 300 
+   blockDefaultSyncListeners: true 
+   blockAsyncListeners: true 
+   rootFolder: / 
+   logSize: 8 
+   blockIndexing: true 
+   batchSize: 500 
+Async Automation Execution Scheduled
+  => status url:[http://127.0.0.1:8080/nuxeo/site/api/v1/automation/StreamImporter.runDocumentConsumersEx/@async/edd79834-bb2a-44d5-a136-1acea1012f6e/status]
+#####################
+Execution completed
+
+waiting for end of Async Exec
+url=http://127.0.0.1:8080/nuxeo
+login=nco-admin
+Nuxeo Client configured
+...........................................................................................................................................................................................................................................
