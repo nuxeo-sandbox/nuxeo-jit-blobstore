@@ -12,5 +12,7 @@ else
       BASEDIR=$CLI
 fi
 
-java -Xms1G -Xmx2G  -cp $BASEDIR/nuxeo-datagen-cli-11.2-SNAPSHOT.jar org.nuxeo.data.gen.cli.CSVRestImporter $@                      
+JAR=$(ls -1 $BASEDIR/nuxeo-datagen-cli*.jar | tail -1)
+
+java -Xms1G -Xmx2G  -cp $JAR org.nuxeo.data.gen.cli.CSVRestImporter $@                      
 

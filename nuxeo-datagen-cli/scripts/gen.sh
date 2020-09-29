@@ -13,7 +13,8 @@ else
       BASEDIR=$CLI
 fi
 
+JAR=$(ls -1 $BASEDIR/nuxeo-datagen-cli*.jar | tail -1)
 
-java -Xms1G -Xmx2G  -jar $BASEDIR/nuxeo-datagen-cli-11.2-SNAPSHOT.jar $@ 
+java -Xms1G -Xmx2G  -jar $JAR $@ 
 
 
