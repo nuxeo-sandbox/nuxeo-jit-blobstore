@@ -69,7 +69,7 @@
 
     <!-- Audit processor -->
     <streamProcessor name="auditLogWriter"
-                     defaultConcurrency="1" defaultPartitions="1" logConfig="audit"
+                     defaultConcurrency="4" defaultPartitions="4" logConfig="audit"
                      class="org.nuxeo.ecm.platform.audit.impl.StreamAuditWriter"
                      start="${startProcessor}">
       <policy name="AuditLogWriter" batchCapacity="${nuxeo.stream.audit.batch.size}"
