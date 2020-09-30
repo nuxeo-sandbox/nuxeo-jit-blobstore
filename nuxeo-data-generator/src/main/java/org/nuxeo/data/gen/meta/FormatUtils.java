@@ -44,7 +44,7 @@ public class FormatUtils {
 		int m = dm - dy * 12;
 		// don't use the first day of the month otherwise TestStreamStatementProducer.canCreateTimeHierarchyMessages is
 		// failing due to the bad formatting of 1st Jan 2017 CET to 2016 / January-2016
-		return new GregorianCalendar(START_YEAR - dy, m, 02).getTime();
+		return new GregorianCalendar(START_YEAR - dy, m, 01).getTime();
 	}
 
 }
